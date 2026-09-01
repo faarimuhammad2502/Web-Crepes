@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog & Pemesanan Crepes Lezat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        
+        @keyframes slideInRight {
+            0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+            60% { transform: translateX(-8px) scale(1.02); opacity: 1; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            to { transform: translateX(120%) scale(0.9); opacity: 0; }
+        }
+        .toast-enter { animation: slideInRight 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-exit { animation: slideOutRight 0.25s ease-in forwards; }
+    </style>
+</head>
+<body class="bg-purple-50 text-gray-800">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-base sm:text-lg font-bold text-purple-700 truncate">🥞 [Nama Brand Crepes]</h1>
+            <div class="flex items-center space-x-2">
+                <span id="store-status-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full hidden sm:inline-block">Memeriksa toko...</span>
+                <button onclick="toggleCartModal()" class="bg-purple-100 text-purple-700 px-3.5 py-2 rounded-full text-xs sm:text-sm font-semibold hover:bg-purple-200 transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+                    🛒 Keranjang <span id="cart-count" class="bg-purple-600 text-white text-[11px] px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="max-w-6xl mx-auto px-4 py-8 text-center">
+        <span class="bg-purple-200 text-purple-800 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Renyah & Manis di Setiap Gigitan</span>
+        <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes Favoritmu</h2>
+        <p class="text-gray-600 max-w-xl mx-auto text-xs sm:text-sm mb-5">Pesan langsung melalui WhatsApp dengan mudah, cepat, dan praktis!</p>
+        
+        <div class="max-w-md mx-auto px-2">
+            <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Cari menu crepes kesukaanmu..." class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-purple-200 rounded-2xl shadow-sm focus:outline-none focus:border-purple-600">
+        </div>
+    </header>
+
+    <main id="menu" class="max-w-6xl mx-auto px-4 pb-16">
+        
+        <div class="flex justify-center gap-2 mb-6 flex-wrap">
+            <button onclick="filterCategory('all')" id="btn-all" class="px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer">Semua Menu</button>
+            <button onclick="filterCategory('sweet')" id="btn-sweet" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer">🍫 Manis</button>
+            <button onclick="filterCategory('savory')" id="btn-savory" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer">🧀 Asin & Gurih</button>
+        </div>
+
+        <h3 class="text-xl sm:text-2xl font-bold text-purple-900 mb-5">🥞 Pilih Menu Crepes</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10" id="product-grid"></div>
+
+    </main>
+
+    <div id="product-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
+
+            <div id="modal-product-info" class="mb-4 border-b pb-3">
+                <h3 id="modal-product-name" class="text-lg sm:text-xl font-bold text-purple-900">Nama Menu</h3>
+                <p id="modal-product-desc" class="text-xs text-gray-500 mt-1">Deskripsi menu...</p>
+                <p id="modal-product-price" class="text-sm sm:text-base font-bold text-purple-700 mt-2">Rp 0</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-purple-900 mb-2">✨ Tambah Ekstra Topping (Opsional):</label>
+                <div id="modal-topping-list" class="space-y-2"></div>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Catatan Khusus (Opsional):</label>
+                <input type="text" id="modal-item-note" placeholder="Contoh: Jangan terlalu garing" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 bg-gray-50">
+            </div>
+
+            <input type="hidden" id="modal-product-id">
+
+            <button onclick="confirmAddToCart()" class="w-full bg-purple-600 text-white py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                🛒 Masukkan ke Keranjang
+            </button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleCartModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
+
+            <h3 class="text-lg sm:text-xl font-bold text-purple-900 mb-4 border-b pb-3">Ringkasan Pesanan Anda</h3>
+            
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Anda:</label>
+                <input type="text" id="customer-name" placeholder="Contoh: Faari" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Metode Pembayaran:</label>
+                <select id="payment-method" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 bg-white">
+                    <option value="Tunai">💵 Tunai (Cash)</option>
+                    <option value="QRIS">📱 QRIS</option>
+                    <option value="Transfer">💳 Transfer (TF)</option>
+                </select>
+            </div>
+
+            <div id="cart-items" class="space-y-3 mb-4 text-xs sm:text-sm text-gray-700 max-h-48 overflow-y-auto divide-y divide-gray-100 pr-1">
+                <p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>
+            </div>
+
+            <div class="border-t border-gray-200 pt-3 mb-5 flex justify-between items-center font-bold text-sm sm:text-base text-purple-900">
+                <span>Total Pembayaran:</span>
+                <span id="cart-total">Rp 0</span>
+            </div>
+
+            <button id="checkout-btn" onclick="checkoutWhatsApp()" class="w-full bg-green-600 text-white py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                📱 Pesan Sekarang via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <section class="bg-gray-900 text-gray-100 py-10 border-t-4 border-purple-600">
+        <div class="max-w-4xl mx-auto px-4">
+            
+            <div id="seller-login-box" class="max-w-md mx-auto bg-gray-800 p-5 sm:p-6 rounded-2xl border border-gray-700 text-center">
+                <span class="bg-purple-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Area Khusus Penjual</span>
+                <h3 class="text-base sm:text-lg font-bold mt-3 mb-1">Masukkan PIN Penjual</h3>
+                <p class="text-xs text-gray-400 mb-4">Masukkan PIN rahasia untuk melihat omzet & laporan penjualan.</p>
+                <div class="flex gap-2">
+                    <input type="password" id="seller-pin" placeholder="PIN (Default: 1234)" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500">
+                    <button onclick="verifyPin()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap cursor-pointer">
+                        Buka
+                    </button>
+                </div>
+            </div>
+
+            <div id="seller-dashboard" class="hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                    <div>
+                        <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Diizinkan</span>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard & Rekap Penjualan</h3>
+                    </div>
+                    <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">
+                        🔒 Kunci Dashboard
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400">Total Pendapatan (Omzet)</p>
+                        <h4 class="text-lg sm:text-xl font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400">Total Pesanan Masuk</p>
+                        <h4 class="text-lg sm:text-xl font-bold text-green-400 mt-1" id="total-items-sold">0 Transaksi</h4>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
+                        <p class="text-[10px] sm:text-[11px] text-gray-400">💵 Tunai</p>
+                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-tunai">0 (Rp 0)</h5>
+                    </div>
+                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
+                        <p class="text-[10px] sm:text-[11px] text-gray-400">📱 QRIS</p>
+                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-qris">0 (Rp 0)</h5>
+                    </div>
+                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
+                        <p class="text-[10px] sm:text-[11px] text-gray-400">💳 Transfer</p>
+                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-transfer">0 (Rp 0)</h5>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 text-xs">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="bg-gray-700 text-gray-300 border-b border-gray-600">
+                                    <th class="p-3">Waktu</th>
+                                    <th class="p-3">Nama Pemesan</th>
+                                    <th class="p-3">Detail Pesanan & Catatan</th>
+                                    <th class="p-3">Pembayaran</th>
+                                    <th class="p-3 text-right">Total (Rp)</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body" class="divide-y divide-gray-700">
+                                <tr>
+                                    <td colspan="6" class="p-4 text-center text-gray-500 italic">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="bg-purple-950 text-purple-200 py-6 text-center text-xs">
+        <p>&copy; 2026 [Nama Brand Crepes]. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
+
+        const products = [
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih." },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, desc: "Saus matcha premium dengan topping kacang almond." },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju." },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial." },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer." }
+        ];
+
+        const toppings = [
+            { id: 't1', name: 'Extra Keju Parut', price: 3000 },
+            { id: 't2', name: 'Extra Cokelat Lumer', price: 3000 },
+            { id: 't3', name: 'Extra Kacang Almond', price: 5000 },
+            { id: 't4', name: 'Extra Sosis / Smoked Beef', price: 6000 },
+            { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000 }
+        ];
+
+        const SELLER_PIN = "1234";
+        let cart = [];
+        let grandTotal = 0;
+        let currentFilter = 'all';
+        let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
+
+        function formatRupiah(angka) {
+            return Number(angka).toLocaleString('id-ID');
+        }
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            let config = {
+                success: { bg: 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-400/30', icon: '🎉', title: 'Berhasil!' },
+                error: { bg: 'bg-gradient-to-r from-rose-600 to-red-600 text-white border-rose-400/30', icon: '⚠️', title: 'Perhatian!' },
+                info: { bg: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400/30', icon: '✨', title: 'Informasi' }
+            };
+            let current = config[type] || config.success;
+
+            toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl shadow-2xl border backdrop-blur-md text-xs font-medium toast-enter ${current.bg}`;
+            toast.innerHTML = `
+                <span class="text-base mt-0.5">${current.icon}</span>
+                <div class="flex-1">
+                    <p class="font-bold text-sm leading-tight">${current.title}</p>
+                    <p class="text-white/90 mt-0.5 leading-relaxed">${message}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white font-bold text-sm ml-2 cursor-pointer">✕</button>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.remove('toast-enter');
+                    toast.classList.add('toast-exit');
+                    setTimeout(() => toast.remove(), 250);
+                }
+            }, 3500);
+        }
+
+        function checkStoreStatus() {
+            const currentHour = new Date().getHours();
+            const badge = document.getElementById('store-status-badge');
+            const isBuka = currentHour >= 8 && currentHour < 22; 
+            if (isBuka) {
+                badge.innerText = "🟢 Buka";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 hidden sm:inline-block";
+            } else {
+                badge.innerText = "🔴 Tutup";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
+            }
+        }
+
+        function toggleCartModal() {
+            document.getElementById('cart-modal').classList.toggle('hidden');
+        }
+
+        function toggleProductModal() {
+            document.getElementById('product-modal').classList.toggle('hidden');
+        }
+
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            document.getElementById('modal-product-id').value = product.id;
+            document.getElementById('modal-product-name').innerText = product.name;
+            document.getElementById('modal-product-desc').innerText = product.desc;
+            document.getElementById('modal-product-price').innerText = `Rp ${formatRupiah(product.price)}`;
+            document.getElementById('modal-item-note').value = '';
+
+            const modalToppingList = document.getElementById('modal-topping-list');
+            modalToppingList.innerHTML = '';
+            toppings.forEach(t => {
+                modalToppingList.innerHTML += `
+                    <label class="flex items-center justify-between p-2.5 rounded-xl border border-purple-100 bg-purple-50/50 cursor-pointer hover:bg-purple-50 transition">
+                        <div class="flex items-center">
+                            <input type="checkbox" value="${t.id}" data-name="${t.name}" data-price="${t.price}" class="modal-topping-checkbox rounded text-purple-600 focus:ring-purple-500 mr-2.5 w-4 h-4">
+                            <span class="text-xs font-semibold text-gray-800">${t.name}</span>
+                        </div>
+                        <span class="text-xs font-bold text-purple-700">+Rp ${formatRupiah(t.price)}</span>
+                    </label>
+                `;
+            });
+
+            toggleProductModal();
+        }
+
+        function confirmAddToCart() {
+            const productId = parseInt(document.getElementById('modal-product-id').value);
+            const product = products.find(p => p.id === productId);
+            const note = document.getElementById('modal-item-note').value.trim();
+            const checkboxes = document.querySelectorAll('.modal-topping-checkbox:checked');
+            
+            let selectedToppings = [];
+            let toppingPriceTotal = 0;
+
+            checkboxes.forEach(cb => {
+                selectedToppings.push({
+                    name: cb.dataset.name,
+                    price: parseInt(cb.dataset.price)
+                });
+                toppingPriceTotal += parseInt(cb.dataset.price);
+            });
+
+            let finalPrice = product.price + toppingPriceTotal;
+            let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
+            let cartItemId = `${productId}-${toppingKey}-${note}`;
+
+            const existingItem = cart.find(item => item.cartItemId === cartItemId);
+            if (existingItem) {
+                existingItem.qty += 1;
+            } else {
+                cart.push({
+                    cartItemId: cartItemId,
+                    name: product.name,
+                    toppings: selectedToppings,
+                    price: finalPrice,
+                    qty: 1,
+                    note: note
+                });
+            }
+
+            toggleProductModal();
+            updateCartUI();
+            showNotification(`"${product.name}" berhasil dimasukkan ke keranjang!`, 'success');
+        }
+
+        async function fetchSalesData() {
+            try {
+                let response = await fetch(SHEETDB_API_URL);
+                let data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    salesHistory = data.map(item => {
+                        let rawDetails = item["Detail Pesanan"] || item["detail pesanan"] || "";
+                        let rawTotal = item["Total Harga"] || item["total harga"] || "0";
+                        let cleanTotal = parseInt(String(rawTotal).replace(/[^0-9]/g, '')) || 0;
+                        let payment = item["Metode Pembayaran"] || item["metode pembayaran"] || "Tunai";
+
+                        let formattedDetails = "";
+                        if (rawDetails && String(rawDetails).trim() !== "") {
+                            if (rawDetails.includes(';')) {
+                                formattedDetails = rawDetails.split(';').map(s => "• " + s.trim()).join('\n');
+                            } else {
+                                formattedDetails = rawDetails.startsWith('•') ? rawDetails : "• " + rawDetails;
+                            }
+                        } else {
+                            formattedDetails = "• (Baris kosong / Tidak ada detail)";
+                        }
+
+                        return {
+                            time: item.Waktu || item.waktu || "",
+                            customer: item["Nama Pemesan"] || item["nama pemesan"] || "Pelanggan",
+                            details: formattedDetails,
+                            payment: payment,
+                            total: cleanTotal
+                        };
+                    });
+                    localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+                }
+                renderSalesTable();
+            } catch (error) {
+                console.error("Menggunakan data cadangan lokal:", error);
+                renderSalesTable();
+            }
+        }
+
+        async function verifyPin() {
+            const enteredPin = document.getElementById('seller-pin').value;
+            if (enteredPin === SELLER_PIN) {
+                document.getElementById('seller-login-box').classList.add('hidden');
+                document.getElementById('seller-dashboard').classList.remove('hidden');
+                showNotification("Akses Diterima! Data rekap berhasil dimuat.", "success");
+                await fetchSalesData();
+            } else {
+                showNotification("PIN salah! Silakan coba masukkan kembali.", "error");
+                document.getElementById('seller-pin').value = '';
+            }
+        }
+
+        function lockDashboard() {
+            document.getElementById('seller-dashboard').classList.add('hidden');
+            document.getElementById('seller-login-box').classList.remove('hidden');
+            document.getElementById('seller-pin').value = '';
+            showNotification("Dashboard berhasil dikunci kembali.", "info");
+        }
+
+        function filterCategory(category) {
+            currentFilter = category;
+            document.getElementById('btn-all').className = category === 'all' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer";
+            document.getElementById('btn-sweet').className = category === 'sweet' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer";
+            document.getElementById('btn-savory').className = category === 'savory' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer";
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const productGrid = document.getElementById('product-grid');
+            const keyword = document.getElementById('search-input').value.toLowerCase();
+            productGrid.innerHTML = '';
+
+            const filteredProducts = products.filter(p => {
+                const matchCategory = (currentFilter === 'all' || p.category === currentFilter);
+                const matchKeyword = p.name.toLowerCase().includes(keyword) || p.desc.toLowerCase().includes(keyword);
+                return matchCategory && matchKeyword;
+            });
+
+            if (filteredProducts.length === 0) {
+                productGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic text-xs">Menu tidak ditemukan...</div>`;
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                productGrid.innerHTML += `
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-purple-100 flex flex-col justify-between">
+                        <div>
+                            <div class="w-full h-36 bg-purple-100 flex items-center justify-center text-purple-400 text-xs font-semibold">🥞 [Gambar Crepes]</div>
+                            <div class="p-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${product.category === 'sweet' ? 'bg-pink-100 text-pink-700' : 'bg-amber-100 text-amber-700'}">${product.category === 'sweet' ? 'Manis' : 'Asin / Gurih'}</span>
+                                <h4 class="font-bold text-sm sm:text-base text-purple-900 mt-1.5">${product.name}</h4>
+                                <p class="text-xs text-gray-500 mt-1">${product.desc}</p>
+                            </div>
+                        </div>
+                        <div class="p-4 pt-0 flex justify-between items-center">
+                            <span class="font-bold text-purple-700 text-sm sm:text-base">Rp ${formatRupiah(product.price)}</span>
+                            <button onclick="openProductModal(${product.id})" class="bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-purple-700 transition shadow-sm cursor-pointer">
+                                + Pilih Menu
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterProducts() {
+            renderProducts();
+        }
+
+        function updateCartUI() {
+            const cartItemsEl = document.getElementById('cart-items');
+            const cartTotalEl = document.getElementById('cart-total');
+            const cartCountEl = document.getElementById('cart-count');
+
+            cartItemsEl.innerHTML = '';
+            grandTotal = 0;
+            let totalCount = 0;
+
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
+            } else {
+                cart.forEach((item, index) => {
+                    let subtotal = item.price * item.qty;
+                    grandTotal += subtotal;
+                    totalCount += item.qty;
+
+                    let toppingText = item.toppings.length > 0 ? `<br><span class="text-[11px] text-purple-600 font-medium">Topping: ${item.toppings.map(t => t.name).join(', ')}</span>` : '';
+                    let noteText = item.note ? `<br><span class="text-[11px] text-gray-500 italic">Catatan: "${item.note}"</span>` : '';
+
+                    cartItemsEl.innerHTML += `
+                        <div class="pt-3 first:pt-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-semibold text-gray-800">${item.name}</p>
+                                    <p class="text-xs text-gray-500">${item.qty} x Rp ${formatRupiah(item.price)}</p>
+                                    ${toppingText}
+                                    ${noteText}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-purple-900">Rp ${formatRupiah(subtotal)}</span>
+                                    <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700 font-bold text-base px-1 cursor-pointer">×</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartTotalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
+            cartCountEl.innerText = totalCount;
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+            showNotification("Menu berhasil dihapus dari keranjang.", "info");
+        }
+
+        async function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                showNotification("Keranjang belanja masih kosong, pilih menu dulu ya!", "error");
+                return;
+            }
+
+            let customerName = document.getElementById('customer-name').value.trim();
+            if (customerName === "") {
+                showNotification("Mohon isi nama pemesan terlebih dahulu!", "error");
+                document.getElementById('customer-name').focus();
+                return;
+            }
+
+            let paymentMethod = document.getElementById('payment-method').value;
+
+            let orderSummaryText = [];
+            let waMessageText = `Halo Kak, saya ingin memesan crepes:\n\n*Nama Pemesan:* ${customerName}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
+            
+            cart.forEach((item, index) => {
+                let subtotal = item.price * item.qty;
+                let toppingStr = item.toppings.length > 0 ? ` (+ ${item.toppings.map(t => t.name).join(', ')})` : '';
+                let noteStr = item.note ? ` [Catatan: ${item.note}]` : '';
+                let itemDesc = `${item.name}${toppingStr}${noteStr} (${item.qty}x)`;
+                
+                orderSummaryText.push(itemDesc);
+                waMessageText += `${index + 1}. ${itemDesc} = Rp ${formatRupiah(subtotal)}\n`;
+            });
+            waMessageText += `\n*Total Pembayaran: Rp ${formatRupiah(grandTotal)}*\n\nMohon segera diproses ya Kak, terima kasih!`;
+
+            const detailString = orderSummaryText.join('; ');
+
+            const newSale = {
+                Waktu: new Date().toLocaleString('id-ID'),
+                "Nama Pemesan": customerName,
+                "Detail Pesanan": detailString,
+                "Total Harga": grandTotal,
+                "Metode Pembayaran": paymentMethod
+            };
+
+            salesHistory.push({
+                time: newSale.Waktu,
+                customer: newSale["Nama Pemesan"],
+                details: orderSummaryText.map(s => "• " + s).join('\n'),
+                payment: paymentMethod,
+                total: grandTotal
+            });
+            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+
+            try {
+                await fetch(SHEETDB_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: [newSale] })
+                });
+            } catch (e) {
+                console.error("Kirim online tertunda:", e);
+            }
+
+            let phone = "6281294430304"; 
+            let url = `https://wa.me/${phone}?text=${encodeURIComponent(waMessageText)}`;
+            window.open(url, '_blank');
+
+            cart = [];
+            document.getElementById('customer-name').value = '';
+            updateCartUI();
+            toggleCartModal();
+            showNotification("Pesanan berhasil dikirim ke WhatsApp & tercatat otomatis!", "success");
+        }
+
+        function renderSalesTable() {
+            const tableBody = document.getElementById('sales-table-body');
+            const totalRevenueEl = document.getElementById('total-revenue');
+            const totalItemsSoldEl = document.getElementById('total-items-sold');
+            
+            const statTunaiEl = document.getElementById('stat-tunai');
+            const statQrisEl = document.getElementById('stat-qris');
+            const statTransferEl = document.getElementById('stat-transfer');
+            
+            tableBody.innerHTML = '';
+
+            if (salesHistory.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 italic">Belum ada riwayat pesanan masuk</td></tr>`;
+                totalRevenueEl.innerText = "Rp 0";
+                totalItemsSoldEl.innerText = "0 Transaksi";
+                statTunaiEl.innerText = "0 (Rp 0)";
+                statQrisEl.innerText = "0 (Rp 0)";
+                statTransferEl.innerText = "0 (Rp 0)";
+                return;
+            }
+
+            let revenue = 0;
+            let countTunai = 0, revTunai = 0;
+            let countQris = 0, revQris = 0;
+            let countTransfer = 0, revTransfer = 0;
+
+            salesHistory.forEach((sale, index) => {
+                revenue += sale.total;
+                
+                if (sale.payment === 'Tunai') {
+                    countTunai++;
+                    revTunai += sale.total;
+                } else if (sale.payment === 'QRIS') {
+                    countQris++;
+                    revQris += sale.total;
+                } else if (sale.payment === 'Transfer') {
+                    countTransfer++;
+                    revTransfer += sale.total;
+                }
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-gray-700/50 transition">
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${sale.time}</td>
+                        <td class="p-3 font-semibold text-white">${sale.customer}</td>
+                        <td class="p-3 text-gray-300 whitespace-pre-line">${sale.details}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sale.payment === 'Tunai' ? 'bg-green-900 text-green-200' : sale.payment === 'QRIS' ? 'bg-blue-900 text-blue-200' : 'bg-amber-900 text-amber-200'}">${sale.payment}</span></td>
+                        <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(sale.total)}</td>
+                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
+                            <button onclick="copyOrderText('${sale.customer}', '${sale.details.replace(/'/g, "\\'")}', '${sale.total}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded-lg text-[10px] transition cursor-pointer">Salin</button>
+                            <button onclick="deleteSale(${index})" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-lg text-[10px] transition cursor-pointer">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            totalRevenueEl.innerText = `Rp ${formatRupiah(revenue)}`;
+            totalItemsSoldEl.innerText = `${salesHistory.length} Transaksi`;
+
+            statTunaiEl.innerText = `${countTunai} (Rp ${formatRupiah(revTunai)})`;
+            statQrisEl.innerText = `${countQris} (Rp ${formatRupiah(revQris)})`;
+            statTransferEl.innerText = `${countTransfer} (Rp ${formatRupiah(revTransfer)})`;
+        }
+
+        function deleteSale(index) {
+            if (confirm("Apakah Anda yakin ingin menghapus riwayat pesanan ini?")) {
+                salesHistory.splice(index, 1);
+                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+                renderSalesTable();
+                showNotification("Riwayat pesanan berhasil dihapus dari dashboard.", "info");
+            }
+        }
+
+        function copyOrderText(customer, details, total) {
+            let textToCopy = `Pemesan: ${customer}\nPesanan: ${details}\nTotal: Rp ${formatRupiah(total)}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showNotification("Detail pesanan berhasil disalin ke clipboard!", "success");
+            });
+        }
+
+        checkStoreStatus();
+        renderProducts();
+    </script>
+
+</body>
+</html>
