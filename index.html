@@ -22,7 +22,6 @@
         .toast-enter { animation: slideInRight 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .toast-exit { animation: slideOutRight 0.25s ease-in forwards; }
 
-        /* Style khusus untuk cetak struk kasir mini thermal */
         @media print {
             body * { visibility: hidden; }
             #receipt-print-area, #receipt-print-area * { visibility: visible; }
@@ -45,7 +44,7 @@
     <!-- CONTAINER NOTIFIKASI DI POJOK KANAN ATAS -->
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
 
-    <!-- AREA CETAK STRUK TERMAL (HIDDEN KECUALI SAAT PRINT) -->
+    <!-- AREA CETAK STRUK TERMAL -->
     <div id="receipt-print-area" class="hidden"></div>
 
     <!-- NAVBAR -->
@@ -149,27 +148,61 @@
                 <input type="text" id="customer-name" placeholder="Contoh: Faari" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600">
             </div>
 
-            <div class="mb-4">
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Metode Pembayaran:</label>
-                <select id="payment-method" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 bg-white">
-                    <option value="Tunai">💵 Tunai (Cash)</option>
-                    <option value="QRIS">📱 QRIS</option>
-                    <option value="Transfer">💳 Transfer (TF)</option>
-                </select>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Jenis Layanan:</label>
+                    <select id="service-type" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl bg-white focus:outline-none focus:border-purple-600">
+                        <option value="Bungkus (Takeaway)">🛍️ Bungkus</option>
+                        <option value="Makan di Tempat">🍽️ Dine-in</option>
+                        <option value="Diantar">🛵 Diantar</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Pembayaran:</label>
+                    <select id="payment-method" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl bg-white focus:outline-none focus:border-purple-600">
+                        <option value="Tunai">💵 Tunai</option>
+                        <option value="QRIS">📱 QRIS</option>
+                        <option value="Transfer">💳 Transfer</option>
+                    </select>
+                </div>
             </div>
 
-            <div id="cart-items" class="space-y-3 mb-4 text-xs sm:text-sm text-gray-700 max-h-48 overflow-y-auto divide-y divide-gray-100 pr-1">
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor Meja / Alamat Pengantaran:</label>
+                <input type="text" id="delivery-address" placeholder="Contoh: Meja No. 5 / Kelas 12 IPA" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600">
+            </div>
+
+            <!-- Kode Kupon Promo -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Punya Kode Kupon Promo?</label>
+                <div class="flex gap-2">
+                    <input type="text" id="promo-code" placeholder="Coba: HEMAT5RB" class="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-xl uppercase focus:outline-none focus:border-purple-600">
+                    <button onclick="applyPromo()" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">Pakai</button>
+                </div>
+            </div>
+
+            <div id="cart-items" class="space-y-3 mb-4 text-xs sm:text-sm text-gray-700 max-h-40 overflow-y-auto divide-y divide-gray-100 pr-1">
                 <p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>
             </div>
 
             <!-- Estimasi Waktu Tunggu -->
-            <div id="eta-box" class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4 text-xs text-purple-900 hidden flex items-center gap-2">
-                <span>⏱️</span> <span>Estimasi pesanan siap dalam <strong id="eta-time">15</strong> menit ke depan.</span>
+            <div id="eta-box" class="bg-purple-50 border border-purple-200 rounded-xl p-2.5 mb-3 text-xs text-purple-900 hidden flex items-center gap-2">
+                <span>⏱️</span> <span>Estimasi siap dalam <strong id="eta-time">15</strong> menit.</span>
             </div>
 
-            <div class="border-t border-gray-200 pt-3 mb-5 flex justify-between items-center font-bold text-sm sm:text-base text-purple-900">
-                <span>Total Pembayaran:</span>
-                <span id="cart-total">Rp 0</span>
+            <div class="border-t border-gray-200 pt-3 mb-4 space-y-1 text-xs sm:text-sm">
+                <div class="flex justify-between text-gray-600">
+                    <span>Subtotal:</span>
+                    <span id="sub-total">Rp 0</span>
+                </div>
+                <div id="discount-row" class="flex justify-between text-emerald-600 hidden">
+                    <span>Diskon Promo:</span>
+                    <span id="discount-amount">- Rp 0</span>
+                </div>
+                <div class="flex justify-between font-bold text-base text-purple-900 pt-1 border-t">
+                    <span>Total Pembayaran:</span>
+                    <span id="cart-total">Rp 0</span>
+                </div>
             </div>
 
             <button id="checkout-btn" onclick="checkoutWhatsApp()" class="w-full bg-green-600 text-white py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
@@ -202,7 +235,7 @@
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">
-                            📥 Unduh Laporan (CSV)
+                            📥 Unduh CSV
                         </button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">
                             🔒 Kunci
@@ -222,22 +255,6 @@
                     </div>
                 </div>
 
-                <!-- RINGKASAN METODE PEMBAYARAN -->
-                <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
-                        <p class="text-[10px] sm:text-[11px] text-gray-400">💵 Tunai</p>
-                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-tunai">0 (Rp 0)</h5>
-                    </div>
-                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
-                        <p class="text-[10px] sm:text-[11px] text-gray-400">📱 QRIS</p>
-                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-qris">0 (Rp 0)</h5>
-                    </div>
-                    <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
-                        <p class="text-[10px] sm:text-[11px] text-gray-400">💳 Transfer</p>
-                        <h5 class="text-xs sm:text-sm font-bold text-white mt-1" id="stat-transfer">0 (Rp 0)</h5>
-                    </div>
-                </div>
-
                 <!-- TABEL LAPORAN -->
                 <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 text-xs">
                     <div class="overflow-x-auto">
@@ -245,8 +262,8 @@
                             <thead>
                                 <tr class="bg-gray-700 text-gray-300 border-b border-gray-600">
                                     <th class="p-3">Waktu</th>
-                                    <th class="p-3">Nama Pemesan</th>
-                                    <th class="p-3">Detail Pesanan & Catatan</th>
+                                    <th class="p-3">Pemesan & Layanan</th>
+                                    <th class="p-3">Detail Pesanan</th>
                                     <th class="p-3">Status Dapur</th>
                                     <th class="p-3">Pembayaran</th>
                                     <th class="p-3 text-right">Total (Rp)</th>
@@ -293,12 +310,31 @@
 
         const SELLER_PIN = "1234";
         let cart = [];
-        let grandTotal = 0;
+        let grandTotal = 0, subTotal = 0, discountAmount = 0;
+        let appliedDiscount = 0;
         let currentFilter = 'all';
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
 
         function formatRupiah(angka) {
             return Number(angka).toLocaleString('id-ID');
+        }
+
+        // Efek Suara Beep Dapur Menggunakan Audio API Browser
+        function playKitchenSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Nada A5
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {
+                console.log("Audio didukung setelah interaksi pengguna.");
+            }
         }
 
         function showNotification(message, type = 'success') {
@@ -444,6 +480,22 @@
             showNotification(`"${product.name}" berhasil dimasukkan ke keranjang!`, 'success');
         }
 
+        // Fitur Kupon Diskon Promo
+        function applyPromo() {
+            const code = document.getElementById('promo-code').value.trim().toUpperCase();
+            if (code === "HEMAT5RB") {
+                appliedDiscount = 5000;
+                showNotification("Kupon HEMAT5RB berhasil digunakan! Potongan Rp 5.000", "success");
+            } else if (code === "CREPESKILAT") {
+                appliedDiscount = Math.round(subTotal * 0.1); // Diskon 10%
+                showNotification("Kupon CREPESKILAT berhasil digunakan! Potongan 10%", "success");
+            } else {
+                appliedDiscount = 0;
+                showNotification("Kode kupon tidak valid atau sudah kedaluwarsa.", "error");
+            }
+            updateCartUI();
+        }
+
         async function fetchSalesData() {
             try {
                 let response = await fetch(SHEETDB_API_URL);
@@ -569,22 +621,26 @@
 
         function updateCartUI() {
             const cartItemsEl = document.getElementById('cart-items');
+            const subTotalEl = document.getElementById('sub-total');
+            const discountRow = document.getElementById('discount-row');
+            const discountAmountEl = document.getElementById('discount-amount');
             const cartTotalEl = document.getElementById('cart-total');
             const cartCountEl = document.getElementById('cart-count');
             const etaBox = document.getElementById('eta-box');
             const etaTime = document.getElementById('eta-time');
 
             cartItemsEl.innerHTML = '';
-            grandTotal = 0;
+            subTotal = 0;
             let totalCount = 0;
 
             if (cart.length === 0) {
                 cartItemsEl.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
                 etaBox.classList.add('hidden');
+                appliedDiscount = 0;
             } else {
                 cart.forEach((item, index) => {
-                    let subtotal = item.price * item.qty;
-                    grandTotal += subtotal;
+                    let itemSub = item.price * item.qty;
+                    subTotal += itemSub;
                     totalCount += item.qty;
 
                     let crispText = `<span class="text-[11px] font-semibold text-purple-700">[Tekstur: ${item.crispiness}]</span>`;
@@ -601,7 +657,7 @@
                                     ${noteText}
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-purple-900">Rp ${formatRupiah(subtotal)}</span>
+                                    <span class="font-semibold text-purple-900">Rp ${formatRupiah(itemSub)}</span>
                                     <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700 font-bold text-base px-1 cursor-pointer">×</button>
                                 </div>
                             </div>
@@ -612,6 +668,17 @@
                 let calculatedEta = totalCount * 5 + 10;
                 etaTime.innerText = calculatedEta;
                 etaBox.classList.remove('hidden');
+            }
+
+            if (appliedDiscount > subTotal) appliedDiscount = subTotal;
+            grandTotal = subTotal - appliedDiscount;
+
+            subTotalEl.innerText = `Rp ${formatRupiah(subTotal)}`;
+            if (appliedDiscount > 0) {
+                discountRow.classList.remove('hidden');
+                discountAmountEl.innerText = `- Rp ${formatRupiah(appliedDiscount)}`;
+            } else {
+                discountRow.classList.add('hidden');
             }
 
             cartTotalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
@@ -643,10 +710,12 @@
                 return;
             }
 
+            let serviceType = document.getElementById('service-type').value;
             let paymentMethod = document.getElementById('payment-method').value;
+            let deliveryAddress = document.getElementById('delivery-address').value.trim();
 
             let orderSummaryText = [];
-            let waMessageText = `Halo Kak, saya ingin memesan crepes:\n\n*Nama Pemesan:* ${customerName}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
+            let waMessageText = `Halo Kak, saya ingin memesan crepes:\n\n*Nama Pemesan:* ${customerName}\n*Layanan:* ${serviceType}${deliveryAddress ? ' (' + deliveryAddress + ')' : ''}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
             
             cart.forEach((item, index) => {
                 let subtotal = item.price * item.qty;
@@ -658,13 +727,17 @@
                 orderSummaryText.push(itemDesc);
                 waMessageText += `${index + 1}. ${itemDesc} = Rp ${formatRupiah(subtotal)}\n`;
             });
+
+            if (appliedDiscount > 0) {
+                waMessageText += `\n*Diskon Promo:* -Rp ${formatRupiah(appliedDiscount)}\n`;
+            }
             waMessageText += `\n*Total Pembayaran: Rp ${formatRupiah(grandTotal)}*\n\nMohon segera diproses ya Kak, terima kasih!`;
 
             const detailString = orderSummaryText.join('; ');
 
             const newSale = {
                 Waktu: new Date().toLocaleString('id-ID'),
-                "Nama Pemesan": customerName,
+                "Nama Pemesan": `${customerName} (${serviceType})`,
                 "Detail Pesanan": detailString,
                 "Total Harga": grandTotal,
                 "Metode Pembayaran": paymentMethod,
@@ -697,9 +770,13 @@
 
             cart = [];
             document.getElementById('customer-name').value = '';
+            document.getElementById('delivery-address').value = '';
+            document.getElementById('promo-code').value = '';
+            appliedDiscount = 0;
             updateCartUI();
             toggleCartModal();
             showNotification("Pesanan berhasil dikirim ke WhatsApp & tercatat otomatis!", "success");
+            playKitchenSound(); // Bunyikan suara notifikasi di perangkat penjual
         }
 
         function renderSalesTable() {
@@ -707,40 +784,18 @@
             const totalRevenueEl = document.getElementById('total-revenue');
             const totalItemsSoldEl = document.getElementById('total-items-sold');
             
-            const statTunaiEl = document.getElementById('stat-tunai');
-            const statQrisEl = document.getElementById('stat-qris');
-            const statTransferEl = document.getElementById('stat-transfer');
-            
             tableBody.innerHTML = '';
 
             if (salesHistory.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Belum ada riwayat pesanan masuk</td></tr>`;
                 totalRevenueEl.innerText = "Rp 0";
                 totalItemsSoldEl.innerText = "0 Transaksi";
-                statTunaiEl.innerText = "0 (Rp 0)";
-                statQrisEl.innerText = "0 (Rp 0)";
-                statTransferEl.innerText = "0 (Rp 0)";
                 return;
             }
 
             let revenue = 0;
-            let countTunai = 0, revTunai = 0;
-            let countQris = 0, revQris = 0;
-            let countTransfer = 0, revTransfer = 0;
-
             salesHistory.forEach((sale, index) => {
                 revenue += sale.total;
-                
-                if (sale.payment === 'Tunai') {
-                    countTunai++;
-                    revTunai += sale.total;
-                } else if (sale.payment === 'QRIS') {
-                    countQris++;
-                    revQris += sale.total;
-                } else if (sale.payment === 'Transfer') {
-                    countTransfer++;
-                    revTransfer += sale.total;
-                }
 
                 tableBody.innerHTML += `
                     <tr class="hover:bg-gray-700/50 transition">
@@ -767,19 +822,13 @@
 
             totalRevenueEl.innerText = `Rp ${formatRupiah(revenue)}`;
             totalItemsSoldEl.innerText = `${salesHistory.length} Transaksi`;
-
-            statTunaiEl.innerText = `${countTunai} (Rp ${formatRupiah(revTunai)})`;
-            statQrisEl.innerText = `${countQris} (Rp ${formatRupiah(revQris)})`;
-            statTransferEl.innerText = `${countTransfer} (Rp ${formatRupiah(revTransfer)})`;
         }
 
-function printReceipt(index) {
+        function printReceipt(index) {
             const sale = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
-            
             let cleanDetailsForPrint = sale.details.replace(/•/g, "").trim();
 
-            // Masukkan isi struk dan ubah stylenya agar tampil saat dicetak
             printArea.innerHTML = `
                 <div style="text-align: center; margin-bottom: 6px;">
                     <strong>[NAMA BRAND CREPES]</strong><br>
@@ -805,15 +854,11 @@ function printReceipt(index) {
                 </div>
             `;
 
-            // Tampilkan elemen cetak sementara
             printArea.classList.remove('hidden');
-
-            // Cetak dokumen
             window.print();
-
-            // Sembunyikan kembali setelah dialog print ditutup
             printArea.classList.add('hidden');
         }
+
         function exportToCSV() {
             if (salesHistory.length === 0) {
                 showNotification("Belum ada data penjualan untuk diunduh.", "error");
