@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katalog & Pemesanan Crepes Lezat</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -23,8 +25,10 @@
 </head>
 <body class="bg-purple-50 text-gray-800">
 
+    <!-- CONTAINER NOTIFIKASI DI POJOK KANAN ATAS -->
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
 
+    <!-- NAVBAR -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <h1 class="text-base sm:text-lg font-bold text-purple-700 truncate">🥞 [Nama Brand Crepes]</h1>
@@ -37,6 +41,7 @@
         </div>
     </nav>
 
+    <!-- HEADER / HERO -->
     <header class="max-w-6xl mx-auto px-4 py-8 text-center">
         <span class="bg-purple-200 text-purple-800 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Renyah & Manis di Setiap Gigitan</span>
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes Favoritmu</h2>
@@ -47,19 +52,23 @@
         </div>
     </header>
 
+    <!-- MAIN SECTION -->
     <main id="menu" class="max-w-6xl mx-auto px-4 pb-16">
         
+        <!-- TOMBOL FILTER KATEGORI -->
         <div class="flex justify-center gap-2 mb-6 flex-wrap">
             <button onclick="filterCategory('all')" id="btn-all" class="px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer">Semua Menu</button>
             <button onclick="filterCategory('sweet')" id="btn-sweet" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer">🍫 Manis</button>
             <button onclick="filterCategory('savory')" id="btn-savory" class="px-4 py-2 rounded-full text-xs font-semibold bg-white text-purple-700 border border-purple-200 hover:bg-purple-50 transition cursor-pointer">🧀 Asin & Gurih</button>
         </div>
 
+        <!-- GRID KATALOG PRODUK UTAMA -->
         <h3 class="text-xl sm:text-2xl font-bold text-purple-900 mb-5">🥞 Pilih Menu Crepes</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10" id="product-grid"></div>
 
     </main>
 
+    <!-- MODAL KUSTOMISASI PRODUK (TINGKAT KEMATANGAN & TOPPING) -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -70,6 +79,23 @@
                 <p id="modal-product-price" class="text-sm sm:text-base font-bold text-purple-700 mt-2">Rp 0</p>
             </div>
 
+            <!-- Pilih Tingkat Kematangan / Tekstur -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-purple-900 mb-2">🔥 Tingkat Kematangan / Tekstur:</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-purple-200 bg-purple-50/50 cursor-pointer hover:bg-purple-100 text-center text-[11px] font-semibold text-purple-900">
+                        <input type="radio" name="crispiness" value="Standar" checked class="mb-1 text-purple-600 focus:ring-purple-500"> Standar
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-purple-200 bg-purple-50/50 cursor-pointer hover:bg-purple-100 text-center text-[11px] font-semibold text-purple-900">
+                        <input type="radio" name="crispiness" value="Extra Garing" class="mb-1 text-purple-600 focus:ring-purple-500"> Extra Garing
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-purple-200 bg-purple-50/50 cursor-pointer hover:bg-purple-100 text-center text-[11px] font-semibold text-purple-900">
+                        <input type="radio" name="crispiness" value="Lembut" class="mb-1 text-purple-600 focus:ring-purple-500"> Lembut
+                    </label>
+                </div>
+            </div>
+
+            <!-- Bagian Pilih Topping Tambahan -->
             <div class="mb-4">
                 <label class="block text-xs font-bold text-purple-900 mb-2">✨ Tambah Ekstra Topping (Opsional):</label>
                 <div id="modal-topping-list" class="space-y-2"></div>
@@ -77,7 +103,7 @@
 
             <div class="mb-5">
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Catatan Khusus (Opsional):</label>
-                <input type="text" id="modal-item-note" placeholder="Contoh: Jangan terlalu garing" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 bg-gray-50">
+                <input type="text" id="modal-item-note" placeholder="Contoh: Jangan pakai susu kental manis" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:outline-none focus:border-purple-600 bg-gray-50">
             </div>
 
             <input type="hidden" id="modal-product-id">
@@ -88,6 +114,7 @@
         </div>
     </div>
 
+    <!-- POPUP KERANJANG -->
     <div id="cart-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="toggleCartModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -112,6 +139,11 @@
                 <p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>
             </div>
 
+            <!-- Estimasi Waktu Tunggu -->
+            <div id="eta-box" class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4 text-xs text-purple-900 hidden flex items-center gap-2">
+                <span>⏱️</span> <span>Estimasi pesanan siap dalam <strong id="eta-time">15</strong> menit ke depan.</span>
+            </div>
+
             <div class="border-t border-gray-200 pt-3 mb-5 flex justify-between items-center font-bold text-sm sm:text-base text-purple-900">
                 <span>Total Pembayaran:</span>
                 <span id="cart-total">Rp 0</span>
@@ -123,6 +155,7 @@
         </div>
     </div>
 
+    <!-- AREA PENJUAL -->
     <section class="bg-gray-900 text-gray-100 py-10 border-t-4 border-purple-600">
         <div class="max-w-4xl mx-auto px-4">
             
@@ -149,6 +182,7 @@
                     </button>
                 </div>
 
+                <!-- KARTU STATISTIK UTAMA -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
                         <p class="text-xs text-gray-400">Total Pendapatan (Omzet)</p>
@@ -160,6 +194,7 @@
                     </div>
                 </div>
 
+                <!-- RINGKASAN METODE PEMBAYARAN -->
                 <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
                     <div class="bg-gray-800 p-2.5 sm:p-3 rounded-xl border border-gray-700 text-center">
                         <p class="text-[10px] sm:text-[11px] text-gray-400">💵 Tunai</p>
@@ -175,14 +210,16 @@
                     </div>
                 </div>
 
+                <!-- TABEL LAPORAN -->
                 <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 text-xs">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[600px]">
+                        <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead>
                                 <tr class="bg-gray-700 text-gray-300 border-b border-gray-600">
                                     <th class="p-3">Waktu</th>
                                     <th class="p-3">Nama Pemesan</th>
                                     <th class="p-3">Detail Pesanan & Catatan</th>
+                                    <th class="p-3">Status Dapur</th>
                                     <th class="p-3">Pembayaran</th>
                                     <th class="p-3 text-right">Total (Rp)</th>
                                     <th class="p-3 text-center">Aksi</th>
@@ -190,7 +227,7 @@
                             </thead>
                             <tbody id="sales-table-body" class="divide-y divide-gray-700">
                                 <tr>
-                                    <td colspan="6" class="p-4 text-center text-gray-500 italic">Memuat data...</td>
+                                    <td colspan="7" class="p-4 text-center text-gray-500 italic">Memuat data...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -201,10 +238,12 @@
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer class="bg-purple-950 text-purple-200 py-6 text-center text-xs">
         <p>&copy; 2026 [Nama Brand Crepes]. All rights reserved.</p>
     </footer>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
@@ -316,6 +355,7 @@
             const productId = parseInt(document.getElementById('modal-product-id').value);
             const product = products.find(p => p.id === productId);
             const note = document.getElementById('modal-item-note').value.trim();
+            const crispiness = document.querySelector('input[name="crispiness"]:checked').value;
             const checkboxes = document.querySelectorAll('.modal-topping-checkbox:checked');
             
             let selectedToppings = [];
@@ -331,7 +371,7 @@
 
             let finalPrice = product.price + toppingPriceTotal;
             let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
-            let cartItemId = `${productId}-${toppingKey}-${note}`;
+            let cartItemId = `${productId}-${crispiness}-${toppingKey}-${note}`;
 
             const existingItem = cart.find(item => item.cartItemId === cartItemId);
             if (existingItem) {
@@ -340,6 +380,7 @@
                 cart.push({
                     cartItemId: cartItemId,
                     name: product.name,
+                    crispiness: crispiness,
                     toppings: selectedToppings,
                     price: finalPrice,
                     qty: 1,
@@ -357,7 +398,7 @@
                 let response = await fetch(SHEETDB_API_URL);
                 let data = await response.json();
                 if (Array.isArray(data) && data.length > 0) {
-                    salesHistory = data.map(item => {
+                    salesHistory = data.map((item, idx) => {
                         let rawDetails = item["Detail Pesanan"] || item["detail pesanan"] || "";
                         let rawTotal = item["Total Harga"] || item["total harga"] || "0";
                         let cleanTotal = parseInt(String(rawTotal).replace(/[^0-9]/g, '')) || 0;
@@ -379,7 +420,8 @@
                             customer: item["Nama Pemesan"] || item["nama pemesan"] || "Pelanggan",
                             details: formattedDetails,
                             payment: payment,
-                            total: cleanTotal
+                            total: cleanTotal,
+                            status: item["Status"] || "🔴 Baru Masuk"
                         };
                     });
                     localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
@@ -448,9 +490,12 @@
                         </div>
                         <div class="p-4 pt-0 flex justify-between items-center">
                             <span class="font-bold text-purple-700 text-sm sm:text-base">Rp ${formatRupiah(product.price)}</span>
-                            <button onclick="openProductModal(${product.id})" class="bg-purple-600 text-white px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-purple-700 transition shadow-sm cursor-pointer">
-                                + Pilih Menu
-                            </button>
+                            <div class="flex gap-1.5">
+                                <button onclick="shareProduct('${product.name}', ${product.price})" title="Bagikan ke WhatsApp" class="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-xl text-xs transition cursor-pointer">📤</button>
+                                <button onclick="openProductModal(${product.id})" class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold hover:bg-purple-700 transition shadow-sm cursor-pointer">
+                                    + Pilih
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -461,10 +506,17 @@
             renderProducts();
         }
 
+        function shareProduct(name, price) {
+            let text = `Halo Kak, mau rekomendasiin menu *${name}* seharga Rp ${formatRupiah(price)} di [Nama Brand Crepes] nih! Enak banget loh, yuk pesan juga! 🥞✨`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
         function updateCartUI() {
             const cartItemsEl = document.getElementById('cart-items');
             const cartTotalEl = document.getElementById('cart-total');
             const cartCountEl = document.getElementById('cart-count');
+            const etaBox = document.getElementById('eta-box');
+            const etaTime = document.getElementById('eta-time');
 
             cartItemsEl.innerHTML = '';
             grandTotal = 0;
@@ -472,20 +524,22 @@
 
             if (cart.length === 0) {
                 cartItemsEl.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
+                etaBox.classList.add('hidden');
             } else {
                 cart.forEach((item, index) => {
                     let subtotal = item.price * item.qty;
                     grandTotal += subtotal;
                     totalCount += item.qty;
 
-                    let toppingText = item.toppings.length > 0 ? `<br><span class="text-[11px] text-purple-600 font-medium">Topping: ${item.toppings.map(t => t.name).join(', ')}</span>` : '';
+                    let crispText = `<span class="text-[11px] font-semibold text-purple-700">[Tekstur: ${item.crispiness}]</span>`;
+                    let toppingText = item.toppings.length > 0 ? `<br><span class="text-[11px] text-gray-600">Topping: ${item.toppings.map(t => t.name).join(', ')}</span>` : '';
                     let noteText = item.note ? `<br><span class="text-[11px] text-gray-500 italic">Catatan: "${item.note}"</span>` : '';
 
                     cartItemsEl.innerHTML += `
                         <div class="pt-3 first:pt-0">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <p class="font-semibold text-gray-800">${item.name}</p>
+                                    <p class="font-semibold text-gray-800">${item.name} ${crispText}</p>
                                     <p class="text-xs text-gray-500">${item.qty} x Rp ${formatRupiah(item.price)}</p>
                                     ${toppingText}
                                     ${noteText}
@@ -498,6 +552,11 @@
                         </div>
                     `;
                 });
+
+                // Hitung ETA otomatis (misal 5 menit per item)
+                let calculatedEta = totalCount * 5 + 10;
+                etaTime.innerText = calculatedEta;
+                etaBox.classList.remove('hidden');
             }
 
             cartTotalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
@@ -530,9 +589,10 @@
             
             cart.forEach((item, index) => {
                 let subtotal = item.price * item.qty;
+                let crispStr = ` [${item.crispiness}]`;
                 let toppingStr = item.toppings.length > 0 ? ` (+ ${item.toppings.map(t => t.name).join(', ')})` : '';
                 let noteStr = item.note ? ` [Catatan: ${item.note}]` : '';
-                let itemDesc = `${item.name}${toppingStr}${noteStr} (${item.qty}x)`;
+                let itemDesc = `${item.name}${crispStr}${toppingStr}${noteStr} (${item.qty}x)`;
                 
                 orderSummaryText.push(itemDesc);
                 waMessageText += `${index + 1}. ${itemDesc} = Rp ${formatRupiah(subtotal)}\n`;
@@ -546,7 +606,8 @@
                 "Nama Pemesan": customerName,
                 "Detail Pesanan": detailString,
                 "Total Harga": grandTotal,
-                "Metode Pembayaran": paymentMethod
+                "Metode Pembayaran": paymentMethod,
+                "Status": "🔴 Baru Masuk"
             };
 
             salesHistory.push({
@@ -554,7 +615,8 @@
                 customer: newSale["Nama Pemesan"],
                 details: orderSummaryText.map(s => "• " + s).join('\n'),
                 payment: paymentMethod,
-                total: grandTotal
+                total: grandTotal,
+                status: "🔴 Baru Masuk"
             });
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
@@ -591,7 +653,7 @@
             tableBody.innerHTML = '';
 
             if (salesHistory.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 italic">Belum ada riwayat pesanan masuk</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Belum ada riwayat pesanan masuk</td></tr>`;
                 totalRevenueEl.innerText = "Rp 0";
                 totalItemsSoldEl.innerText = "0 Transaksi";
                 statTunaiEl.innerText = "0 (Rp 0)";
@@ -624,6 +686,13 @@
                         <td class="p-3 text-gray-400 whitespace-nowrap">${sale.time}</td>
                         <td class="p-3 font-semibold text-white">${sale.customer}</td>
                         <td class="p-3 text-gray-300 whitespace-pre-line">${sale.details}</td>
+                        <td class="p-3 whitespace-nowrap">
+                            <select onchange="updateOrderStatus(${index}, this.value)" class="bg-gray-700 text-white text-[11px] px-2 py-1 rounded border border-gray-600 focus:outline-none cursor-pointer">
+                                <option value="🔴 Baru Masuk" ${sale.status === '🔴 Baru Masuk' ? 'selected' : ''}>🔴 Baru Masuk</option>
+                                <option value="🟡 Sedang Dimasak" ${sale.status === '🟡 Sedang Dimasak' ? 'selected' : ''}>🟡 Sedang Dimasak</option>
+                                <option value="🟢 Selesai" ${sale.status === '🟢 Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+                            </select>
+                        </td>
                         <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sale.payment === 'Tunai' ? 'bg-green-900 text-green-200' : sale.payment === 'QRIS' ? 'bg-blue-900 text-blue-200' : 'bg-amber-900 text-amber-200'}">${sale.payment}</span></td>
                         <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(sale.total)}</td>
                         <td class="p-3 text-center flex items-center justify-center gap-1.5">
@@ -640,6 +709,12 @@
             statTunaiEl.innerText = `${countTunai} (Rp ${formatRupiah(revTunai)})`;
             statQrisEl.innerText = `${countQris} (Rp ${formatRupiah(revQris)})`;
             statTransferEl.innerText = `${countTransfer} (Rp ${formatRupiah(revTransfer)})`;
+        }
+
+        function updateOrderStatus(index, newStatus) {
+            salesHistory[index].status = newStatus;
+            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+            showNotification(`Status pesanan diperbarui menjadi: ${newStatus}`, "info");
         }
 
         function deleteSale(index) {
