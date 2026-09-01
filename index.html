@@ -22,11 +22,21 @@
         .toast-enter { animation: slideInRight 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .toast-exit { animation: slideOutRight 0.25s ease-in forwards; }
 
-        /* Style khusus untuk cetak struk kasir mini */
+        /* Style khusus untuk cetak struk kasir mini thermal */
         @media print {
             body * { visibility: hidden; }
             #receipt-print-area, #receipt-print-area * { visibility: visible; }
-            #receipt-print-area { position: absolute; left: 0; top: 0; width: 58mm; font-family: monospace; font-size: 11px; color: black; }
+            #receipt-print-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 58mm; 
+                font-family: 'Courier New', Courier, monospace; 
+                font-size: 11px; 
+                color: black; 
+                background: white;
+                padding: 5px;
+            }
         }
     </style>
 </head>
@@ -36,7 +46,7 @@
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
 
     <!-- AREA CETAK STRUK TERMAL (HIDDEN KECUALI SAAT PRINT) -->
-    <div id="receipt-print-area" class="hidden p-2"></div>
+    <div id="receipt-print-area" class="hidden"></div>
 
     <!-- NAVBAR -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
@@ -323,7 +333,6 @@
             }, 3500);
         }
 
-        // Jam Operasional Otomatis (08.00 - 22.00)
         function checkStoreStatus() {
             const currentHour = new Date().getHours();
             const badge = document.getElementById('store-status-badge');
@@ -407,7 +416,7 @@
                 toppingPriceTotal += parseInt(cb.dataset.price);
             });
 
-            product.stock -= 1; // Kurangi stok real-time
+            product.stock -= 1;
 
             let finalPrice = product.price + toppingPriceTotal;
             let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
@@ -613,7 +622,7 @@
             let item = cart[index];
             let product = products.find(p => p.id === item.productId);
             if (product) {
-                product.stock += item.qty; // Kembalikan stok saat dihapus dari keranjang
+                product.stock += item.qty;
             }
             cart.splice(index, 1);
             renderProducts();
@@ -764,32 +773,35 @@
             statTransferEl.innerText = `${countTransfer} (Rp ${formatRupiah(revTransfer)})`;
         }
 
-        // FITUR CETAK STRUK LANGSUNG KE PRINTER THERMAL
+        // PERBAIKAN FITUR CETAK STRUK THERMAL
         function printReceipt(index) {
             const sale = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
             
+            // Format detail pesanan bersih untuk struk kasir
+            let cleanDetailsForPrint = sale.details.replace(/•/g, "").trim();
+
             printArea.innerHTML = `
-                <div style="text-align: center; margin-bottom: 8px;">
+                <div style="text-align: center; margin-bottom: 6px;">
                     <strong>[NAMA BRAND CREPES]</strong><br>
                     <span style="font-size: 9px;">Renyah & Manis di Setiap Gigitan</span><br>
                     --------------------------------
                 </div>
-                <div>
-                    Waktu: ${sale.time}<br>
-                    Pemesan: ${sale.customer}<br>
-                    Pembayaran: ${sale.payment}<br>
-                    Status: ${sale.status}
+                <div style="margin-bottom: 6px;">
+                    Waktu : ${sale.time}<br>
+                    Pemesan : ${sale.customer}<br>
+                    Bayar : ${sale.payment}<br>
+                    Status : ${sale.status}
                 </div>
                 --------------------------------<br>
                 <strong>DETAIL PESANAN:</strong><br>
-                <div style="white-space: pre-line;">${sale.details}</div>
+                <div style="white-space: pre-line; margin: 4px 0;">${cleanDetailsForPrint}</div>
                 --------------------------------<br>
-                <div style="text-align: right; font-weight: bold; font-size: 12px;">
+                <div style="text-align: right; font-weight: bold; font-size: 12px; margin-top: 4px;">
                     TOTAL: Rp ${formatRupiah(sale.total)}
                 </div>
                 --------------------------------<br>
-                <div style="text-align: center; font-size: 9px; margin-top: 5px;">
+                <div style="text-align: center; font-size: 9px; margin-top: 6px;">
                     Terima Kasih Telah Memesan!<br>Silakan Datang Kembali 🥞
                 </div>
             `;
@@ -797,7 +809,6 @@
             window.print();
         }
 
-        // FITUR EKSPOR LAPORAN KE FILE CSV (EXCEL)
         function exportToCSV() {
             if (salesHistory.length === 0) {
                 showNotification("Belum ada data penjualan untuk diunduh.", "error");
