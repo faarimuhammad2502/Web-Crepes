@@ -773,14 +773,13 @@
             statTransferEl.innerText = `${countTransfer} (Rp ${formatRupiah(revTransfer)})`;
         }
 
-        // PERBAIKAN FITUR CETAK STRUK THERMAL
-        function printReceipt(index) {
+function printReceipt(index) {
             const sale = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
             
-            // Format detail pesanan bersih untuk struk kasir
             let cleanDetailsForPrint = sale.details.replace(/•/g, "").trim();
 
+            // Masukkan isi struk dan ubah stylenya agar tampil saat dicetak
             printArea.innerHTML = `
                 <div style="text-align: center; margin-bottom: 6px;">
                     <strong>[NAMA BRAND CREPES]</strong><br>
@@ -806,9 +805,15 @@
                 </div>
             `;
 
-            window.print();
-        }
+            // Tampilkan elemen cetak sementara
+            printArea.classList.remove('hidden');
 
+            // Cetak dokumen
+            window.print();
+
+            // Sembunyikan kembali setelah dialog print ditutup
+            printArea.classList.add('hidden');
+        }
         function exportToCSV() {
             if (salesHistory.length === 0) {
                 showNotification("Belum ada data penjualan untuk diunduh.", "error");
