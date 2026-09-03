@@ -13,6 +13,8 @@
     </script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF untuk Ekspor Laporan PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -76,6 +78,12 @@
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes Favoritmu</h2>
         <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung melalui WhatsApp dengan mudah, cepat, dan praktis!</p>
         
+        <!-- WIDGET PAPAN ANTREAN LIVE -->
+        <div id="live-queue-widget" class="max-w-md mx-auto mb-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-2xl p-3 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between shadow-sm">
+            <span class="font-bold flex items-center gap-1.5">🔥 Sedang Dimasak:</span>
+            <span id="live-queue-text" class="italic truncate">Belum ada antrean aktif</span>
+        </div>
+
         <div id="loyalty-banner" class="max-w-md mx-auto mb-5 bg-purple-100/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 rounded-2xl p-3 text-xs text-purple-900 dark:text-purple-300 hidden">
             ✨ Status Member: <strong id="member-status-text">0 Stempel</strong> (Kumpulkan 5 Stempel untuk 1 Crepes Gratis!)
         </div>
@@ -83,13 +91,22 @@
         <div class="max-w-md mx-auto px-2">
             <input type="text" id="search-input" oninput="filterProducts()" placeholder="🔍 Cari menu crepes kesukaanmu..." class="w-full px-4 py-3 text-xs sm:text-sm bg-white dark:bg-gray-900 border border-purple-200 dark:border-gray-800 rounded-2xl shadow-sm focus:outline-none focus:border-purple-600 dark:text-white">
         </div>
+
+        <!-- FILTER BAHAN UTAMA CEPAT -->
+        <div class="flex justify-center gap-1.5 mt-3 flex-wrap">
+            <button onclick="filterByIngredient('all')" class="px-3 py-1 rounded-full text-[11px] bg-purple-100 dark:bg-gray-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition cursor-pointer">Semua Bahan</button>
+            <button onclick="filterByIngredient('Cokelat')" class="px-3 py-1 rounded-full text-[11px] bg-purple-100 dark:bg-gray-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition cursor-pointer">🍫 Cokelat</button>
+            <button onclick="filterByIngredient('Keju')" class="px-3 py-1 rounded-full text-[11px] bg-purple-100 dark:bg-gray-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition cursor-pointer">🧀 Keju</button>
+            <button onclick="filterByIngredient('Matcha')" class="px-3 py-1 rounded-full text-[11px] bg-purple-100 dark:bg-gray-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition cursor-pointer">🍵 Matcha</button>
+            <button onclick="filterByIngredient('Sosis')" class="px-3 py-1 rounded-full text-[11px] bg-purple-100 dark:bg-gray-800 text-purple-700 dark:text-purple-300 hover:bg-purple-200 transition cursor-pointer">🌭 Sosis / Beef</button>
+        </div>
     </header>
 
     <!-- MAIN SECTION -->
     <main id="menu" class="max-w-6xl mx-auto px-4 pb-16">
         
         <div class="flex justify-center gap-2 mb-6 flex-wrap">
-            <button onclick="filterCategory('all')" id="btn-all" class="px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer">Semua Menu</button>
+            <button onclick="filterCategory('all')" id="btn-all" class="px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer">Semua Kategori</button>
             <button onclick="filterCategory('sweet')" id="btn-sweet" class="px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer">🍫 Manis</button>
             <button onclick="filterCategory('savory')" id="btn-savory" class="px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer">🧀 Asin & Gurih</button>
         </div>
@@ -97,7 +114,7 @@
         <h3 class="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-300 mb-5">🥞 Pilih Menu Crepes</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14" id="product-grid"></div>
 
-        <!-- SEKSI ULASAN & TESTIMONI PELANGGAN -->
+        <!-- SEKSI ULASAN -->
         <section class="mt-12 bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-purple-100 dark:border-gray-800">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b dark:border-gray-800 pb-4">
                 <div>
@@ -109,9 +126,7 @@
                 </button>
             </div>
             
-            <div id="reviews-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- Render Ulasan via JS -->
-            </div>
+            <div id="reviews-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </section>
 
     </main>
@@ -145,7 +160,7 @@
         </div>
     </div>
 
-    <!-- MODAL KUSTOMISASI PRODUK -->
+    <!-- MODAL KUSTOMISASI PRODUK (DENGAN UPSELLING REKOMENDASI) -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto border dark:border-gray-800">
             <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -177,6 +192,12 @@
             <div class="mb-4">
                 <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 mb-2">✨ Tambah Ekstra Topping (Opsional):</label>
                 <div id="modal-topping-list" class="space-y-2"></div>
+            </div>
+
+            <!-- WIDGET UPSELLING REKOMENDASI -->
+            <div id="upsell-container" class="mb-4 bg-purple-50 dark:bg-purple-950/40 p-3 rounded-2xl border border-purple-200 dark:border-purple-900">
+                <p class="text-[11px] font-bold text-purple-900 dark:text-purple-300 mb-1">💡 Sering Dipesan Bersama:</p>
+                <div id="upsell-item-box" class="text-xs text-gray-600 dark:text-gray-400 italic">Extra Keju Parut / Tambahan Susu Manis</div>
             </div>
 
             <div class="mb-5">
@@ -317,7 +338,8 @@
                         <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard & Analisis Penjualan</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 Unduh CSV</button>
+                        <button onclick="exportToPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 Unduh PDF</button>
+                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 Unduh CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Kunci</button>
                     </div>
                 </div>
@@ -380,11 +402,11 @@
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
         const products = [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 8 },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5 },
-            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10 },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 6 },
-            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4 }
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 8, ingredients: ["Cokelat", "Keju"] },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5, ingredients: ["Matcha"] },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 6, ingredients: ["Sosis", "Keju"] },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] }
         ];
 
         const toppings = [
@@ -399,6 +421,7 @@
         let cart = [];
         let grandTotal = 0, subTotal = 0, appliedDiscount = 0;
         let currentFilter = 'all';
+        let currentIngredientFilter = 'all';
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
         let loyaltyData = JSON.parse(localStorage.getItem('crepes_loyalty')) || { stamps: 0, phone: '' };
         let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [
@@ -419,6 +442,7 @@
             updateLoyaltyUI();
             checkStoreStatus();
             renderReviews();
+            updateLiveQueueWidget();
         });
 
         function checkStoreStatus() {
@@ -432,6 +456,17 @@
             } else {
                 badge.innerText = "🔴 Toko Tutup";
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
+            }
+        }
+
+        function updateLiveQueueWidget() {
+            const widgetText = document.getElementById('live-queue-text');
+            const activeQueue = salesHistory.filter(s => s.status !== '🟢 Selesai');
+            if (activeQueue.length === 0) {
+                widgetText.innerText = "Tidak ada antrean aktif saat ini";
+            } else {
+                let activeNames = activeQueue.map(q => q.customer.split(' ')[0]).join(', ');
+                widgetText.innerText = `${activeNames} (${activeQueue.length} pesanan)`;
             }
         }
 
@@ -531,6 +566,10 @@
             document.getElementById('modal-product-price').innerText = `Rp ${formatRupiah(product.price)}`;
             document.getElementById('modal-product-stock').innerText = `Stok: ${product.stock}`;
             document.getElementById('modal-item-note').value = '';
+
+            // Set Rekomendasi Upselling
+            let upsellText = product.category === 'sweet' ? "Extra Keju Parut / Tambahan Susu Manis" : "Extra Sosis / Keju Leleh";
+            document.getElementById('upsell-item-box').innerText = upsellText;
 
             const addBtn = document.getElementById('modal-add-btn');
             if (product.stock <= 0) {
@@ -637,6 +676,7 @@
                     localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
                 }
                 renderSalesTable();
+                updateLiveQueueWidget();
             } catch (error) {
                 renderSalesTable();
             }
@@ -670,6 +710,11 @@
             renderProducts();
         }
 
+        function filterByIngredient(ingredient) {
+            currentIngredientFilter = ingredient;
+            renderProducts();
+        }
+
         function renderProducts() {
             const productGrid = document.getElementById('product-grid');
             const keyword = document.getElementById('search-input').value.toLowerCase();
@@ -678,7 +723,8 @@
             const filteredProducts = products.filter(p => {
                 const matchCategory = (currentFilter === 'all' || p.category === currentFilter);
                 const matchKeyword = p.name.toLowerCase().includes(keyword) || p.desc.toLowerCase().includes(keyword);
-                return matchCategory && matchKeyword;
+                const matchIngredient = (currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter));
+                return matchCategory && matchKeyword && matchIngredient;
             });
 
             if (filteredProducts.length === 0) {
@@ -877,6 +923,7 @@
             updateCartUI();
             toggleCartModal();
             playKitchenSound();
+            updateLiveQueueWidget();
         }
 
         function renderReviews() {
@@ -999,6 +1046,58 @@
             });
         }
 
+        // FITUR EKSPOR LAPORAN KE PDF
+        function exportToPDF() {
+            if (salesHistory.length === 0) {
+                showNotification("Belum ada data penjualan untuk diekspor ke PDF.", "error");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("LAPORAN REKAP PENJUALAN CREPES", 14, 20);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 28);
+
+            let startY = 36;
+            doc.setFont("helvetica", "bold");
+            doc.text("Waktu", 14, startY);
+            doc.text("Pemesan", 55, startY);
+            doc.text("Pembayaran", 120, startY);
+            doc.text("Total (Rp)", 165, startY);
+            doc.line(14, startY + 2, 195, startY + 2);
+
+            startY += 8;
+            doc.setFont("helvetica", "normal");
+            let totalOmzet = 0;
+
+            salesHistory.forEach((sale) => {
+                if (startY > 270) {
+                    doc.addPage();
+                    startY = 20;
+                }
+                doc.text(sale.time.slice(0, 16), 14, startY);
+                doc.text(sale.customer.slice(0, 25), 55, startY);
+                doc.text(sale.payment, 120, startY);
+                doc.text(formatRupiah(sale.total), 165, startY);
+                totalOmzet += sale.total;
+                startY += 7;
+            });
+
+            doc.line(14, startY + 2, 195, startY + 2);
+            startY += 8;
+            doc.setFont("helvetica", "bold");
+            doc.text(`TOTAL Keseluruhan Omzet: Rp ${formatRupiah(totalOmzet)}`, 14, startY);
+
+            doc.save("rekap_penjualan_crepes.pdf");
+            showNotification("Laporan PDF berhasil diunduh!", "success");
+        }
+
         function printKitchenTicket(index) {
             const sale = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
@@ -1079,6 +1178,7 @@
             salesHistory[index].status = newStatus;
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
             showNotification(`Status diperbarui: ${newStatus}`, "info");
+            updateLiveQueueWidget();
         }
 
         function deleteSale(index) {
@@ -1086,6 +1186,7 @@
                 salesHistory.splice(index, 1);
                 localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
                 renderSalesTable();
+                updateLiveQueueWidget();
                 showNotification("Berhasil dihapus.", "info");
             }
         }
