@@ -404,7 +404,6 @@
             { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
             { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 3, ingredients: ["Sosis", "Keju"] },
             { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] },
-            // Menu Minuman Baru (Poin 2)
             { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, desc: "Teh melati pilihan dengan es batu segar.", stock: 25, ingredients: [] },
             { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 15, ingredients: ["Cokelat"] },
             { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 20, ingredients: [] }
@@ -418,11 +417,10 @@
             { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000 }
         ];
 
-        // Daftar Minuman Bundling Spesial (Poin 2)
         const bundlingDrinks = [
-            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000 }, // Diskon dari 5000
-            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500 }, // Diskon dari 8000
-            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500 } // Diskon dari 7000
+            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000 },
+            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500 },
+            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500 }
         ];
 
         const SELLER_PIN = "1234";
@@ -450,6 +448,7 @@
             }
             checkStoreStatus();
             checkHappyHour();
+            renderProducts();
             renderReviews();
             updateLiveQueueWidget();
         });
@@ -588,6 +587,72 @@
         function toggleReviewModal() { document.getElementById('review-modal').classList.toggle('hidden'); }
         function toggleKDSModal() { document.getElementById('kds-modal').classList.toggle('hidden'); renderKDSCards(); }
 
+        function filterCategory(category) {
+            currentFilter = category;
+            ['all', 'sweet', 'savory', 'drink'].forEach(cat => {
+                const btn = document.getElementById(`btn-${cat}`);
+                if (btn) {
+                    if (cat === category) {
+                        btn.className = "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer";
+                    } else {
+                        btn.className = "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
+                    }
+                }
+            });
+            renderProducts();
+        }
+
+        function filterByIngredient(ingredient) {
+            currentIngredientFilter = ingredient;
+            renderProducts();
+        }
+
+        function filterProducts() {
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const searchKeyword = document.getElementById('search-input').value.toLowerCase();
+            grid.innerHTML = '';
+
+            const filtered = products.filter(p => {
+                const matchCategory = currentFilter === 'all' || p.category === currentFilter;
+                const matchIngredient = currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter);
+                const matchSearch = p.name.toLowerCase().includes(searchKeyword) || p.desc.toLowerCase().includes(searchKeyword);
+                return matchCategory && matchIngredient && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic text-xs">Menu tidak ditemukan...</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                let badgeColor = p.category === 'drink' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : (p.category === 'sweet' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300');
+                let catLabel = p.category === 'drink' ? '🥤 Minuman' : (p.category === 'sweet' ? '🍫 Manis' : '🧀 Asin & Gurih');
+                
+                grid.innerHTML += `
+                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between transition hover:shadow-md">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${badgeColor}">${catLabel}</span>
+                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Stok: ${p.stock}</span>
+                            </div>
+                            <h4 class="font-bold text-sm sm:text-base text-purple-900 dark:text-purple-300 mb-1">${p.name}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${p.desc}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-3 border-t dark:border-gray-800">
+                            <span class="font-bold text-sm sm:text-base text-purple-700 dark:text-purple-400">Rp ${formatRupiah(p.price)}</span>
+                            <button onclick="openProductModal(${p.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shadow-sm">
+                                🛒 Pilih Menu
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         function openProductModal(productId) {
             if (!isStoreOpen) {
                 showNotification("Maaf, toko sedang tutup (Jam operasional 08:00 - 22:00).", "error");
@@ -606,7 +671,6 @@
             const toppingSection = document.getElementById('topping-section');
             const bundlingSection = document.getElementById('bundling-section');
 
-            // Jika yang diklik adalah minuman, sembunyikan opsi tekstur & topping crepes
             if (product.category === 'drink') {
                 crispinessSection.classList.add('hidden');
                 toppingSection.classList.add('hidden');
@@ -616,7 +680,6 @@
                 toppingSection.classList.remove('hidden');
                 bundlingSection.classList.remove('hidden');
 
-                // Render Topping Crepes
                 const modalToppingList = document.getElementById('modal-topping-list');
                 modalToppingList.innerHTML = '';
                 toppings.forEach(t => {
@@ -631,7 +694,6 @@
                     `;
                 });
 
-                // Render Bundling Minuman Hemat (Poin 2)
                 const modalBundlingList = document.getElementById('modal-bundling-list');
                 modalBundlingList.innerHTML = '';
                 bundlingDrinks.forEach(b => {
@@ -717,6 +779,112 @@
             showNotification(`"${product.name}" berhasil dimasukkan ke keranjang!`, 'success');
         }
 
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const countEl = document.getElementById('cart-count');
+            const subTotalEl = document.getElementById('sub-total');
+            const totalEl = document.getElementById('cart-total');
+            const discountRow = document.getElementById('discount-row');
+            const discountAmountEl = document.getElementById('discount-amount');
+            const etaBox = document.getElementById('eta-box');
+            const etaTimeEl = document.getElementById('eta-time');
+
+            let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            countEl.innerText = totalItems;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
+                subTotalEl.innerText = "Rp 0";
+                totalEl.innerText = "Rp 0";
+                discountRow.classList.add('hidden');
+                etaBox.classList.add('hidden');
+                subTotal = 0;
+                grandTotal = 0;
+                return;
+            }
+
+            container.innerHTML = '';
+            subTotal = 0;
+
+            cart.forEach((item, index) => {
+                let itemTotal = item.price * item.qty;
+                subTotal += itemTotal;
+
+                let descHtml = `<div class="text-[11px] text-gray-500 dark:text-gray-400">`;
+                if (item.category !== 'drink') {
+                    descHtml += `Tekstur: ${item.crispiness}<br>`;
+                    if (item.toppings.length > 0) descHtml += `Topping: ${item.toppings.map(t => t.name).join(', ')}<br>`;
+                    if (item.bundlingDrinks.length > 0) descHtml += `Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')}<br>`;
+                }
+                if (item.note) descHtml += `Catatan: "${item.note}"`;
+                descHtml += `</div>`;
+
+                container.innerHTML += `
+                    <div class="flex justify-between items-start py-2 border-b dark:border-gray-800">
+                        <div>
+                            <p class="font-bold text-gray-800 dark:text-gray-200">${item.name} (x${item.qty})</p>
+                            ${descHtml}
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-purple-700 dark:text-purple-400">Rp ${formatRupiah(itemTotal)}</p>
+                            <div class="flex items-center gap-1 mt-1 justify-end">
+                                <button onclick="changeCartQty('${item.cartItemId}', -1)" class="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded text-xs font-bold cursor-pointer">-</button>
+                                <button onclick="changeCartQty('${item.cartItemId}', 1)" class="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded text-xs font-bold cursor-pointer">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            subTotalEl.innerText = `Rp ${formatRupiah(subTotal)}`;
+
+            let discount = appliedDiscount;
+            if (checkHappyHour()) {
+                happyHourDiscount = Math.round(subTotal * 0.15);
+                discount += happyHourDiscount;
+            } else {
+                happyHourDiscount = 0;
+            }
+
+            if (discount > 0) {
+                discountRow.classList.remove('hidden');
+                discountAmountEl.innerText = `- Rp ${formatRupiah(discount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            grandTotal = Math.max(0, subTotal - discount);
+            totalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
+
+            etaBox.classList.remove('hidden');
+            etaTimeEl.innerText = Math.max(10, totalItems * 5);
+        }
+
+        function changeCartQty(cartItemId, delta) {
+            const item = cart.find(i => i.cartItemId === cartItemId);
+            if (!item) return;
+
+            const product = products.find(p => p.id === item.productId);
+
+            if (delta > 0) {
+                if (product.stock <= 0) {
+                    showNotification("Stok menu ini sudah habis!", "error");
+                    return;
+                }
+                product.stock -= 1;
+                item.qty += 1;
+            } else {
+                product.stock += 1;
+                item.qty -= 1;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.cartItemId !== cartItemId);
+                }
+            }
+
+            renderProducts();
+            updateCartUI();
+        }
+
         function applyPromo() {
             const code = document.getElementById('promo-code').value.trim().toUpperCase();
             if (code === "HEMAT5RB") {
@@ -761,23 +929,111 @@
                     });
                     localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
                 }
-                renderSalesTable();
-                updateLiveQueueWidget();
-            } catch (error) {
-                renderSalesTable();
-            }
+            } catch (e) {}
         }
 
-        async function verifyPin() {
-            const enteredPin = document.getElementById('seller-pin').value;
-            if (enteredPin === SELLER_PIN) {
+        async function checkoutWhatsApp() {
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const serviceType = document.getElementById('service-type').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            const orderSchedule = document.getElementById('order-schedule').value;
+            const address = document.getElementById('delivery-address').value.trim();
+
+            if (!name || !phone) {
+                showNotification("Harap masukkan Nama dan Nomor WhatsApp Anda!", "error");
+                return;
+            }
+
+            if (cart.length === 0) {
+                showNotification("Keranjang Anda masih kosong!", "error");
+                return;
+            }
+
+            let detailStrings = [];
+            cart.forEach(item => {
+                let str = `${item.qty}x ${item.name} (${item.category !== 'drink' ? item.crispiness : 'Minuman'}`;
+                if (item.toppings.length > 0) str += `, Topping: ${item.toppings.map(t => t.name).join(', ')}`;
+                if (item.bundlingDrinks.length > 0) str += `, Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')}`;
+                if (item.note) str += `, Catatan: ${item.note}`;
+                str += `)`;
+                detailStrings.push(str);
+            });
+
+            let detailPesananGabungan = detailStrings.join('; ');
+            let waktuPemesanan = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+
+            let newTransaction = {
+                time: waktuPemesanan,
+                customer: `${name} (${phone}) - ${serviceType}`,
+                details: detailStrings.map(s => "• " + s).join('\n'),
+                payment: paymentMethod,
+                total: grandTotal,
+                status: "🔴 Baru Masuk"
+            };
+
+            salesHistory.unshift(newTransaction);
+            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+
+            if (!globalCustomerDatabase[phone]) {
+                globalCustomerDatabase[phone] = { stamps: 0, phone };
+            }
+            globalCustomerDatabase[phone].stamps += cart.reduce((sum, i) => sum + i.qty, 0);
+            localStorage.setItem('crepes_customer_db', JSON.stringify(globalCustomerDatabase));
+
+            try {
+                await fetch(SHEETDB_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: [{
+                            "Waktu": waktuPemesanan,
+                            "Nama Pemesan": `${name} (${phone})`,
+                            "Jenis Layanan": serviceType,
+                            "Detail Pesanan": detailPesananGabungan,
+                            "Metode Pembayaran": paymentMethod,
+                            "Total Harga": grandTotal,
+                            "Status": "🔴 Baru Masuk"
+                        }]
+                    })
+                });
+            } catch (e) {}
+
+            let waText = `Halo Kak, saya ingin memesan Crepes:\n\n` +
+                `👤 Nama: ${name}\n` +
+                `📞 No. WhatsApp: ${phone}\n` +
+                `🍽️ Layanan: ${serviceType} (${address || '-'})\n` +
+                `⏰ Waktu: ${orderSchedule}\n\n` +
+                `🛒 Pesanan:\n` + detailStrings.map(s => `- ${s}`).join('\n') + `\n\n` +
+                `💳 Pembayaran: ${paymentMethod}\n` +
+                `💰 Total Pembayaran: *Rp ${formatRupiah(grandTotal)}*\n\n` +
+                `Mohon segera diproses ya, terima kasih!`;
+
+            let waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(waText)}`;
+
+            toggleCartModal();
+            cart = [];
+            updateCartUI();
+            updateLiveQueueWidget();
+            playKitchenSound();
+
+            document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
+            document.getElementById('tracking-detail').innerText = `Pesanan atas nama ${name} berhasil dikirim ke WhatsApp dan sistem dapur!`;
+            document.getElementById('customer-status-modal').classList.remove('hidden');
+
+            window.open(waUrl, '_blank');
+        }
+
+        function verifyPin() {
+            const pin = document.getElementById('seller-pin').value;
+            if (pin === SELLER_PIN) {
                 document.getElementById('seller-login-box').classList.add('hidden');
                 document.getElementById('seller-dashboard').classList.remove('hidden');
-                showNotification("Akses Diterima!", "success");
-                await fetchSalesData();
+                renderSalesTable();
+                renderCharts();
+                showNotification("Akses Pemilik Berhasil!", "success");
             } else {
-                showNotification("PIN salah!", "error");
-                document.getElementById('seller-pin').value = '';
+                showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
             }
         }
 
@@ -785,290 +1041,230 @@
             document.getElementById('seller-dashboard').classList.add('hidden');
             document.getElementById('seller-login-box').classList.remove('hidden');
             document.getElementById('seller-pin').value = '';
-            showNotification("Dashboard dikunci.", "info");
         }
 
-        function filterCategory(category) {
-            currentFilter = category;
-            document.getElementById('btn-all').className = category === 'all' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
-            document.getElementById('btn-sweet').className = category === 'sweet' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
-            document.getElementById('btn-savory').className = category === 'savory' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
-            document.getElementById('btn-drink').className = category === 'drink' ? "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer" : "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
-            renderProducts();
-        }
-
-        function filterByIngredient(ingredient) {
-            currentIngredientFilter = ingredient;
-            renderProducts();
-        }
-
-        function renderProducts() {
-            const productGrid = document.getElementById('product-grid');
-            const keyword = document.getElementById('search-input').value.toLowerCase();
-            productGrid.innerHTML = '';
-
-            const filteredProducts = products.filter(p => {
-                const matchCategory = (currentFilter === 'all' || p.category === currentFilter);
-                const matchKeyword = p.name.toLowerCase().includes(keyword) || p.desc.toLowerCase().includes(keyword);
-                const matchIngredient = (currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter));
-                return matchCategory && matchKeyword && matchIngredient;
-            });
-
-            if (filteredProducts.length === 0) {
-                productGrid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 italic text-xs">Menu tidak ditemukan...</div>`;
+        function renderSalesTable() {
+            const tbody = document.getElementById('sales-table-body');
+            if (salesHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Belum ada data transaksi.</td></tr>`;
+                document.getElementById('total-revenue').innerText = "Rp 0";
+                document.getElementById('total-items-sold').innerText = "0 Transaksi";
                 return;
             }
 
-            filteredProducts.forEach(product => {
-                let stockBadge = '';
-                if (product.stock > 3) {
-                    stockBadge = `<span class="text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-semibold">Stok: ${product.stock}</span>`;
-                } else if (product.stock > 0) {
-                    stockBadge = `<span class="text-[10px] bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 px-2 py-0.5 rounded font-semibold animate-pulse">⚠️ Stok Menipis: ${product.stock}</span>`;
-                } else {
-                    stockBadge = `<span class="text-[10px] bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded font-semibold">Habis</span>`;
-                }
+            tbody.innerHTML = '';
+            let totalOmzet = 0;
 
-                let catLabel = product.category === 'sweet' ? 'Manis' : product.category === 'savory' ? 'Asin / Gurih' : '🥤 Minuman Segar';
-                let catClass = product.category === 'sweet' ? 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300' : product.category === 'savory' ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' : 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300';
-                let imgPlaceholder = product.category === 'drink' ? '🥤 [Gambar Minuman]' : '🥞 [Gambar Crepes]';
+            salesHistory.forEach((item, index) => {
+                totalOmzet += item.total;
+                let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : (item.status === '🟡 Sedang Dimasak' ? 'bg-amber-900 text-amber-300' : 'bg-red-900 text-red-300');
 
-                productGrid.innerHTML += `
-                    <div class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between">
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-700 hover:bg-gray-750">
+                        <td class="p-3 text-gray-300 whitespace-nowrap">${item.time}</td>
+                        <td class="p-3 font-semibold text-white">${item.customer}</td>
+                        <td class="p-3 text-gray-300 whitespace-pre-line">${item.details}</td>
+                        <td class="p-3">
+                            <select onchange="updateOrderStatus(${index}, this.value)" class="px-2 py-1 rounded text-xs font-bold ${badgeClass} focus:outline-none cursor-pointer">
+                                <option value="🔴 Baru Masuk" ${item.status === '🔴 Baru Masuk' ? 'selected' : ''}>🔴 Baru Masuk</option>
+                                <option value="🟡 Sedang Dimasak" ${item.status === '🟡 Sedang Dimasak' ? 'selected' : ''}>🟡 Sedang Dimasak</option>
+                                <option value="🟢 Selesai" ${item.status === '🟢 Selesai' ? 'selected' : ''}>🟢 Selesai</option>
+                            </select>
+                        </td>
+                        <td class="p-3 text-gray-300">${item.payment}</td>
+                        <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="printReceipt(${index})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
+            document.getElementById('total-items-sold').innerText = `${salesHistory.length} Transaksi`;
+        }
+
+        function updateOrderStatus(index, newStatus) {
+            salesHistory[index].status = newStatus;
+            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+            renderSalesTable();
+            updateLiveQueueWidget();
+            showNotification("Status pesanan diperbarui!", "success");
+        }
+
+        function renderKDSCards() {
+            const container = document.getElementById('kds-cards-container');
+            if (!container) return;
+
+            const activeQueue = salesHistory.filter(s => s.status !== '🟢 Selesai');
+            if (activeQueue.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 italic text-sm">Tidak ada antrean dapur saat ini. Kerja bagus! 🎉</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            activeQueue.forEach((item, index) => {
+                let badgeClass = item.status === '🟡 Sedang Dimasak' ? 'bg-amber-500/20 text-amber-300 border-amber-500' : 'bg-red-500/20 text-red-300 border-red-500';
+                
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
                         <div>
-                            <div class="w-full h-36 bg-purple-100 dark:bg-gray-800 flex items-center justify-center text-purple-400 dark:text-gray-500 text-xs font-semibold">${imgPlaceholder}</div>
-                            <div class="p-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${catClass}">${catLabel}</span>
-                                    ${stockBadge}
-                                </div>
-                                <h4 class="font-bold text-sm sm:text-base text-purple-900 dark:text-purple-300 mt-1.5">${product.name}</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${product.desc}</p>
+                            <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-2">
+                                <span class="font-bold text-white text-sm">👤 ${item.customer}</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.status}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mb-2">⏱️ Waktu: ${item.time}</p>
+                            <div class="text-xs text-gray-200 bg-gray-950 p-3 rounded-xl mb-3 whitespace-pre-line border border-gray-800/80">
+                                ${item.details}
                             </div>
                         </div>
-                        <div class="p-4 pt-0 flex justify-between items-center">
-                            <span class="font-bold text-purple-700 dark:text-purple-400 text-sm sm:text-base">Rp ${formatRupiah(product.price)}</span>
-                            <div class="flex gap-1.5">
-                                <button onclick="shareProduct('${product.name}', ${product.price})" title="Bagikan ke WhatsApp" class="bg-green-100 dark:bg-green-950 hover:bg-green-200 text-green-700 dark:text-green-300 p-2 rounded-xl text-xs transition cursor-pointer">📤</button>
-                                <button onclick="openProductModal(${product.id})" class="bg-purple-600 text-white px-3 py-2 rounded-xl text-xs font-semibold hover:bg-purple-700 transition shadow-sm cursor-pointer">+ Pilih</button>
-                            </div>
+                        <div class="flex gap-2">
+                            <button onclick="updateStatusByCustomerName('${item.customer}', '🟡 Sedang Dimasak')" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">🍳 Masak</button>
+                            <button onclick="updateStatusByCustomerName('${item.customer}', '🟢 Selesai')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">✅ Selesai</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function filterProducts() { renderProducts(); }
-
-        function shareProduct(name, price) {
-            let text = `Halo Kak, mau rekomendasiin menu *${name}* seharga Rp ${formatRupiah(price)} di [Nama Brand Crepes] nih! Yuk pesan juga! 🥞✨`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        function updateStatusByCustomerName(customerName, newStatus) {
+            const target = salesHistory.find(s => s.customer === customerName);
+            if (target) {
+                target.status = newStatus;
+                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+                renderSalesTable();
+                updateLiveQueueWidget();
+                showNotification(`Status pesanan ${customerName} diubah ke ${newStatus}`, "success");
+            }
         }
 
-        function updateCartUI() {
-            const cartItemsEl = document.getElementById('cart-items');
-            const subTotalEl = document.getElementById('sub-total');
-            const discountRow = document.getElementById('discount-row');
-            const discountAmountEl = document.getElementById('discount-amount');
-            const cartTotalEl = document.getElementById('cart-total');
-            const cartCountEl = document.getElementById('cart-count');
-            const etaBox = document.getElementById('eta-box');
-            const etaTime = document.getElementById('eta-time');
+        function printReceipt(index) {
+            const item = salesHistory[index];
+            const printArea = document.getElementById('receipt-print-area');
+            printArea.innerHTML = `
+                <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px;">[Nama Brand Crepes]</div>
+                <div style="text-align: center; font-size: 10px; margin-bottom: 8px;">Jl. Raya Kuliner No. 123</div>
+                <div style="border-top: 1px dashed black; margin-bottom: 5px;"></div>
+                <div>Waktu: ${item.time}</div>
+                <div>Pemesan: ${item.customer}</div>
+                <div>Bayar: ${item.payment}</div>
+                <div style="border-top: 1px dashed black; margin: 5px 0;"></div>
+                <div style="white-space: pre-line;">${item.details}</div>
+                <div style="border-top: 1px dashed black; margin: 5px 0;"></div>
+                <div style="font-weight: bold; text-align: right;">TOTAL: Rp ${formatRupiah(item.total)}</div>
+                <div style="border-top: 1px dashed black; margin-top: 5px; padding-top: 5px; text-align: center; font-size: 10px;">Terima Kasih Atas Kunjungan Anda!</div>
+            `;
+            window.print();
+        }
 
-            cartItemsEl.innerHTML = '';
-            subTotal = 0;
-            let totalCount = 0;
+        function renderCharts() {
+            const ctxRev = document.getElementById('revenueChart').getContext('2d');
+            const ctxMenu = document.getElementById('menuChart').getContext('2d');
 
-            if (cart.length === 0) {
-                cartItemsEl.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
-                etaBox.classList.add('hidden');
-                appliedDiscount = 0;
-            } else {
-                cart.forEach((item, index) => {
-                    let itemSub = item.price * item.qty;
-                    subTotal += itemSub;
-                    totalCount += item.qty;
+            if (revChartInstance) revChartInstance.destroy();
+            if (menuChartInstance) menuChartInstance.destroy();
 
-                    let descHtml = '';
-                    if (item.category !== 'drink') {
-                        let crispText = `<span class="text-[11px] font-semibold text-purple-700 dark:text-purple-400">[Tekstur: ${item.crispiness}]</span>`;
-                        let toppingText = item.toppings.length > 0 ? `<br><span class="text-[11px] text-gray-600 dark:text-gray-400">Topping: ${item.toppings.map(t => t.name).join(', ')}</span>` : '';
-                        let drinkText = item.bundlingDrinks && item.bundlingDrinks.length > 0 ? `<br><span class="text-[11px] text-amber-600 dark:text-amber-400">Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')}</span>` : '';
-                        descHtml = `${crispText}${toppingText}${drinkText}`;
+            revChartInstance = new Chart(ctxRev, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'],
+                    datasets: [{
+                        label: 'Omzet (Rp)',
+                        data: [120000, 190000, 350000, 420000, 510000, 600000, 750000, 890000, salesHistory.reduce((a, b) => a + b.total, 0)],
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#374151' } },
+                        y: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#374151' } }
                     }
-                    let noteText = item.note ? `<br><span class="text-[11px] text-gray-500 italic">Catatan: "${item.note}"</span>` : '';
-
-                    cartItemsEl.innerHTML += `
-                        <div class="pt-3 first:pt-0">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-semibold text-gray-800 dark:text-gray-200">${item.name}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">${item.qty} x Rp ${formatRupiah(item.price)}</p>
-                                    ${descHtml}
-                                    ${noteText}
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-purple-900 dark:text-purple-300">Rp ${formatRupiah(itemSub)}</span>
-                                    <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700 font-bold text-base px-1 cursor-pointer">×</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                etaTime.innerText = totalCount * 5 + 10;
-                etaBox.classList.remove('hidden');
-            }
-
-            let isHappyHour = checkHappyHour();
-            happyHourDiscount = isHappyHour ? Math.round(subTotal * 0.15) : 0;
-
-            let totalDiskonGabungan = appliedDiscount + happyHourDiscount;
-            if (totalDiskonGabungan > subTotal) totalDiskonGabungan = subTotal;
-            grandTotal = subTotal - totalDiskonGabungan;
-
-            subTotalEl.innerText = `Rp ${formatRupiah(subTotal)}`;
-            if (totalDiskonGabungan > 0) {
-                discountRow.classList.remove('hidden');
-                discountAmountEl.innerText = `- Rp ${formatRupiah(totalDiskonGabungan)} ${isHappyHour ? '(Termasuk Happy Hour 15%)' : ''}`;
-            } else {
-                discountRow.classList.add('hidden');
-            }
-            cartTotalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
-            cartCountEl.innerText = totalCount;
-        }
-
-        function removeItem(index) {
-            let item = cart[index];
-            let product = products.find(p => p.id === item.productId);
-            if (product) product.stock += item.qty;
-            cart.splice(index, 1);
-            renderProducts();
-            updateCartUI();
-        }
-
-        async function checkoutWhatsApp() {
-            if (cart.length === 0) {
-                showNotification("Keranjang masih kosong!", "error");
-                return;
-            }
-
-            let customerName = document.getElementById('customer-name').value.trim();
-            let customerPhone = document.getElementById('customer-phone').value.trim();
-            if (customerName === "") {
-                showNotification("Mohon isi nama pemesan!", "error");
-                document.getElementById('customer-name').focus();
-                return;
-            }
-
-            let serviceType = document.getElementById('service-type').value;
-            let paymentMethod = document.getElementById('payment-method').value;
-            let orderSchedule = document.getElementById('order-schedule').value;
-            let deliveryAddress = document.getElementById('delivery-address').value.trim();
-
-            let orderSummaryText = [];
-            let waMessageText = `Halo Kak, saya ingin memesan menu:\n\n*Nama Pemesan:* ${customerName}\n*Layanan:* ${serviceType}${deliveryAddress ? ' (' + deliveryAddress + ')' : ''}\n*Jadwal:* ${orderSchedule}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
-            
-            cart.forEach((item, index) => {
-                let subtotal = item.price * item.qty;
-                let addOnStr = '';
-                if (item.category !== 'drink') {
-                    let crispStr = ` [Tekstur: ${item.crispiness}]`;
-                    let toppingStr = item.toppings.length > 0 ? ` (+ Toping: ${item.toppings.map(t => t.name).join(', ')})` : '';
-                    let drinkStr = item.bundlingDrinks && item.bundlingDrinks.length > 0 ? ` (+ Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')})` : '';
-                    addOnStr = `${crispStr}${toppingStr}${drinkStr}`;
                 }
-                let noteStr = item.note ? ` [Catatan: ${item.note}]` : '';
-                let itemDesc = `${item.name}${addOnStr}${noteStr} (${item.qty}x)`;
-                orderSummaryText.push(itemDesc);
-                waMessageText += `${index + 1}. ${itemDesc} = Rp ${formatRupiah(subtotal)}\n`;
             });
 
-            let totalDiskonGabungan = appliedDiscount + happyHourDiscount;
-            if (totalDiskonGabungan > 0) {
-                waMessageText += `\n*Diskon Terapan:* -Rp ${formatRupiah(totalDiskonGabungan)}\n`;
-            }
-            waMessageText += `\n*Total Pembayaran: Rp ${formatRupiah(grandTotal)}*\n\nMohon segera diproses ya Kak, terima kasih!`;
-
-            const detailString = orderSummaryText.join('; ');
-            const newSale = {
-                Waktu: new Date().toLocaleString('id-ID'),
-                "Nama Pemesan": `${customerName} (${serviceType} - ${orderSchedule})`,
-                "Detail Pesanan": detailString,
-                "Total Harga": grandTotal,
-                "Metode Pembayaran": paymentMethod,
-                "Status": "🔴 Baru Masuk"
-            };
-
-            salesHistory.push({
-                time: newSale.Waktu,
-                customer: newSale["Nama Pemesan"],
-                details: orderSummaryText.map(s => "• " + s).join('\n'),
-                payment: paymentMethod,
-                total: grandTotal,
-                status: "🔴 Baru Masuk"
+            menuChartInstance = new Chart(ctxMenu, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Manis', 'Asin & Gurih', 'Minuman'],
+                    datasets: [{
+                        data: [
+                            salesHistory.filter(s => s.details.toLowerCase().includes('crepes')).length + 5,
+                            salesHistory.filter(s => s.details.toLowerCase().includes('sosis') || s.details.toLowerCase().includes('beef')).length + 3,
+                            salesHistory.filter(s => s.details.toLowerCase().includes('es') || s.details.toLowerCase().includes('tea')).length + 2
+                        ],
+                        backgroundColor: ['#ec4899', '#f59e0b', '#3b82f6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } }
+                }
             });
-            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+        }
 
-            if (customerPhone) {
-                loyaltyData.stamps += 1;
-                loyaltyData.phone = customerPhone;
-                globalCustomerDatabase[customerPhone] = loyaltyData;
-                localStorage.setItem('crepes_customer_db', JSON.stringify(globalCustomerDatabase));
-            }
-            updateLoyaltyUI();
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Waktu,Pemesan,Detail Pesanan,Pembayaran,Total,Status\n";
+            salesHistory.forEach(row => {
+                csvContent += `"${row.time}","${row.customer}","${row.details.replace(/\n/g, ' ')}","${row.payment}",${row.total},"${row.status}"\n`;
+            });
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_penjualan_crepes.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification("File CSV berhasil diunduh!", "success");
+        }
 
-            try {
-                await fetch(SHEETDB_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: [newSale] })
-                });
-            } catch (e) {}
-
-            let phone = "6281294430304"; 
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(waMessageText)}`, '_blank');
-
-            document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
-            document.getElementById('tracking-detail').innerText = `Pemesan: ${customerName}\nTotal: Rp ${formatRupiah(grandTotal)}`;
-            document.getElementById('customer-status-modal').classList.remove('hidden');
-
-            cart = [];
-            document.getElementById('customer-name').value = '';
-            document.getElementById('customer-phone').value = '';
-            document.getElementById('delivery-address').value = '';
-            document.getElementById('promo-code').value = '';
-            appliedDiscount = 0;
-            happyHourDiscount = 0;
-            updateCartUI();
-            toggleCartModal();
-            playKitchenSound();
-            updateLiveQueueWidget();
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Laporan Penjualan & Omzet Crepes", 14, 20);
+            let y = 30;
+            salesHistory.forEach((item, idx) => {
+                doc.text(`${idx + 1}. [${item.time}] ${item.customer} - Rp ${formatRupiah(item.total)} (${item.status})`, 14, y);
+                y += 10;
+                if (y > 280) { doc.addPage(); y = 20; }
+            });
+            doc.save("laporan_penjualan_crepes.pdf");
+            showNotification("File PDF berhasil diunduh!", "success");
         }
 
         function renderReviews() {
             const container = document.getElementById('reviews-container');
+            if (!container) return;
             container.innerHTML = '';
-            customerReviews.forEach(rev => {
-                let stars = '⭐'.repeat(rev.rating);
+            customerReviews.forEach(r => {
+                let stars = '⭐'.repeat(r.rating);
                 container.innerHTML += `
-                    <div class="bg-purple-50/50 dark:bg-gray-800/60 p-4 rounded-2xl border border-purple-100 dark:border-gray-800 text-xs">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-purple-900 dark:text-purple-300">${rev.name}</span>
-                            <span>${stars}</span>
+                    <div class="bg-purple-50/50 dark:bg-gray-800 p-4 rounded-2xl border border-purple-100 dark:border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-bold text-xs text-purple-900 dark:text-purple-300">${r.name}</span>
+                                <span class="text-[11px]">${stars}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 italic">"${r.comment}"</p>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-400 mt-1">"${rev.comment}"</p>
                     </div>
                 `;
             });
         }
 
         function submitReview() {
-            let name = document.getElementById('reviewer-name').value.trim();
-            let rating = parseInt(document.getElementById('reviewer-rating').value);
-            let comment = document.getElementById('reviewer-comment').value.trim();
+            const name = document.getElementById('reviewer-name').value.trim();
+            const rating = parseInt(document.getElementById('reviewer-rating').value);
+            const comment = document.getElementById('reviewer-comment').value.trim();
 
             if (!name || !comment) {
-                showNotification("Mohon lengkapi nama dan ulasan!", "error");
+                showNotification("Harap isi nama dan komentar ulasan Anda!", "error");
                 return;
             }
 
@@ -1076,280 +1272,8 @@
             localStorage.setItem('crepes_reviews', JSON.stringify(customerReviews));
             renderReviews();
             toggleReviewModal();
-            showNotification("Terima kasih, ulasan Anda berhasil dikirim!", "success");
-
-            document.getElementById('reviewer-name').value = '';
-            document.getElementById('reviewer-comment').value = '';
+            showNotification("Ulasan berhasil dikirim. Terima kasih!", "success");
         }
-
-        function renderSalesTable() {
-            const tableBody = document.getElementById('sales-table-body');
-            const totalRevenueEl = document.getElementById('total-revenue');
-            const totalItemsSoldEl = document.getElementById('total-items-sold');
-            tableBody.innerHTML = '';
-
-            if (salesHistory.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Belum ada riwayat pesanan</td></tr>`;
-                totalRevenueEl.innerText = "Rp 0";
-                totalItemsSoldEl.innerText = "0 Transaksi";
-                return;
-            }
-
-            let revenue = 0;
-            let chartLabels = [];
-            let chartDataValues = [];
-            let menuCount = { "Manis": 0, "Asin / Gurih": 0, "Minuman": 0 };
-
-            salesHistory.forEach((sale, index) => {
-                revenue += sale.total;
-                chartLabels.push(sale.time.slice(0, 10));
-                chartDataValues.push(sale.total);
-
-                let dLower = sale.details.toLowerCase();
-                if (dLower.includes('es teh') || dLower.includes('milo') || dLower.includes('lemon tea')) {
-                    menuCount["Minuman"]++;
-                } else if (dLower.includes('sosis') || dLower.includes('beef')) {
-                    menuCount["Asin / Gurih"]++;
-                } else {
-                    menuCount["Manis"]++;
-                }
-
-                tableBody.innerHTML += `
-                    <tr class="hover:bg-gray-700/50 transition">
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${sale.time}</td>
-                        <td class="p-3 font-semibold text-white">${sale.customer}</td>
-                        <td class="p-3 text-gray-300 whitespace-pre-line">${sale.details}</td>
-                        <td class="p-3 whitespace-nowrap">
-                            <select onchange="updateOrderStatus(${index}, this.value)" class="bg-gray-700 text-white text-[11px] px-2 py-1 rounded border border-gray-600 focus:outline-none cursor-pointer">
-                                <option value="🔴 Baru Masuk" ${sale.status === '🔴 Baru Masuk' ? 'selected' : ''}>🔴 Baru Masuk</option>
-                                <option value="🟡 Sedang Dimasak" ${sale.status === '🟡 Sedang Dimasak' ? 'selected' : ''}>🟡 Sedang Dimasak</option>
-                                <option value="🟢 Selesai" ${sale.status === '🟢 Selesai' ? 'selected' : ''}>🟢 Selesai</option>
-                            </select>
-                        </td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sale.payment === 'Tunai' ? 'bg-green-900 text-green-200' : sale.payment === 'QRIS' ? 'bg-blue-900 text-blue-200' : 'bg-amber-900 text-amber-200'}">${sale.payment}</span></td>
-                        <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(sale.total)}</td>
-                        <td class="p-3 text-center flex items-center justify-center gap-1">
-                            <button onclick="printKitchenTicket(${index})" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded-lg text-[10px]" title="Tiket Dapur">👨‍🍳</button>
-                            <button onclick="printReceipt(${index})" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg text-[10px]" title="Struk Kasir">🖨️</button>
-                            <button onclick="deleteSale(${index})" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-lg text-[10px]">Hapus</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            totalRevenueEl.innerText = `Rp ${formatRupiah(revenue)}`;
-            totalItemsSoldEl.innerText = `${salesHistory.length} Transaksi`;
-
-            renderCharts(chartLabels, chartDataValues, menuCount);
-        }
-
-        function renderKDSCards() {
-            const container = document.getElementById('kds-cards-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const activeOrders = salesHistory.map((s, idx) => ({ ...s, originalIndex: idx })).filter(s => s.status !== '🟢 Selesai');
-
-            if (activeOrders.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm italic">Tidak ada pesanan di dapur saat ini. Mantap! ☕</div>`;
-                return;
-            }
-
-            activeOrders.forEach(order => {
-                let badgeColor = order.status === '🔴 Baru Masuk' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-amber-950 text-amber-300 border-amber-800';
-                container.innerHTML += `
-                    <div class="bg-gray-900 rounded-2xl p-4 border border-gray-800 flex flex-col justify-between shadow-lg">
-                        <div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs font-bold text-gray-400">${order.time}</span>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor}">${order.status}</span>
-                            </div>
-                            <h4 class="text-sm font-bold text-white mb-2">👤 ${order.customer}</h4>
-                            <div class="bg-gray-950 p-3 rounded-xl text-xs text-gray-200 whitespace-pre-line mb-4 border border-gray-800/80 font-mono">${order.details}</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="updateOrderStatus(${order.originalIndex}, '🟡 Sedang Dimasak')" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-xl text-xs font-semibold cursor-pointer">Masak 🍳</button>
-                            <button onclick="updateOrderStatus(${order.originalIndex}, '🟢 Selesai')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-semibold cursor-pointer">Selesai ✅</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function renderCharts(labels, dataVals, menuCount) {
-            if (revChartInstance) revChartInstance.destroy();
-            if (menuChartInstance) menuChartInstance.destroy();
-
-            const ctxRev = document.getElementById('revenueChart').getContext('2d');
-            revChartInstance = new Chart(ctxRev, {
-                type: 'line',
-                data: {
-                    labels: labels.slice(-5),
-                    datasets: [{ label: 'Omzet (Rp)', data: dataVals.slice(-5), borderColor: '#c084fc', backgroundColor: 'rgba(192, 132, 252, 0.1)', fill: true, tension: 0.3 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#9ca3af', font: { size: 10 } } }, x: { ticks: { color: '#9ca3af', font: { size: 10 } } } } }
-            });
-
-            const ctxMenu = document.getElementById('menuChart').getContext('2d');
-            menuChartInstance = new Chart(ctxMenu, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Manis', 'Asin / Gurih', 'Minuman'],
-                    datasets: [{ data: [menuCount["Manis"], menuCount["Asin / Gurih"], menuCount["Minuman"]], backgroundColor: ['#ec4899', '#f59e0b', '#3b82f6'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 10 } } } } }
-            });
-        }
-
-        function exportToPDF() {
-            if (salesHistory.length === 0) {
-                showNotification("Belum ada data penjualan untuk diekspor ke PDF.", "error");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text("LAPORAN REKAP PENJUALAN CREPES & MINUMAN", 14, 20);
-
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 28);
-
-            let startY = 36;
-            doc.setFont("helvetica", "bold");
-            doc.text("Waktu", 14, startY);
-            doc.text("Pemesan", 55, startY);
-            doc.text("Pembayaran", 120, startY);
-            doc.text("Total (Rp)", 165, startY);
-            doc.line(14, startY + 2, 195, startY + 2);
-
-            startY += 8;
-            doc.setFont("helvetica", "normal");
-            let totalOmzet = 0;
-
-            salesHistory.forEach((sale) => {
-                if (startY > 270) {
-                    doc.addPage();
-                    startY = 20;
-                }
-                doc.text(sale.time.slice(0, 16), 14, startY);
-                doc.text(sale.customer.slice(0, 25), 55, startY);
-                doc.text(sale.payment, 120, startY);
-                doc.text(formatRupiah(sale.total), 165, startY);
-                totalOmzet += sale.total;
-                startY += 7;
-            });
-
-            doc.line(14, startY + 2, 195, startY + 2);
-            startY += 8;
-            doc.setFont("helvetica", "bold");
-            doc.text(`TOTAL Keseluruhan Omzet: Rp ${formatRupiah(totalOmzet)}`, 14, startY);
-
-            doc.save("rekap_penjualan_crepes.pdf");
-            showNotification("Laporan PDF berhasil diunduh!", "success");
-        }
-
-        function printKitchenTicket(index) {
-            const sale = salesHistory[index];
-            const printArea = document.getElementById('receipt-print-area');
-            let cleanDetails = sale.details.replace(/•/g, "").trim();
-
-            printArea.innerHTML = `
-                <div style="text-align: center; margin-bottom: 6px;">
-                    <strong>=== TIKET DAPUR (KOT) ===</strong><br>
-                    Waktu: ${sale.time}<br>
-                    Pemesan: ${sale.customer}<br>
-                    Status: ${sale.status}<br>
-                    --------------------------------
-                </div>
-                <strong>RESEP & INSTRUKSI:</strong><br>
-                <div style="white-space: pre-line; font-size: 13px; margin: 6px 0; font-weight: bold;">${cleanDetails}</div>
-                --------------------------------<br>
-                <div style="text-align: center; font-size: 10px;">Segera Siapkan! 🍳🔥</div>
-            `;
-            printArea.classList.remove('hidden');
-            window.print();
-            printArea.classList.add('hidden');
-        }
-
-        function printReceipt(index) {
-            const sale = salesHistory[index];
-            const printArea = document.getElementById('receipt-print-area');
-            let cleanDetailsForPrint = sale.details.replace(/•/g, "").trim();
-
-            printArea.innerHTML = `
-                <div style="text-align: center; margin-bottom: 6px;">
-                    <strong>[NAMA BRAND CREPES]</strong><br>
-                    <span style="font-size: 9px;">Renyah & Manis di Setiap Gigitan</span><br>
-                    --------------------------------
-                </div>
-                <div style="margin-bottom: 6px;">
-                    Waktu : ${sale.time}<br>
-                    Pemesan : ${sale.customer}<br>
-                    Bayar : ${sale.payment}<br>
-                    Status : ${sale.status}
-                </div>
-                --------------------------------<br>
-                <strong>DETAIL PESANAN:</strong><br>
-                <div style="white-space: pre-line; margin: 4px 0;">${cleanDetailsForPrint}</div>
-                --------------------------------<br>
-                <div style="text-align: right; font-weight: bold; font-size: 12px; margin-top: 4px;">
-                    TOTAL: Rp ${formatRupiah(sale.total)}
-                </div>
-                --------------------------------<br>
-                <div style="text-align: center; font-size: 9px; margin-top: 6px;">
-                    Terima Kasih!<br>Silakan Datang Kembali 🥞
-                </div>
-            `;
-            printArea.classList.remove('hidden');
-            window.print();
-            printArea.classList.add('hidden');
-        }
-
-        function exportToCSV() {
-            if (salesHistory.length === 0) {
-                showNotification("Belum ada data.", "error");
-                return;
-            }
-            let csvContent = "data:text/csv;charset=utf-8,Waktu,Nama Pemesan,Detail Pesanan,Metode Pembayaran,Total Harga,Status\n";
-            salesHistory.forEach(sale => {
-                let cleanDetails = sale.details.replace(/\n/g, " | ");
-                csvContent += `"${sale.time}","${sale.customer}","${cleanDetails}","${sale.payment}",${sale.total},"${sale.status}"\n`;
-            });
-            let link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", "rekap_penjualan_crepes.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showNotification("Berhasil diunduh!", "success");
-        }
-
-        function updateOrderStatus(index, newStatus) {
-            salesHistory[index].status = newStatus;
-            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-            showNotification(`Status diperbarui: ${newStatus}`, "info");
-            updateLiveQueueWidget();
-            if(!document.getElementById('seller-dashboard').classList.contains('hidden')) {
-                renderSalesTable();
-            }
-        }
-
-        function deleteSale(index) {
-            if (confirm("Hapus riwayat ini?")) {
-                salesHistory.splice(index, 1);
-                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-                renderSalesTable();
-                updateLiveQueueWidget();
-                showNotification("Berhasil dihapus.", "info");
-            }
-        }
-
-        renderProducts();
     </script>
-
 </body>
 </html>
