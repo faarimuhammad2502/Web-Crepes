@@ -78,6 +78,11 @@
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes Favoritmu</h2>
         <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung melalui WhatsApp dengan mudah, cepat, dan praktis!</p>
         
+        <!-- BANNER HAPPY HOUR OTOMATIS -->
+        <div id="happy-hour-banner" class="max-w-md mx-auto mb-3 bg-pink-100 dark:bg-pink-950/40 border border-pink-300 dark:border-pink-900 rounded-2xl p-2.5 text-xs text-pink-800 dark:text-pink-300 font-semibold hidden">
+            ⚡ HAPPY HOUR AKTIF! Diskon Otomatis 15% Khusus Jam 14:00 - 16:00!
+        </div>
+
         <!-- WIDGET PAPAN ANTREAN LIVE -->
         <div id="live-queue-widget" class="max-w-md mx-auto mb-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-2xl p-3 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between shadow-sm">
             <span class="font-bold flex items-center gap-1.5">🔥 Sedang Dimasak:</span>
@@ -160,7 +165,7 @@
         </div>
     </div>
 
-    <!-- MODAL KUSTOMISASI PRODUK (DENGAN UPSELLING REKOMENDASI) -->
+    <!-- MODAL KUSTOMISASI PRODUK -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto border dark:border-gray-800">
             <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -194,7 +199,6 @@
                 <div id="modal-topping-list" class="space-y-2"></div>
             </div>
 
-            <!-- WIDGET UPSELLING REKOMENDASI -->
             <div id="upsell-container" class="mb-4 bg-purple-50 dark:bg-purple-950/40 p-3 rounded-2xl border border-purple-200 dark:border-purple-900">
                 <p class="text-[11px] font-bold text-purple-900 dark:text-purple-300 mb-1">💡 Sering Dipesan Bersama:</p>
                 <div id="upsell-item-box" class="text-xs text-gray-600 dark:text-gray-400 italic">Extra Keju Parut / Tambahan Susu Manis</div>
@@ -287,7 +291,7 @@
                     <span id="sub-total">Rp 0</span>
                 </div>
                 <div id="discount-row" class="flex justify-between text-emerald-600 dark:text-emerald-400 hidden">
-                    <span>Diskon Promo:</span>
+                    <span>Diskon (Promo / Happy Hour):</span>
                     <span id="discount-amount">- Rp 0</span>
                 </div>
                 <div class="flex justify-between font-bold text-base text-purple-900 dark:text-purple-300 pt-1 border-t dark:border-gray-800">
@@ -402,10 +406,10 @@
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
         const products = [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 8, ingredients: ["Cokelat", "Keju"] },
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 2, ingredients: ["Cokelat", "Keju"] },
             { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5, ingredients: ["Matcha"] },
             { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 6, ingredients: ["Sosis", "Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 3, ingredients: ["Sosis", "Keju"] },
             { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] }
         ];
 
@@ -419,7 +423,7 @@
 
         const SELLER_PIN = "1234";
         let cart = [];
-        let grandTotal = 0, subTotal = 0, appliedDiscount = 0;
+        let grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0;
         let currentFilter = 'all';
         let currentIngredientFilter = 'all';
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
@@ -441,6 +445,7 @@
             }
             updateLoyaltyUI();
             checkStoreStatus();
+            checkHappyHour();
             renderReviews();
             updateLiveQueueWidget();
         });
@@ -457,6 +462,17 @@
                 badge.innerText = "🔴 Toko Tutup";
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
             }
+        }
+
+        function checkHappyHour() {
+            const currentHour = new Date().getHours();
+            const banner = document.getElementById('happy-hour-banner');
+            // Happy hour aktif jam 14:00 sampai 16:00 (Jam 14 dan 15)
+            if (currentHour >= 14 && currentHour < 16) {
+                banner.classList.remove('hidden');
+                return true;
+            }
+            return false;
         }
 
         function updateLiveQueueWidget() {
@@ -567,7 +583,6 @@
             document.getElementById('modal-product-stock').innerText = `Stok: ${product.stock}`;
             document.getElementById('modal-item-note').value = '';
 
-            // Set Rekomendasi Upselling
             let upsellText = product.category === 'sweet' ? "Extra Keju Parut / Tambahan Susu Manis" : "Extra Sosis / Keju Leleh";
             document.getElementById('upsell-item-box').innerText = upsellText;
 
@@ -733,7 +748,14 @@
             }
 
             filteredProducts.forEach(product => {
-                let stockBadge = product.stock > 0 ? `<span class="text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-semibold">Stok: ${product.stock}</span>` : `<span class="text-[10px] bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded font-semibold">Habis</span>`;
+                let stockBadge = '';
+                if (product.stock > 3) {
+                    stockBadge = `<span class="text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-semibold">Stok: ${product.stock}</span>`;
+                } else if (product.stock > 0) {
+                    stockBadge = `<span class="text-[10px] bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 px-2 py-0.5 rounded font-semibold animate-pulse">⚠️ Stok Menipis: ${product.stock}</span>`;
+                } else {
+                    stockBadge = `<span class="text-[10px] bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded font-semibold">Habis</span>`;
+                }
 
                 productGrid.innerHTML += `
                     <div class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between">
@@ -816,13 +838,18 @@
                 etaBox.classList.remove('hidden');
             }
 
-            if (appliedDiscount > subTotal) appliedDiscount = subTotal;
-            grandTotal = subTotal - appliedDiscount;
+            // Hitung Diskon Happy Hour Otomatis (15%) jika waktu memenuhi
+            let isHappyHour = checkHappyHour();
+            happyHourDiscount = isHappyHour ? Math.round(subTotal * 0.15) : 0;
+
+            let totalDiskonGabungan = appliedDiscount + happyHourDiscount;
+            if (totalDiskonGabungan > subTotal) totalDiskonGabungan = subTotal;
+            grandTotal = subTotal - totalDiskonGabungan;
 
             subTotalEl.innerText = `Rp ${formatRupiah(subTotal)}`;
-            if (appliedDiscount > 0) {
+            if (totalDiskonGabungan > 0) {
                 discountRow.classList.remove('hidden');
-                discountAmountEl.innerText = `- Rp ${formatRupiah(appliedDiscount)}`;
+                discountAmountEl.innerText = `- Rp ${formatRupiah(totalDiskonGabungan)} ${isHappyHour ? '(Termasuk Happy Hour 15%)' : ''}`;
             } else {
                 discountRow.classList.add('hidden');
             }
@@ -871,7 +898,10 @@
                 waMessageText += `${index + 1}. ${itemDesc} = Rp ${formatRupiah(subtotal)}\n`;
             });
 
-            if (appliedDiscount > 0) waMessageText += `\n*Diskon Promo:* -Rp ${formatRupiah(appliedDiscount)}\n`;
+            let totalDiskonGabungan = appliedDiscount + happyHourDiscount;
+            if (totalDiskonGabungan > 0) {
+                waMessageText += `\n*Diskon Terapan:* -Rp ${formatRupiah(totalDiskonGabungan)}\n`;
+            }
             waMessageText += `\n*Total Pembayaran: Rp ${formatRupiah(grandTotal)}*\n\nMohon segera diproses ya Kak, terima kasih!`;
 
             const detailString = orderSummaryText.join('; ');
@@ -920,6 +950,7 @@
             document.getElementById('delivery-address').value = '';
             document.getElementById('promo-code').value = '';
             appliedDiscount = 0;
+            happyHourDiscount = 0;
             updateCartUI();
             toggleCartModal();
             playKitchenSound();
@@ -1046,7 +1077,6 @@
             });
         }
 
-        // FITUR EKSPOR LAPORAN KE PDF
         function exportToPDF() {
             if (salesHistory.length === 0) {
                 showNotification("Belum ada data penjualan untuk diekspor ke PDF.", "error");
