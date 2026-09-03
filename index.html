@@ -11,7 +11,7 @@
             darkMode: 'class',
         }
     </script>
-    <!-- Chart.js CDN untuk Grafik Dashboard -->
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
     <!-- CONTAINER NOTIFIKASI -->
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
 
-    <!-- AREA CETAK STRUK & TIKET DAPUR -->
+    <!-- AREA CETAK -->
     <div id="receipt-print-area" class="hidden"></div>
 
     <!-- NAVBAR -->
@@ -76,7 +76,6 @@
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes Favoritmu</h2>
         <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung melalui WhatsApp dengan mudah, cepat, dan praktis!</p>
         
-        <!-- Info Program Loyalitas Pelanggan -->
         <div id="loyalty-banner" class="max-w-md mx-auto mb-5 bg-purple-100/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 rounded-2xl p-3 text-xs text-purple-900 dark:text-purple-300 hidden">
             ✨ Status Member: <strong id="member-status-text">0 Stempel</strong> (Kumpulkan 5 Stempel untuk 1 Crepes Gratis!)
         </div>
@@ -96,9 +95,55 @@
         </div>
 
         <h3 class="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-300 mb-5">🥞 Pilih Menu Crepes</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10" id="product-grid"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14" id="product-grid"></div>
+
+        <!-- SEKSI ULASAN & TESTIMONI PELANGGAN -->
+        <section class="mt-12 bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-purple-100 dark:border-gray-800">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b dark:border-gray-800 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-purple-900 dark:text-purple-300">⭐ Ulasan & Penilaian Pelanggan</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Apa kata mereka yang sudah mencoba kelezatan crepes kami?</p>
+                </div>
+                <button onclick="toggleReviewModal()" class="bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 text-purple-700 dark:text-purple-300 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">
+                    ✍️ Tulis Ulasan
+                </button>
+            </div>
+            
+            <div id="reviews-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Render Ulasan via JS -->
+            </div>
+        </section>
 
     </main>
+
+    <!-- MODAL TULIS ULASAN -->
+    <div id="review-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative border dark:border-gray-800">
+            <button onclick="toggleReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
+            <h3 class="text-lg font-bold text-purple-900 dark:text-purple-300 mb-3">Kirim Ulasan Anda</h3>
+            
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Nama Anda:</label>
+                <input type="text" id="reviewer-name" placeholder="Contoh: Rina" class="w-full px-3 py-2 text-xs border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:border-purple-600">
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Rating Bintang:</label>
+                <select id="reviewer-rating" class="w-full px-3 py-2 text-xs border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:border-purple-600">
+                    <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
+                    <option value="4">⭐⭐⭐⭐ (Puas)</option>
+                    <option value="3">⭐⭐⭐ (Cukup)</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Pesan Ulasan:</label>
+                <textarea id="reviewer-comment" rows="3" placeholder="Garing di luar, cokelatnya lumer banget!" class="w-full px-3 py-2 text-xs border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:border-purple-600"></textarea>
+            </div>
+
+            <button onclick="submitReview()" class="w-full bg-purple-600 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-purple-700 transition cursor-pointer">Kirim Ulasan</button>
+        </div>
+    </div>
 
     <!-- MODAL KUSTOMISASI PRODUK -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
@@ -185,6 +230,16 @@
             </div>
 
             <div class="mb-3">
+                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Waktu Pesanan:</label>
+                <select id="order-schedule" class="w-full px-3 py-2 text-xs border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 dark:text-white focus:outline-none focus:border-purple-600">
+                    <option value="Sekarang (Langsung Dibuat)">⚡ Sekarang (Langsung Dibuat)</option>
+                    <option value="Terjadwal (+15 Menit)">⏰ Terjadwal (+15 Menit)</option>
+                    <option value="Terjadwal (+30 Menit)">⏰ Terjadwal (+30 Menit)</option>
+                    <option value="Terjadwal (+1 Jam)">⏰ Terjadwal (+1 Jam)</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Nomor Meja / Alamat Pengantaran:</label>
                 <input type="text" id="delivery-address" placeholder="Contoh: Meja No. 5" class="w-full px-3 py-2 text-xs border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-purple-600 bg-white dark:bg-gray-800 dark:text-white">
             </div>
@@ -226,7 +281,7 @@
         </div>
     </div>
 
-    <!-- POPUP STATUS PELANGGAN (LIVE TRACKING) -->
+    <!-- POPUP STATUS PELANGGAN -->
     <div id="customer-status-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative text-center border dark:border-gray-800">
             <h3 class="text-base font-bold text-purple-900 dark:text-purple-300 mb-1">Status Pesanan Anda</h3>
@@ -267,7 +322,6 @@
                     </div>
                 </div>
 
-                <!-- KARTU STATISTIK & GRAFIK -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
@@ -289,7 +343,6 @@
                     </div>
                 </div>
 
-                <!-- TABEL LAPORAN -->
                 <div class="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 text-xs">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse min-w-[700px]">
@@ -348,8 +401,13 @@
         let currentFilter = 'all';
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
         let loyaltyData = JSON.parse(localStorage.getItem('crepes_loyalty')) || { stamps: 0, phone: '' };
+        let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [
+            { name: "Andi", rating: 5, comment: "Renyah banget dan isian cokelatnya melimpah! Pasti langganan." },
+            { name: "Siti", rating: 5, comment: "Mantap, pesanan cepat siap dan pelayanan ramah." }
+        ];
         let revChartInstance = null;
         let menuChartInstance = null;
+        let isStoreOpen = true;
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -359,7 +417,23 @@
                 document.getElementById('delivery-address').value = `Meja No. ${mejaNum}`;
             }
             updateLoyaltyUI();
+            checkStoreStatus();
+            renderReviews();
         });
+
+        function checkStoreStatus() {
+            const currentHour = new Date().getHours();
+            const badge = document.getElementById('store-status-badge');
+            isStoreOpen = currentHour >= 8 && currentHour < 22; 
+            
+            if (isStoreOpen) {
+                badge.innerText = "🟢 Buka (08:00 - 22:00)";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 hidden sm:inline-block";
+            } else {
+                badge.innerText = "🔴 Toko Tutup";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
+            }
+        }
 
         function updateLoyaltyUI() {
             const banner = document.getElementById('loyalty-banner');
@@ -440,23 +514,16 @@
             }, 3500);
         }
 
-        function checkStoreStatus() {
-            const currentHour = new Date().getHours();
-            const badge = document.getElementById('store-status-badge');
-            const isBuka = currentHour >= 8 && currentHour < 22; 
-            if (isBuka) {
-                badge.innerText = "🟢 Buka";
-                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 hidden sm:inline-block";
-            } else {
-                badge.innerText = "🔴 Tutup (Jam 08:00 - 22:00)";
-                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
-            }
-        }
-
         function toggleCartModal() { document.getElementById('cart-modal').classList.toggle('hidden'); }
         function toggleProductModal() { document.getElementById('product-modal').classList.toggle('hidden'); }
+        function toggleReviewModal() { document.getElementById('review-modal').classList.toggle('hidden'); }
 
         function openProductModal(productId) {
+            if (!isStoreOpen) {
+                showNotification("Maaf, toko sedang tutup (Jam operasional 08:00 - 22:00).", "error");
+                return;
+            }
+
             const product = products.find(p => p.id === productId);
             document.getElementById('modal-product-id').value = product.id;
             document.getElementById('modal-product-name').innerText = product.name;
@@ -495,11 +562,6 @@
         function confirmAddToCart() {
             const productId = parseInt(document.getElementById('modal-product-id').value);
             const product = products.find(p => p.id === productId);
-
-            if (product.stock <= 0) {
-                showNotification("Maaf, stok menu ini sudah habis!", "error");
-                return;
-            }
 
             const note = document.getElementById('modal-item-note').value.trim();
             const crispiness = document.querySelector('input[name="crispiness"]:checked').value;
@@ -540,7 +602,7 @@
                 showNotification("Kupon CREPESKILAT berhasil digunakan! Potongan 10%", "success");
             } else {
                 appliedDiscount = 0;
-                showNotification("Kode kupon tidak valid atau sudah kedaluwarsa.", "error");
+                showNotification("Kode kupon tidak valid.", "error");
             }
             updateCartUI();
         }
@@ -560,7 +622,7 @@
                         if (rawDetails && String(rawDetails).trim() !== "") {
                             formattedDetails = rawDetails.includes(';') ? rawDetails.split(';').map(s => "• " + s.trim()).join('\n') : (rawDetails.startsWith('•') ? rawDetails : "• " + rawDetails);
                         } else {
-                            formattedDetails = "• (Baris kosong / Tidak ada detail)";
+                            formattedDetails = "• (Baris kosong)";
                         }
 
                         return {
@@ -747,10 +809,11 @@
 
             let serviceType = document.getElementById('service-type').value;
             let paymentMethod = document.getElementById('payment-method').value;
+            let orderSchedule = document.getElementById('order-schedule').value;
             let deliveryAddress = document.getElementById('delivery-address').value.trim();
 
             let orderSummaryText = [];
-            let waMessageText = `Halo Kak, saya ingin memesan crepes:\n\n*Nama Pemesan:* ${customerName}\n*Layanan:* ${serviceType}${deliveryAddress ? ' (' + deliveryAddress + ')' : ''}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
+            let waMessageText = `Halo Kak, saya ingin memesan crepes:\n\n*Nama Pemesan:* ${customerName}\n*Layanan:* ${serviceType}${deliveryAddress ? ' (' + deliveryAddress + ')' : ''}\n*Jadwal:* ${orderSchedule}\n*Pembayaran:* ${paymentMethod}\n\n*Detail Pesanan:*\n`;
             
             cart.forEach((item, index) => {
                 let subtotal = item.price * item.qty;
@@ -768,7 +831,7 @@
             const detailString = orderSummaryText.join('; ');
             const newSale = {
                 Waktu: new Date().toLocaleString('id-ID'),
-                "Nama Pemesan": `${customerName} (${serviceType}${deliveryAddress ? ' - ' + deliveryAddress : ''})`,
+                "Nama Pemesan": `${customerName} (${serviceType} - ${orderSchedule})`,
                 "Detail Pesanan": detailString,
                 "Total Harga": grandTotal,
                 "Metode Pembayaran": paymentMethod,
@@ -785,7 +848,6 @@
             });
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
-            // Tambah Stempel Poin Loyalitas
             loyaltyData.stamps += 1;
             if (customerPhone) loyaltyData.phone = customerPhone;
             localStorage.setItem('crepes_loyalty', JSON.stringify(loyaltyData));
@@ -802,7 +864,6 @@
             let phone = "6281294430304"; 
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(waMessageText)}`, '_blank');
 
-            // Tampilkan Modal Tracking Status untuk Pembeli
             document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
             document.getElementById('tracking-detail').innerText = `Pemesan: ${customerName}\nTotal: Rp ${formatRupiah(grandTotal)}`;
             document.getElementById('customer-status-modal').classList.remove('hidden');
@@ -816,6 +877,43 @@
             updateCartUI();
             toggleCartModal();
             playKitchenSound();
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviews-container');
+            container.innerHTML = '';
+            customerReviews.forEach(rev => {
+                let stars = '⭐'.repeat(rev.rating);
+                container.innerHTML += `
+                    <div class="bg-purple-50/50 dark:bg-gray-800/60 p-4 rounded-2xl border border-purple-100 dark:border-gray-800 text-xs">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-purple-900 dark:text-purple-300">${rev.name}</span>
+                            <span>${stars}</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">"${rev.comment}"</p>
+                    </div>
+                `;
+            });
+        }
+
+        function submitReview() {
+            let name = document.getElementById('reviewer-name').value.trim();
+            let rating = parseInt(document.getElementById('reviewer-rating').value);
+            let comment = document.getElementById('reviewer-comment').value.trim();
+
+            if (!name || !comment) {
+                showNotification("Mohon lengkapi nama dan ulasan!", "error");
+                return;
+            }
+
+            customerReviews.unshift({ name, rating, comment });
+            localStorage.setItem('crepes_reviews', JSON.stringify(customerReviews));
+            renderReviews();
+            toggleReviewModal();
+            showNotification("Terima kasih, ulasan Anda berhasil dikirim!", "success");
+
+            document.getElementById('reviewer-name').value = '';
+            document.getElementById('reviewer-comment').value = '';
         }
 
         function renderSalesTable() {
@@ -873,7 +971,6 @@
             totalRevenueEl.innerText = `Rp ${formatRupiah(revenue)}`;
             totalItemsSoldEl.innerText = `${salesHistory.length} Transaksi`;
 
-            // Render Chart.js Grafik Omzet & Menu
             renderCharts(chartLabels, chartDataValues, menuCount);
         }
 
@@ -902,7 +999,6 @@
             });
         }
 
-        // FITUR CETAK TIKET DAPUR (KOT) - TANPA HARGA
         function printKitchenTicket(index) {
             const sale = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
@@ -994,7 +1090,6 @@
             }
         }
 
-        checkStoreStatus();
         renderProducts();
     </script>
 
