@@ -47,7 +47,6 @@
 <body class="bg-purple-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300">
 
     <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none max-w-xs w-full px-3"></div>
-
     <div id="receipt-print-area" class="hidden"></div>
 
     <nav class="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-40 transition-colors duration-300">
@@ -97,7 +96,6 @@
     </header>
 
     <main id="menu" class="max-w-6xl mx-auto px-4 pb-16">
-        
         <div class="flex justify-center gap-2 mb-6 flex-wrap">
             <button onclick="filterCategory('all')" id="btn-all" class="px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer">Semua Kategori</button>
             <button onclick="filterCategory('sweet')" id="btn-sweet" class="px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer">🍫 Manis</button>
@@ -118,10 +116,8 @@
                     ✍️ Tulis Ulasan
                 </button>
             </div>
-            
             <div id="reviews-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </section>
-
     </main>
 
     <div id="review-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
@@ -324,7 +320,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Analisis & Dapur (KDS)</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Manajemen Promo & Dapur (KDS)</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka Layar KDS Dapur</button>
@@ -332,6 +328,18 @@
                         <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 Unduh CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Kunci</button>
                     </div>
+                </div>
+
+                <!-- Panel Manajemen Voucher / Promo Baru -->
+                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Tambah atau hapus kode promo diskon yang bisa digunakan pelanggan saat checkout.</p>
+                    <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                        <input type="text" id="new-promo-code" placeholder="KODE (Mis: DISKON20)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white uppercase focus:outline-none focus:border-purple-500 flex-1">
+                        <input type="number" id="new-promo-amount" placeholder="Nominal Potongan (Rp)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500 flex-1">
+                        <button onclick="addNewPromoCode()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">➕ Tambah Kupon</button>
+                    </div>
+                    <div id="admin-promo-list" class="flex flex-wrap gap-2 text-xs"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -387,8 +395,7 @@
             <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">🍳 Kitchen Display System (KDS) Live</h2>
             <button onclick="toggleKDSModal()" class="bg-gray-800 text-gray-300 hover:text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Tutup KDS ✕</button>
         </div>
-        <div id="kds-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto flex-1">
-            </div>
+        <div id="kds-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto flex-1"></div>
     </div>
 
     <footer class="bg-purple-950 text-purple-200 py-6 text-center text-xs">
@@ -423,6 +430,12 @@
             { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500 }
         ];
 
+        // Manajemen Kupon Promo Dinamis (Disimpan di LocalStorage)
+        let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || {
+            "HEMAT5RB": 5000,
+            "CREPESKILAT": 10000
+        };
+
         const SELLER_PIN = "1234";
         let cart = [];
         let grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0;
@@ -451,6 +464,7 @@
             renderProducts();
             renderReviews();
             updateLiveQueueWidget();
+            renderAdminPromoList();
         });
 
         function checkStoreStatus() {
@@ -632,12 +646,15 @@
                 let badgeColor = p.category === 'drink' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : (p.category === 'sweet' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300');
                 let catLabel = p.category === 'drink' ? '🥤 Minuman' : (p.category === 'sweet' ? '🍫 Manis' : '🧀 Asin & Gurih');
                 
+                // Sistem Low Stock Alert (Jika stok <= 3, tampilkan badge peringatan)
+                let stockBadge = `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${p.stock <= 3 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' : 'text-gray-500 dark:text-gray-400'}">Stok: ${p.stock} ${p.stock <= 3 ? '⚠️ Menipis!' : ''}</span>`;
+
                 grid.innerHTML += `
                     <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between transition hover:shadow-md">
                         <div>
                             <div class="flex justify-between items-start mb-2">
                                 <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${badgeColor}">${catLabel}</span>
-                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Stok: ${p.stock}</span>
+                                ${stockBadge}
                             </div>
                             <h4 class="font-bold text-sm sm:text-base text-purple-900 dark:text-purple-300 mb-1">${p.name}</h4>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${p.desc}</p>
@@ -885,51 +902,56 @@
             updateCartUI();
         }
 
+        // Fungsi Cek dan Terapkan Promo Berdasarkan Database Voucher Admin
         function applyPromo() {
             const code = document.getElementById('promo-code').value.trim().toUpperCase();
-            if (code === "HEMAT5RB") {
-                appliedDiscount = 5000;
-                showNotification("Kupon HEMAT5RB berhasil digunakan! Potongan Rp 5.000", "success");
-            } else if (code === "CREPESKILAT") {
-                appliedDiscount = Math.round(subTotal * 0.1);
-                showNotification("Kupon CREPESKILAT berhasil digunakan! Potongan 10%", "success");
+            if (activeVouchers[code]) {
+                appliedDiscount = activeVouchers[code];
+                showNotification(`Kupon ${code} berhasil digunakan! Potongan Rp ${formatRupiah(appliedDiscount)}`, "success");
             } else {
                 appliedDiscount = 0;
-                showNotification("Kode kupon tidak valid.", "error");
+                showNotification("Kode kupon tidak valid atau tidak terdaftar.", "error");
             }
             updateCartUI();
         }
 
-        async function fetchSalesData() {
-            try {
-                let response = await fetch(SHEETDB_API_URL);
-                let data = await response.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    salesHistory = data.map((item) => {
-                        let rawDetails = item["Detail Pesanan"] || item["detail pesanan"] || "";
-                        let rawTotal = item["Total Harga"] || item["total harga"] || "0";
-                        let cleanTotal = parseInt(String(rawTotal).replace(/[^0-9]/g, '')) || 0;
-                        let payment = item["Metode Pembayaran"] || item["metode pembayaran"] || "Tunai";
+        function addNewPromoCode() {
+            const codeInput = document.getElementById('new-promo-code').value.trim().toUpperCase();
+            const amountInput = parseInt(document.getElementById('new-promo-amount').value);
 
-                        let formattedDetails = "";
-                        if (rawDetails && String(rawDetails).trim() !== "") {
-                            formattedDetails = rawDetails.includes(';') ? rawDetails.split(';').map(s => "• " + s.trim()).join('\n') : (rawDetails.startsWith('•') ? rawDetails : "• " + rawDetails);
-                        } else {
-                            formattedDetails = "• (Baris kosong)";
-                        }
+            if (!codeInput || isNaN(amountInput) || amountInput <= 0) {
+                showNotification("Masukkan kode promo dan nominal potongan yang valid!", "error");
+                return;
+            }
 
-                        return {
-                            time: item.Waktu || item.waktu || "",
-                            customer: item["Nama Pemesan"] || item["nama pemesan"] || "Pelanggan",
-                            details: formattedDetails,
-                            payment,
-                            total: cleanTotal,
-                            status: item["Status"] || "🔴 Baru Masuk"
-                        };
-                    });
-                    localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-                }
-            } catch (e) {}
+            activeVouchers[codeInput] = amountInput;
+            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
+            document.getElementById('new-promo-code').value = '';
+            document.getElementById('new-promo-amount').value = '';
+            renderAdminPromoList();
+            showNotification(`Kupon ${codeInput} berhasil ditambahkan!`, "success");
+        }
+
+        function deletePromoCode(code) {
+            delete activeVouchers[code];
+            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
+            renderAdminPromoList();
+            showNotification(`Kupon ${code} berhasil dihapus.`, "info");
+        }
+
+        function renderAdminPromoList() {
+            const container = document.getElementById('admin-promo-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            for (let [code, amount] of Object.entries(activeVouchers)) {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 px-3 py-1.5 rounded-xl flex items-center gap-2 text-white">
+                        <span>🏷️ <strong>${code}</strong> (Rp ${formatRupiah(amount)})</span>
+                        <button onclick="deletePromoCode('${code}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1 cursor-pointer">✕</button>
+                    </div>
+                `;
+            }
         }
 
         async function checkoutWhatsApp() {
@@ -1031,6 +1053,7 @@
                 document.getElementById('seller-dashboard').classList.remove('hidden');
                 renderSalesTable();
                 renderCharts();
+                renderAdminPromoList();
                 showNotification("Akses Pemilik Berhasil!", "success");
             } else {
                 showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
