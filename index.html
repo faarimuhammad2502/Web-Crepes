@@ -331,7 +331,6 @@
                     </div>
                 </div>
 
-                <!-- Panel Shift Kasir & Kontrol Toko Manual -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
@@ -358,14 +357,12 @@
                     </div>
                 </div>
 
-                <!-- Panel Manajemen Modal / HPP Menu -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
                     <p class="text-[11px] text-gray-400 mb-3">Atur estimasi modal tiap menu untuk melihat keuntungan bersih otomatis.</p>
                     <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
 
-                <!-- Panel Filter Laporan per Hari / per Bulan -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan & Keuangan</h4>
                     <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi, omzet, dan profit bersih.</p>
@@ -384,7 +381,6 @@
                     </div>
                 </div>
 
-                <!-- Panel Manajemen Voucher / Promo Baru -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
                     <p class="text-[11px] text-gray-400 mb-3">Tambah atau hapus kode promo diskon.</p>
@@ -420,11 +416,15 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <p class="text-xs text-gray-400 mb-2">Grafik Omzet</p>
-                        <div class="h-36"><canvas id="revenueChart"></canvas></div>
+                        <div style="position: relative; height: 160px; width: 100%;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <p class="text-xs text-gray-400 mb-2">Grafik Kategori Menu Terjual</p>
-                        <div class="h-36 flex items-center justify-center"><canvas id="menuChart"></canvas></div>
+                        <div style="position: relative; height: 160px; width: 100%;">
+                            <canvas id="menuChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -455,7 +455,6 @@
         </div>
     </section>
 
-    <!-- Modal QR Code Meja -->
     <div id="qr-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative border dark:border-gray-800 max-h-[85vh] overflow-y-auto">
             <button onclick="toggleQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -665,8 +664,8 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nada D5
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Nada A5
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -1248,23 +1247,20 @@
             window.open(waUrl, '_blank');
         }
 
-function verifyPin() {
-    const pin = document.getElementById('seller-pin').value;
-    if (pin === SELLER_PIN) {
-        document.getElementById('seller-login-box').classList.add('hidden');
-        document.getElementById('seller-dashboard').classList.remove('hidden');
-        
-        // Render ulang data tabel, promo, HPP, dan panggil grafik di sini agar langsung muncul
-        renderSalesTable();
-        renderCharts();
-        renderAdminPromoList();
-        renderAdminHPPList();
-        
-        showNotification("Akses Pemilik Berhasil!", "success");
-    } else {
-        showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
-    }
-}
+        function verifyPin() {
+            const pin = document.getElementById('seller-pin').value;
+            if (pin === SELLER_PIN) {
+                document.getElementById('seller-login-box').classList.add('hidden');
+                document.getElementById('seller-dashboard').classList.remove('hidden');
+                renderSalesTable();
+                renderCharts();
+                renderAdminPromoList();
+                renderAdminHPPList();
+                showNotification("Akses Pemilik Berhasil!", "success");
+            } else {
+                showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
+            }
+        }
 
         function lockDashboard() {
             document.getElementById('seller-dashboard').classList.add('hidden');
