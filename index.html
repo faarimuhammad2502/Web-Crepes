@@ -320,13 +320,27 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Manajemen Promo & Dapur (KDS)</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Pengaturan Toko & Dapur</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka Layar KDS Dapur</button>
                         <button onclick="exportToPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 Unduh PDF</button>
                         <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 Unduh CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Kunci</button>
+                    </div>
+                </div>
+
+                <!-- Panel Kontrol Jam Buka / Tutup Toko Manual -->
+                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-purple-300 mb-1">🏪 Kontrol Status Toko Manual</h4>
+                        <p class="text-[11px] text-gray-400">Atur buka atau tutup toko kapan saja secara instan jika jam operasional tidak menentu.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="manual-status-label" class="text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300">Status: BUKA</span>
+                        <button id="store-toggle-btn" onclick="toggleStoreStatusManual()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
+                            🛑 Tutup Toko Sekarang
+                        </button>
                     </div>
                 </div>
 
@@ -430,7 +444,6 @@
             { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500 }
         ];
 
-        // Manajemen Kupon Promo Dinamis (Disimpan di LocalStorage)
         let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || {
             "HEMAT5RB": 5000,
             "CREPESKILAT": 10000
@@ -450,7 +463,10 @@
         ];
         let revChartInstance = null;
         let menuChartInstance = null;
-        let isStoreOpen = true;
+        
+        // Status Toko Manual (Disimpan di localStorage, default true/buka)
+        let isStoreOpen = localStorage.getItem('crepes_manual_store_status') !== null ? 
+            JSON.parse(localStorage.getItem('crepes_manual_store_status')) : true;
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -459,7 +475,7 @@
                 document.getElementById('service-type').value = "Makan di Tempat";
                 document.getElementById('delivery-address').value = `Meja No. ${mejaNum}`;
             }
-            checkStoreStatus();
+            updateStoreStatusUI();
             checkHappyHour();
             renderProducts();
             renderReviews();
@@ -467,18 +483,37 @@
             renderAdminPromoList();
         });
 
-        function checkStoreStatus() {
-            const currentHour = new Date().getHours();
+        function updateStoreStatusUI() {
             const badge = document.getElementById('store-status-badge');
-            isStoreOpen = currentHour >= 8 && currentHour < 22; 
-            
+            const toggleBtn = document.getElementById('store-toggle-btn');
+            const statusLabel = document.getElementById('manual-status-label');
+
             if (isStoreOpen) {
-                badge.innerText = "🟢 Buka (08:00 - 22:00)";
-                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 hidden sm:inline-block";
+                badge.innerText = "🟢 Toko Buka";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 hidden sm:inline-block";
+                if (statusLabel) statusLabel.innerText = "Status: BUKA";
+                if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300";
+                if (toggleBtn) {
+                    toggleBtn.innerText = "🛑 Tutup Toko Sekarang";
+                    toggleBtn.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer";
+                }
             } else {
                 badge.innerText = "🔴 Toko Tutup";
-                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 hidden sm:inline-block";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 hidden sm:inline-block";
+                if (statusLabel) statusLabel.innerText = "Status: TUTUP";
+                if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-900 text-rose-300";
+                if (toggleBtn) {
+                    toggleBtn.innerText = "✅ Buka Toko Sekarang";
+                    toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer";
+                }
             }
+        }
+
+        function toggleStoreStatusManual() {
+            isStoreOpen = !isStoreOpen;
+            localStorage.setItem('crepes_manual_store_status', JSON.stringify(isStoreOpen));
+            updateStoreStatusUI();
+            showNotification(isStoreOpen ? "Toko berhasil dibuka kembali! Pelanggan bisa memesan." : "Toko ditutup sementara secara manual.", isStoreOpen ? "success" : "error");
         }
 
         function checkHappyHour() {
@@ -646,7 +681,6 @@
                 let badgeColor = p.category === 'drink' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : (p.category === 'sweet' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300');
                 let catLabel = p.category === 'drink' ? '🥤 Minuman' : (p.category === 'sweet' ? '🍫 Manis' : '🧀 Asin & Gurih');
                 
-                // Sistem Low Stock Alert (Jika stok <= 3, tampilkan badge peringatan)
                 let stockBadge = `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${p.stock <= 3 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' : 'text-gray-500 dark:text-gray-400'}">Stok: ${p.stock} ${p.stock <= 3 ? '⚠️ Menipis!' : ''}</span>`;
 
                 grid.innerHTML += `
@@ -672,7 +706,7 @@
 
         function openProductModal(productId) {
             if (!isStoreOpen) {
-                showNotification("Maaf, toko sedang tutup (Jam operasional 08:00 - 22:00).", "error");
+                showNotification("Maaf, toko sedang ditutup oleh pemilik. Belum bisa menerima pesanan.", "error");
                 return;
             }
 
@@ -741,6 +775,11 @@
         }
 
         function confirmAddToCart() {
+            if (!isStoreOpen) {
+                showNotification("Maaf, toko sedang ditutup.", "error");
+                return;
+            }
+
             const productId = parseInt(document.getElementById('modal-product-id').value);
             const product = products.find(p => p.id === productId);
 
@@ -902,7 +941,6 @@
             updateCartUI();
         }
 
-        // Fungsi Cek dan Terapkan Promo Berdasarkan Database Voucher Admin
         function applyPromo() {
             const code = document.getElementById('promo-code').value.trim().toUpperCase();
             if (activeVouchers[code]) {
@@ -955,6 +993,11 @@
         }
 
         async function checkoutWhatsApp() {
+            if (!isStoreOpen) {
+                showNotification("Maaf, toko sedang tutup. Tidak dapat memproses pesanan.", "error");
+                return;
+            }
+
             const name = document.getElementById('customer-name').value.trim();
             const phone = document.getElementById('customer-phone').value.trim();
             const serviceType = document.getElementById('service-type').value;
