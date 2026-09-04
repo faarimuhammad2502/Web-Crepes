@@ -464,7 +464,6 @@
         let revChartInstance = null;
         let menuChartInstance = null;
         
-        // Status Toko Manual (Disimpan di localStorage, default true/buka)
         let isStoreOpen = localStorage.getItem('crepes_manual_store_status') !== null ? 
             JSON.parse(localStorage.getItem('crepes_manual_store_status')) : true;
 
@@ -1139,8 +1138,9 @@
                         </td>
                         <td class="p-3 text-gray-300">${item.payment}</td>
                         <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
-                        <td class="p-3 text-center">
+                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
                             <button onclick="printReceipt(${index})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
+                            <button onclick="deleteSaleRecord(${index})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🗑️ Hapus</button>
                         </td>
                     </tr>
                 `;
@@ -1148,6 +1148,18 @@
 
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
             document.getElementById('total-items-sold').innerText = `${salesHistory.length} Transaksi`;
+        }
+
+        // Fungsi Menghapus Riwayat Pesanan Satuan
+        function deleteSaleRecord(index) {
+            if (confirm("Apakah Anda yakin ingin menghapus riwayat pesanan ini?")) {
+                salesHistory.splice(index, 1);
+                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
+                renderSalesTable();
+                updateLiveQueueWidget();
+                renderCharts();
+                showNotification("Riwayat pesanan berhasil dihapus.", "info");
+            }
         }
 
         function updateOrderStatus(index, newStatus) {
