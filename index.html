@@ -1248,20 +1248,23 @@
             window.open(waUrl, '_blank');
         }
 
-        function verifyPin() {
-            const pin = document.getElementById('seller-pin').value;
-            if (pin === SELLER_PIN) {
-                document.getElementById('seller-login-box').classList.add('hidden');
-                document.getElementById('seller-dashboard').classList.remove('hidden');
-                renderSalesTable();
-                renderCharts();
-                renderAdminPromoList();
-                renderAdminHPPList();
-                showNotification("Akses Pemilik Berhasil!", "success");
-            } else {
-                showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
-            }
-        }
+function verifyPin() {
+    const pin = document.getElementById('seller-pin').value;
+    if (pin === SELLER_PIN) {
+        document.getElementById('seller-login-box').classList.add('hidden');
+        document.getElementById('seller-dashboard').classList.remove('hidden');
+        
+        // Render ulang data tabel, promo, HPP, dan panggil grafik di sini agar langsung muncul
+        renderSalesTable();
+        renderCharts();
+        renderAdminPromoList();
+        renderAdminHPPList();
+        
+        showNotification("Akses Pemilik Berhasil!", "success");
+    } else {
+        showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
+    }
+}
 
         function lockDashboard() {
             document.getElementById('seller-dashboard').classList.add('hidden');
