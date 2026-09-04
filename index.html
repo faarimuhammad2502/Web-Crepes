@@ -43,7 +43,6 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <h1 class="text-base sm:text-lg font-bold text-purple-700 dark:text-purple-400 truncate">🥞 [Nama Brand Crepes]</h1>
-                <!-- Fitur 4: Pemilih Cabang Multi-Outlet -->
                 <select id="outlet-selector" onchange="switchOutlet(this.value)" class="text-[10px] bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 font-bold px-2 py-1 rounded-xl outline-none cursor-pointer">
                     <option value="Cabang Serpong">📍 Cabang Serpong</option>
                     <option value="Cabang Tebet">📍 Cabang Tebet</option>
@@ -51,7 +50,7 @@
                 </select>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="store-status-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full hidden sm:inline-block">Memeriksa toko...</span>
+                <span id="store-status-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full hidden sm:inline-block">🟢 Toko Buka</span>
                 <button onclick="toggleDarkMode()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-2 rounded-full text-xs hover:bg-gray-200 transition cursor-pointer shadow-sm" title="Ubah Tema">
                     <span id="theme-icon">🌙</span>
                 </button>
@@ -65,7 +64,7 @@
     <header class="max-w-6xl mx-auto px-4 py-8 text-center">
         <span class="bg-purple-200 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Renyah & Manis di Setiap Gigitan</span>
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes & Minuman Favoritmu</h2>
-        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung melalui WhatsApp dengan mudah dan cepat!</p>
+        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung dengan kustomisasi adonan lengkap dan sistem poin member otomatis!</p>
         
         <div id="happy-hour-banner" class="max-w-md mx-auto mb-3 bg-pink-100 dark:bg-pink-950/40 border border-pink-300 dark:border-pink-900 rounded-2xl p-2.5 text-xs text-pink-800 dark:text-pink-300 font-semibold hidden">
             ⚡ HAPPY HOUR AKTIF! Diskon Otomatis 15% Khusus Jam 14:00 - 16:00!
@@ -133,7 +132,7 @@
         </div>
     </div>
 
-    <!-- Modal Produk (Dengan Kustomisasi Adonan / Dough Customization) -->
+    <!-- Modal Produk -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto border dark:border-gray-800">
             <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -145,8 +144,7 @@
                     <span id="modal-product-stock" class="text-xs font-semibold px-2.5 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 rounded-full">Stok: Aman</span>
                 </div>
             </div>
-
-            <!-- Fitur 6: Pilihan Varian Adonan -->
+            
             <div id="dough-section" class="mb-4">
                 <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 mb-2">🥞 Pilih Varian Adonan:</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -237,7 +235,6 @@
                 </div>
             </div>
 
-            <!-- Fitur 1: Simulasi QRIS / VA Gateway -->
             <div id="qris-transfer-info-box" class="mb-3 bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-200 hidden text-center">
                 <p id="payment-instruction-title" class="text-xs font-bold text-indigo-900 dark:text-indigo-300 mb-1">Scan Barcode QRIS / VA Sandbox</p>
                 <div id="qris-image-container" class="my-2 flex justify-center">
@@ -296,11 +293,10 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span id="admin-outlet-badge" class="bg-purple-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">Cabang Aktif: Serpong</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Enterprise POS & Manajemen Stok Bahan</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Enterprise POS & Grafik Penjualan HPP</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <!-- Fitur 5: Tombol Hubungkan Printer Bluetooth -->
-                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Hubungkan Printer Bluetooth</button>
+                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Hubungkan Printer</button>
                         <button onclick="openClosingShiftModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Tutup Shift (Z-Report)</button>
                         <button onclick="toggleKDSModal()" class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🍳 KDS Dapur</button>
                         <button onclick="toggleQRModal()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">📱 QR Meja</button>
@@ -308,14 +304,23 @@
                     </div>
                 </div>
 
-                <!-- Fitur 2: Inventaris Stok Bahan Baku Mentah & Low Stock Alert -->
+                <!-- Bagian Grafik Omzet & HPP -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <h4 class="text-xs font-bold text-purple-300 mb-2">📈 Grafik Omzet Penjualan</h4>
+                        <div class="h-48"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <h4 class="text-xs font-bold text-rose-300 mb-2">📉 Grafik HPP & Modal Bahan</h4>
+                        <div class="h-48"><canvas id="costChart"></canvas></div>
+                    </div>
+                </div>
+
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku (Gudang Bahan Mentah)</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Stok gram/unit bahan dasar otomatis terpotong saat transaksi.</p>
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                 </div>
 
-                <!-- Manajemen Kupon Dinamis -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Buat Kupon Diskon Baru (Nominal / Persen)</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3">
@@ -324,7 +329,7 @@
                             <option value="fixed">Nominal Tetap (Rp)</option>
                             <option value="percent">Persentase (%)</option>
                         </select>
-                        <input type="number" id="new-promo-value" placeholder="Nilai (Mis: 10 atau 5000)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white">
+                        <input type="number" id="new-promo-value" placeholder="Nilai" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white">
                         <button onclick="addNewDynamicPromo()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Tambah Kupon</button>
                     </div>
                     <div id="admin-promo-list" class="flex flex-wrap gap-2 text-xs"></div>
@@ -336,7 +341,9 @@
                     <div class="bg-gray-800 p-4 rounded-2xl border"><p class="text-xs text-gray-400">Profit Bersih</p><h4 class="text-lg font-bold text-emerald-400 mt-1" id="total-profit">Rp 0</h4></div>
                 </div>
 
+                <!-- Tabel Daftar Pesanan Masuk (Riwayat Penjualan) -->
                 <div class="bg-gray-800 rounded-2xl overflow-hidden border text-xs">
+                    <div class="p-3 bg-gray-700/50 font-bold text-gray-200 border-b border-gray-700">📋 Daftar Pesanan Masuk & Transaksi</div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead>
@@ -388,10 +395,8 @@
     </div>
 
     <script>
-        // Fitur 4: Multi-Outlet State
         let currentOutlet = localStorage.getItem('crepes_current_outlet') || "Cabang Serpong";
 
-        // Fitur 2: Stok Bahan Baku Mentah di Gudang
         let rawInventory = JSON.parse(localStorage.getItem('crepes_raw_inventory')) || {
             "Tepung (gram)": 5000,
             "Cokelat (gram)": 2000,
@@ -400,7 +405,6 @@
             "Gas LPG (Tabung)": 5
         };
 
-        // Mengembalikan daftar lengkap menu bawaan Anda
         let products = [
             { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"] },
             { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"] },
@@ -435,9 +439,7 @@
         let crmDatabase = JSON.parse(localStorage.getItem('crepes_customer_db')) || {};
         let loyaltyData = { stamps: 0, phone: '' };
         let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [{ name: "Andi", rating: 5, comment: "Enak dan renyah!" }];
-        let isStoreOpen = true;
-
-        // Fitur 5: Bluetooth Printer Variables
+        let revenueChartInstance = null, costChartInstance = null;
         let bluetoothDevice = null, bluetoothCharacteristic = null;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -445,7 +447,6 @@
             checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderQRTableList(); renderAdminRawInventory();
         });
 
-        // Fitur 4: Ganti Cabang / Outlet
         function switchOutlet(outletName) {
             currentOutlet = outletName;
             localStorage.setItem('crepes_current_outlet', outletName);
@@ -460,7 +461,6 @@
             return false;
         }
 
-        // Fitur Text-to-Speech (Suara Pesanan Masuk)
         function speakOrderNotification(customerName) {
             if ('speechSynthesis' in window) {
                 let text = `Perhatian, ada pesanan baru masuk atas nama ${customerName}. Mohon segera disiapkan di dapur!`;
@@ -470,7 +470,6 @@
             }
         }
 
-        // Fitur 1: Payment Gateway Handler (Midtrans / Xendit UI)
         function handlePaymentMethodChange() {
             const method = document.getElementById('payment-method').value;
             const box = document.getElementById('qris-transfer-info-box');
@@ -480,7 +479,6 @@
             } else { box.classList.add('hidden'); }
         }
 
-        // Fitur 5: Web Bluetooth API untuk Printer Thermal 58mm
         async function connectThermalPrinterBluetooth() {
             try {
                 showNotification("Mencari printer thermal bluetooth...", "info");
@@ -583,7 +581,6 @@
         function confirmAddToCart() {
             const id = parseInt(document.getElementById('modal-product-id').value);
             const p = products.find(x => x.id === id);
-            // Fitur 6: Ambil pilihan adonan
             const dough = document.querySelector('input[name="dough-type"]:checked').value;
             let extraPrice = 0, extraCost = 0, selectedToppings = [];
 
@@ -621,7 +618,6 @@
             document.getElementById('cart-total').innerText = `Rp ${formatRupiah(grandTotal)}`;
         }
 
-        // Fitur 3: Cek Stempel CRM Member WhatsApp
         function checkLoyaltyDatabase(phone) {
             if (phone.length >= 5 && crmDatabase[phone]) {
                 loyaltyData = crmDatabase[phone];
@@ -672,13 +668,11 @@
             const phone = document.getElementById('customer-phone').value.trim();
             if (!name || !phone) { showNotification("Masukkan Nama dan WhatsApp!", "error"); return; }
 
-            // Fitur 2: Potong Stok Bahan Baku di Gudang Otomatis
             rawInventory["Tepung (gram)"] -= (50 * cart.length);
             rawInventory["Cokelat (gram)"] -= (30 * cart.length);
             rawInventory["Keju (gram)"] -= (30 * cart.length);
             localStorage.setItem('crepes_raw_inventory', JSON.stringify(rawInventory));
 
-            // Fitur 3: Simpan CRM Poin Member WhatsApp
             if (!crmDatabase[phone]) crmDatabase[phone] = { stamps: 0 };
             crmDatabase[phone].stamps += cart.reduce((a,b)=>a+b.qty,0);
             localStorage.setItem('crepes_customer_db', JSON.stringify(crmDatabase));
@@ -686,16 +680,14 @@
             let detailStr = cart.map(i => `${i.qty}x ${i.name}`).join('; ');
             let nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
 
-            // Fitur 4: Catat transaksi dengan Outlet Aktif
             let newSale = { time: nowStr, outlet: currentOutlet, customer: `${name} (${phone})`, details: detailStr, total: grandTotal, totalCost: cart.reduce((a,b)=>a+(b.cost*b.qty),0), status: "🔴 Baru Masuk" };
 
             salesHistory.unshift(newSale);
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
-            // Trigger Suara Notifikasi Pesanan Masuk
             speakOrderNotification(name);
 
-            toggleCartModal(); cart = []; isRewardClaimed = false; updateCartUI(); updateLiveQueueWidget(); renderAdminRawInventory();
+            toggleCartModal(); cart = []; isRewardClaimed = false; updateCartUI(); updateLiveQueueWidget(); renderAdminRawInventory(); renderSalesTable();
             showNotification("Pesanan terkirim & stok bahan dipotong!", "success");
             window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(`Halo, saya pesan Crepes di ${currentOutlet} atas nama ${name}. Total: Rp ${formatRupiah(grandTotal)}`)}`, '_blank');
         }
@@ -704,7 +696,7 @@
             if (document.getElementById('seller-pin').value === SELLER_PIN) {
                 document.getElementById('seller-login-box').classList.add('hidden');
                 document.getElementById('seller-dashboard').classList.remove('hidden');
-                renderSalesTable(); renderAdminRawInventory();
+                renderSalesTable(); renderAdminRawInventory(); renderCharts();
                 showNotification("Login Admin Berhasil!", "success");
             } else { showNotification("PIN Salah!", "error"); }
         }
@@ -714,17 +706,47 @@
         function renderSalesTable() {
             const tbody = document.getElementById('sales-table-body');
             tbody.innerHTML = ''; let totalRev = 0, totalCostVal = 0;
-            // Fitur 4: Filter laporan penjualan hanya untuk outlet yang sedang dipilih
-            salesHistory.filter(s => s.outlet === currentOutlet).forEach((item, idx) => {
-                totalRev += item.total; totalCostVal += item.totalCost || Math.round(item.total * 0.5);
-                tbody.innerHTML += `<tr class="border-b"><td class="p-3">${item.time}</td><td class="p-3">${item.outlet || 'Cabang Serpong'}</td><td class="p-3">${item.customer}</td><td class="p-3">${item.details}</td><td class="p-3">${item.status}</td><td class="p-3 text-right">Rp ${formatRupiah(item.total)}</td><td class="p-3 text-center"><button onclick="printThermalReceiptBluetooth(salesHistory[${idx}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️ Struk</button></td></tr>`;
-            });
+            const outletSales = salesHistory.filter(s => s.outlet === currentOutlet);
+            
+            if (outletSales.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400 italic">Belum ada pesanan masuk untuk ${currentOutlet}</td></tr>`;
+            } else {
+                outletSales.forEach((item, idx) => {
+                    totalRev += item.total; totalCostVal += item.totalCost || Math.round(item.total * 0.5);
+                    tbody.innerHTML += `<tr class="border-b border-gray-700"><td class="p-3">${item.time}</td><td class="p-3">${item.outlet || 'Cabang Serpong'}</td><td class="p-3">${item.customer}</td><td class="p-3">${item.details}</td><td class="p-3">${item.status}</td><td class="p-3 text-right">Rp ${formatRupiah(item.total)}</td><td class="p-3 text-center flex gap-1 justify-center"><button onclick="salesHistory[${idx}].status='🟢 Selesai'; renderSalesTable(); renderCharts();" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px]">Selesai</button><button onclick="printThermalReceiptBluetooth(salesHistory[${idx}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️</button></td></tr>`;
+                });
+            }
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalRev)}`;
             document.getElementById('total-cost').innerText = `Rp ${formatRupiah(totalCostVal)}`;
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalRev - totalCostVal)}`;
+            renderCharts();
         }
 
-        // Fitur 2: Render Stok Bahan Mentah & Low Stock Alert
+        // Render Grafik Omzet & HPP dengan Chart.js
+        function renderCharts() {
+            const outletSales = salesHistory.filter(s => s.outlet === currentOutlet).slice(0, 7).reverse();
+            const labels = outletSales.map(s => s.time);
+            const revenues = outletSales.map(s => s.total);
+            const costs = outletSales.map(s => s.totalCost || Math.round(s.total * 0.5));
+
+            if (revenueChartInstance) revenueChartInstance.destroy();
+            if (costChartInstance) costChartInstance.destroy();
+
+            const ctxRev = document.getElementById('revenueChart').getContext('2d');
+            revenueChartInstance = new Chart(ctxRev, {
+                type: 'line',
+                data: { labels: labels.length ? labels : ['Mulai'], datasets: [{ label: 'Omzet (Rp)', data: revenues.length ? revenues : [0], borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#9ca3af', font: { size: 10 } } }, x: { ticks: { color: '#9ca3af', font: { size: 10 } } } } }
+            });
+
+            const ctxCost = document.getElementById('costChart').getContext('2d');
+            costChartInstance = new Chart(ctxCost, {
+                type: 'bar',
+                data: { labels: labels.length ? labels : ['Mulai'], datasets: [{ label: 'HPP / Modal (Rp)', data: costs.length ? costs : [0], backgroundColor: '#f43f5e' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { color: '#9ca3af', font: { size: 10 } } }, x: { ticks: { color: '#9ca3af', font: { size: 10 } } } } }
+            });
+        }
+
         function renderAdminRawInventory() {
             const container = document.getElementById('admin-raw-ingredients');
             if(!container) return; container.innerHTML = '';
@@ -757,8 +779,8 @@
         function renderKDSCards() {
             const container = document.getElementById('kds-cards-container');
             if(!container) return; container.innerHTML = '';
-            salesHistory.filter(s => s.status !== '🟢 Selesai').forEach(item => {
-                container.innerHTML += `<div class="bg-gray-900 border p-4 rounded-2xl flex flex-col justify-between"><h4 class="font-bold text-white mb-1">${item.customer} <span class="text-xs text-purple-400">(${item.outlet || 'Serpong'})</span></h4><p class="text-xs text-gray-300 mb-3">${item.details}</p><button onclick="item.status='🟢 Selesai'; toggleKDSModal(); renderSalesTable();" class="bg-emerald-600 text-white py-1 rounded text-xs">Selesai</button></div>`;
+            salesHistory.filter(s => s.status !== '🟢 Selesai').forEach((item, idx) => {
+                container.innerHTML += `<div class="bg-gray-900 border p-4 rounded-2xl flex flex-col justify-between"><h4 class="font-bold text-white mb-1">${item.customer} <span class="text-xs text-purple-400">(${item.outlet || 'Serpong'})</span></h4><p class="text-xs text-gray-300 mb-3">${item.details}</p><button onclick="salesHistory[${idx}].status='🟢 Selesai'; toggleKDSModal(); renderSalesTable();" class="bg-emerald-600 text-white py-1 rounded text-xs">Selesai</button></div>`;
             });
         }
 
