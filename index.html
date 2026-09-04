@@ -416,13 +416,13 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <p class="text-xs text-gray-400 mb-2">Grafik Omzet</p>
-                        <div style="position: relative; height: 160px; width: 100%;">
+                        <div style="position: relative; height: 180px; width: 100%;">
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <p class="text-xs text-gray-400 mb-2">Grafik Kategori Menu Terjual</p>
-                        <div style="position: relative; height: 160px; width: 100%;">
+                        <div style="position: relative; height: 180px; width: 100%;">
                             <canvas id="menuChart"></canvas>
                         </div>
                     </div>
@@ -1247,26 +1247,26 @@
             window.open(waUrl, '_blank');
         }
 
-function verifyPin() {
-    const pin = document.getElementById('seller-pin').value;
-    if (pin === SELLER_PIN) {
-        document.getElementById('seller-login-box').classList.add('hidden');
-        document.getElementById('seller-dashboard').classList.remove('hidden');
-        
-        renderSalesTable();
-        renderAdminPromoList();
-        renderAdminHPPList();
-        
-        // Beri jeda sepersekian detik agar DOM dashboard selesai terbuka sempurna sebelum grafik dirender
-        setTimeout(() => {
-            renderCharts();
-        }, 50);
-        
-        showNotification("Akses Pemilik Berhasil!", "success");
-    } else {
-        showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
-    }
-}
+        function verifyPin() {
+            const pin = document.getElementById('seller-pin').value;
+            if (pin === SELLER_PIN) {
+                document.getElementById('seller-login-box').classList.add('hidden');
+                document.getElementById('seller-dashboard').classList.remove('hidden');
+                
+                renderSalesTable();
+                renderAdminPromoList();
+                renderAdminHPPList();
+                
+                // Tambahkan timeout 100ms agar dashboard selesai merender DOM sebelum Chart.js membaca lebar/tinggi canvas
+                setTimeout(() => {
+                    renderCharts();
+                }, 100);
+                
+                showNotification("Akses Pemilik Berhasil!", "success");
+            } else {
+                showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
+            }
+        }
 
         function lockDashboard() {
             document.getElementById('seller-dashboard').classList.add('hidden');
@@ -1338,7 +1338,6 @@ function verifyPin() {
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
             document.getElementById('total-cost').innerText = `Rp ${formatRupiah(totalModal)}`;
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalProfit)}`;
-            document.getElementById('total-items-sold').innerText = `${filteredHistory.length} Transaksi`;
         }
 
         function resetSalesFilter() {
