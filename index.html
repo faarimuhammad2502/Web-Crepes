@@ -43,6 +43,7 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <h1 class="text-base sm:text-lg font-bold text-purple-700 dark:text-purple-400 truncate">🥞 [Nama Brand Crepes]</h1>
+                <!-- Fitur 4: Pemilih Cabang Multi-Outlet -->
                 <select id="outlet-selector" onchange="switchOutlet(this.value)" class="text-[10px] bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 font-bold px-2 py-1 rounded-xl outline-none cursor-pointer">
                     <option value="Cabang Serpong">📍 Cabang Serpong</option>
                     <option value="Cabang Tebet">📍 Cabang Tebet</option>
@@ -50,7 +51,7 @@
                 </select>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="store-status-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full hidden sm:inline-block">🟢 Toko Buka</span>
+                <span id="store-status-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full hidden sm:inline-block">Memeriksa toko...</span>
                 <button onclick="toggleDarkMode()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-2 rounded-full text-xs hover:bg-gray-200 transition cursor-pointer shadow-sm" title="Ubah Tema">
                     <span id="theme-icon">🌙</span>
                 </button>
@@ -64,7 +65,7 @@
     <header class="max-w-6xl mx-auto px-4 py-8 text-center">
         <span class="bg-purple-200 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Renyah & Manis di Setiap Gigitan</span>
         <h2 class="text-2xl sm:text-4xl font-bold mt-2.5 mb-2">Pilih Menu Crepes & Minuman Favoritmu</h2>
-        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung dengan kustomisasi adonan lengkap dan sistem poin member otomatis!</p>
+        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-xs sm:text-sm mb-3">Pesan langsung melalui WhatsApp dengan mudah dan cepat!</p>
         
         <div id="happy-hour-banner" class="max-w-md mx-auto mb-3 bg-pink-100 dark:bg-pink-950/40 border border-pink-300 dark:border-pink-900 rounded-2xl p-2.5 text-xs text-pink-800 dark:text-pink-300 font-semibold hidden">
             ⚡ HAPPY HOUR AKTIF! Diskon Otomatis 15% Khusus Jam 14:00 - 16:00!
@@ -115,6 +116,7 @@
         </section>
     </main>
 
+    <!-- Modal Ulasan -->
     <div id="review-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative border dark:border-gray-800">
             <button onclick="toggleReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -131,6 +133,7 @@
         </div>
     </div>
 
+    <!-- Modal Produk (Dengan Kustomisasi Adonan / Dough Customization) -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto border dark:border-gray-800">
             <button onclick="toggleProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -143,6 +146,7 @@
                 </div>
             </div>
 
+            <!-- Fitur 6: Pilihan Varian Adonan -->
             <div id="dough-section" class="mb-4">
                 <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 mb-2">🥞 Pilih Varian Adonan:</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -179,6 +183,10 @@
                 <label class="block text-xs font-bold text-purple-900 dark:text-purple-300 mb-2">✨ Ekstra Topping:</label>
                 <div id="modal-topping-list" class="space-y-2"></div>
             </div>
+            <div id="bundling-section" class="mb-4 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-2xl border border-amber-200">
+                <p class="text-[11px] font-bold text-amber-900 dark:text-amber-300 mb-1">🥤 Paket Bundling Hemat:</p>
+                <div id="modal-bundling-list" class="space-y-2"></div>
+            </div>
             <div class="mb-5">
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Catatan Khusus:</label>
                 <input type="text" id="modal-item-note" placeholder="Contoh: Jangan pakai susu" class="w-full px-3 py-2 text-xs border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-white">
@@ -188,6 +196,7 @@
         </div>
     </div>
 
+    <!-- Modal Keranjang -->
     <div id="cart-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto border dark:border-gray-800">
             <button onclick="toggleCartModal()" class="absolute top-4 right-4 text-gray-400 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -228,6 +237,7 @@
                 </div>
             </div>
 
+            <!-- Fitur 1: Simulasi QRIS / VA Gateway -->
             <div id="qris-transfer-info-box" class="mb-3 bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-2xl border border-indigo-200 hidden text-center">
                 <p id="payment-instruction-title" class="text-xs font-bold text-indigo-900 dark:text-indigo-300 mb-1">Scan Barcode QRIS / VA Sandbox</p>
                 <div id="qris-image-container" class="my-2 flex justify-center">
@@ -269,6 +279,7 @@
         </div>
     </div>
 
+    <!-- Panel Admin / Dashboard -->
     <section class="bg-gray-900 text-gray-100 py-10 border-t-4 border-purple-600">
         <div class="max-w-5xl mx-auto px-4">
             <div id="seller-login-box" class="max-w-md mx-auto bg-gray-800 p-5 rounded-2xl border text-center">
@@ -288,6 +299,7 @@
                         <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Enterprise POS & Manajemen Stok Bahan</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
+                        <!-- Fitur 5: Tombol Hubungkan Printer Bluetooth -->
                         <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Hubungkan Printer Bluetooth</button>
                         <button onclick="openClosingShiftModal()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Tutup Shift (Z-Report)</button>
                         <button onclick="toggleKDSModal()" class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🍳 KDS Dapur</button>
@@ -296,12 +308,14 @@
                     </div>
                 </div>
 
+                <!-- Fitur 2: Inventaris Stok Bahan Baku Mentah & Low Stock Alert -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku (Gudang Bahan Mentah)</h4>
                     <p class="text-[11px] text-gray-400 mb-3">Stok gram/unit bahan dasar otomatis terpotong saat transaksi.</p>
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                 </div>
 
+                <!-- Manajemen Kupon Dinamis -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Buat Kupon Diskon Baru (Nominal / Persen)</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3">
@@ -338,6 +352,7 @@
         </div>
     </section>
 
+    <!-- Modal Tutup Shift Kasir (Z-Report) -->
     <div id="closing-shift-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative border dark:border-gray-800">
             <button onclick="document.getElementById('closing-shift-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -354,6 +369,7 @@
         </div>
     </div>
 
+    <!-- Modal QR Meja -->
     <div id="qr-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative border dark:border-gray-800 max-h-[85vh] overflow-y-auto">
             <button onclick="toggleQRModal()" class="absolute top-4 right-4 text-gray-400 font-bold text-lg px-2 cursor-pointer">✕</button>
@@ -362,6 +378,7 @@
         </div>
     </div>
 
+    <!-- KDS Dapur -->
     <div id="kds-modal" class="fixed inset-0 bg-gray-950/90 backdrop-blur-md z-[999] flex flex-col p-4 hidden">
         <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
             <h2 class="text-lg font-bold text-amber-400">🍳 Kitchen Display System (KDS)</h2>
@@ -383,14 +400,29 @@
             "Gas LPG (Tabung)": 5
         };
 
+        // Mengembalikan daftar lengkap menu bawaan Anda
         let products = [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer keju parut.", ingredients: ["Cokelat", "Keju"] },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Matcha premium almond.", ingredients: ["Matcha"] },
-            { id: 3, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Sosis mayo spesial.", ingredients: ["Sosis"] },
-            { id: 4, category: 'drink', name: "Es Teh Manis", price: 5000, cost: 2000, desc: "Teh segar.", ingredients: [] }
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"] },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"] },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 20, ingredients: ["Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 15, ingredients: ["Sosis", "Keju"] },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 12, ingredients: ["Sosis", "Keju"] },
+            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 35, ingredients: [] },
+            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 25, ingredients: ["Cokelat"] },
+            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [] }
         ];
 
-        let toppings = [{ name: 'Extra Keju', price: 3000, cost: 1500 }, { name: 'Extra Cokelat', price: 3000, cost: 1500 }];
+        let toppings = [
+            { name: 'Extra Keju Parut', price: 3000, cost: 1500 },
+            { name: 'Extra Cokelat Lumer', price: 3000, cost: 1500 },
+            { name: 'Extra Kacang Almond', price: 5000, cost: 2500 }
+        ];
+
+        let bundlingDrinks = [
+            { name: 'Es Teh Manis (Bundling)', price: 4000, cost: 2000 },
+            { name: 'Es Milo Cokelat (Bundling)', price: 6500, cost: 3500 }
+        ];
+
         let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers_dynamic')) || {
             "HEMAT5RB": { type: "fixed", value: 5000 },
             "DISKON10": { type: "percent", value: 10 }
@@ -399,17 +431,18 @@
         const SELLER_PIN = "1234";
         let cart = [], grandTotal = 0, subTotal = 0, appliedDiscount = 0, isRewardClaimed = false;
         let currentFilter = 'all', currentIngredientFilter = 'all';
-        let salesHistory = JSON.parse(localStorage.getItem('crepes_enterprise_sales')) || [];
-        let crmDatabase = JSON.parse(localStorage.getItem('crepes_crm_db')) || {};
+        let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
+        let crmDatabase = JSON.parse(localStorage.getItem('crepes_customer_db')) || {};
         let loyaltyData = { stamps: 0, phone: '' };
         let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [{ name: "Andi", rating: 5, comment: "Enak dan renyah!" }];
+        let isStoreOpen = true;
 
         // Fitur 5: Bluetooth Printer Variables
         let bluetoothDevice = null, bluetoothCharacteristic = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('outlet-selector').value = currentOutlet;
-            renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderQRTableList(); renderAdminRawInventory();
+            checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderQRTableList(); renderAdminRawInventory();
         });
 
         // Fitur 4: Ganti Cabang / Outlet
@@ -419,6 +452,12 @@
             document.getElementById('admin-outlet-badge').innerText = `Cabang Aktif: ${outletName.replace('Cabang ', '')}`;
             renderSalesTable();
             showNotification(`Beralih ke ${outletName}`, "info");
+        }
+
+        function checkHappyHour() {
+            const hour = new Date().getHours();
+            if (hour >= 14 && hour < 16) { document.getElementById('happy-hour-banner').classList.remove('hidden'); return true; }
+            return false;
         }
 
         // Fitur Text-to-Speech (Suara Pesanan Masuk)
@@ -505,7 +544,7 @@
             const grid = document.getElementById('product-grid');
             const keyword = document.getElementById('search-input').value.toLowerCase();
             grid.innerHTML = '';
-            products.filter(p => (currentFilter === 'all' || p.category === currentFilter) && p.name.toLowerCase().includes(keyword)).forEach(p => {
+            products.filter(p => (currentFilter === 'all' || p.category === currentFilter) && (currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter)) && p.name.toLowerCase().includes(keyword)).forEach(p => {
                 grid.innerHTML += `
                     <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border dark:border-gray-800 flex flex-col justify-between">
                         <div>
@@ -526,11 +565,18 @@
             document.getElementById('modal-product-name').innerText = p.name;
             document.getElementById('modal-product-desc').innerText = p.desc;
             document.getElementById('modal-product-price').innerText = `Rp ${formatRupiah(p.price)}`;
+            document.getElementById('modal-product-stock').innerText = `Stok: ${p.stock}`;
             
             const toppingList = document.getElementById('modal-topping-list'); toppingList.innerHTML = '';
             toppings.forEach(t => {
                 toppingList.innerHTML += `<label class="flex items-center justify-between p-2 rounded-xl border bg-purple-50/50 dark:bg-gray-800 cursor-pointer text-xs"><div class="flex items-center"><input type="checkbox" value="${t.name}" data-price="${t.price}" data-cost="${t.cost}" class="topping-checkbox mr-2"><span>${t.name}</span></div><span>+Rp ${formatRupiah(t.price)}</span></label>`;
             });
+
+            const bundlingList = document.getElementById('modal-bundling-list'); bundlingList.innerHTML = '';
+            bundlingDrinks.forEach(b => {
+                bundlingList.innerHTML += `<label class="flex items-center justify-between p-2 rounded-xl border bg-white dark:bg-gray-800 cursor-pointer text-xs"><div class="flex items-center"><input type="checkbox" value="${b.name}" data-price="${b.price}" data-cost="${b.cost}" class="bundling-checkbox mr-2"><span>${b.name}</span></div><span>+Rp ${formatRupiah(b.price)}</span></label>`;
+            });
+
             toggleProductModal();
         }
 
@@ -545,9 +591,14 @@
                 selectedToppings.push({ name: cb.value, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
                 extraPrice += parseInt(cb.dataset.price); extraCost += parseInt(cb.dataset.cost);
             });
+            document.querySelectorAll('.bundling-checkbox:checked').forEach(cb => {
+                selectedToppings.push({ name: cb.value, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
+                extraPrice += parseInt(cb.dataset.price); extraCost += parseInt(cb.dataset.cost);
+            });
 
-            cart.push({ name: `${p.name} (${dough})`, price: p.price + extraPrice, cost: p.cost + extraCost, qty: 1, toppings: selectedToppings });
-            toggleProductModal(); updateCartUI(); showNotification("Ditambahkan ke keranjang!", "success");
+            p.stock -= 1;
+            cart.push({ name: `${p.name} (${dough})`, price: p.price + extraPrice, cost: p.cost + extraCost, qty: 1, toppings: selectedToppings, note: document.getElementById('modal-item-note').value });
+            toggleProductModal(); renderProducts(); updateCartUI(); showNotification("Ditambahkan ke keranjang!", "success");
         }
 
         function updateCartUI() {
@@ -561,7 +612,7 @@
             });
             document.getElementById('sub-total').innerText = `Rp ${formatRupiah(subTotal)}`;
             
-            let discount = appliedDiscount;
+            let discount = appliedDiscount + (checkHappyHour() ? Math.round(subTotal * 0.15) : 0);
             if (isRewardClaimed) discount += 15000;
             if (discount > 0) { document.getElementById('discount-row').classList.remove('hidden'); document.getElementById('discount-amount').innerText = `- Rp ${formatRupiah(discount)}`; }
             else { document.getElementById('discount-row').classList.add('hidden'); }
@@ -630,7 +681,7 @@
             // Fitur 3: Simpan CRM Poin Member WhatsApp
             if (!crmDatabase[phone]) crmDatabase[phone] = { stamps: 0 };
             crmDatabase[phone].stamps += cart.reduce((a,b)=>a+b.qty,0);
-            localStorage.setItem('crepes_crm_db', JSON.stringify(crmDatabase));
+            localStorage.setItem('crepes_customer_db', JSON.stringify(crmDatabase));
 
             let detailStr = cart.map(i => `${i.qty}x ${i.name}`).join('; ');
             let nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
@@ -639,7 +690,7 @@
             let newSale = { time: nowStr, outlet: currentOutlet, customer: `${name} (${phone})`, details: detailStr, total: grandTotal, totalCost: cart.reduce((a,b)=>a+(b.cost*b.qty),0), status: "🔴 Baru Masuk" };
 
             salesHistory.unshift(newSale);
-            localStorage.setItem('crepes_enterprise_sales', JSON.stringify(salesHistory));
+            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
             // Trigger Suara Notifikasi Pesanan Masuk
             speakOrderNotification(name);
