@@ -320,41 +320,55 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Keuangan & Dapur</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Keuangan, QR Meja & Dapur</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka Layar KDS Dapur</button>
+                        <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka KDS Dapur</button>
+                        <button onclick="toggleQRModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📱 QR Code Meja</button>
                         <button onclick="exportToPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 Unduh PDF</button>
                         <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 Unduh CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Kunci</button>
                     </div>
                 </div>
 
-                <!-- Panel Kontrol Jam Buka / Tutup Toko Manual -->
-                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h4 class="text-sm font-bold text-purple-300 mb-1">🏪 Kontrol Status Toko Manual</h4>
-                        <p class="text-[11px] text-gray-400">Atur buka atau tutup toko kapan saja secara instan jika jam operasional tidak menentu.</p>
+                <!-- Panel Shift Kasir & Kontrol Toko Manual -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-purple-300 mb-1">👤 Nama Kasir / Staf Bertugas</h4>
+                            <p class="text-[11px] text-gray-400 mb-2">Tercatat pada setiap transaksi shift hari ini.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="cashier-name" placeholder="Nama Kasir" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500 flex-1">
+                            <button onclick="saveCashierName()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Simpan</button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span id="manual-status-label" class="text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300">Status: BUKA</span>
-                        <button id="store-toggle-btn" onclick="toggleStoreStatusManual()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
-                            🛑 Tutup Toko Sekarang
-                        </button>
+
+                    <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-purple-300 mb-1">🏪 Kontrol Status Toko Manual</h4>
+                            <p class="text-[11px] text-gray-400 mb-2">Buka atau tutup toko instan.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span id="manual-status-label" class="text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300">Status: BUKA</span>
+                            <button id="store-toggle-btn" onclick="toggleStoreStatusManual()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+                                🛑 Tutup Toko
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Panel Manajemen Modal / HPP Menu -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Atur estimasi modal (HPP) tiap menu untuk menghitung keuntungan bersih otomatis.</p>
+                    <p class="text-[11px] text-gray-400 mb-3">Atur estimasi modal tiap menu untuk melihat keuntungan bersih otomatis.</p>
                     <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
 
                 <!-- Panel Filter Laporan per Hari / per Bulan -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan & Keuangan</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi, omzet, dan profit bersih berdasarkan tanggal atau bulan.</p>
+                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi, omzet, dan profit bersih.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] text-gray-400 mb-1">Filter Tanggal (Harian):</label>
@@ -373,7 +387,7 @@
                 <!-- Panel Manajemen Voucher / Promo Baru -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Tambah atau hapus kode promo diskon yang bisa digunakan pelanggan saat checkout.</p>
+                    <p class="text-[11px] text-gray-400 mb-3">Tambah atau hapus kode promo diskon.</p>
                     <div class="flex flex-col sm:flex-row gap-2 mb-3">
                         <input type="text" id="new-promo-code" placeholder="KODE (Mis: DISKON20)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white uppercase focus:outline-none focus:border-purple-500 flex-1">
                         <input type="number" id="new-promo-amount" placeholder="Nominal Potongan (Rp)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500 flex-1">
@@ -419,7 +433,7 @@
                         <table class="w-full text-left border-collapse min-w-[700px]">
                             <thead>
                                 <tr class="bg-gray-700 text-gray-300 border-b border-gray-600">
-                                    <th class="p-3">Waktu</th>
+                                    <th class="p-3">Waktu & Kasir</th>
                                     <th class="p-3">Pemesan & Layanan</th>
                                     <th class="p-3">Detail Pesanan</th>
                                     <th class="p-3">Status Dapur</th>
@@ -441,6 +455,16 @@
         </div>
     </section>
 
+    <!-- Modal QR Code Meja -->
+    <div id="qr-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative border dark:border-gray-800 max-h-[85vh] overflow-y-auto">
+            <button onclick="toggleQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
+            <h3 class="text-base sm:text-lg font-bold text-purple-900 dark:text-purple-300 mb-2">📱 Generator Link QR Meja</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Salin atau bagikan tautan ini untuk tiap nomor meja agar form pesanan otomatis terisi.</p>
+            <div id="qr-table-list" class="space-y-2.5"></div>
+        </div>
+    </div>
+
     <div id="kds-modal" class="fixed inset-0 bg-gray-950/90 backdrop-blur-md z-[999] flex flex-col p-4 hidden">
         <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
             <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">🍳 Kitchen Display System (KDS) Live</h2>
@@ -457,14 +481,14 @@
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
         let products = JSON.parse(localStorage.getItem('crepes_products_hpp')) || [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 2, ingredients: ["Cokelat", "Keju"] },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5, ingredients: ["Matcha"] },
-            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 3, ingredients: ["Sosis", "Keju"] },
-            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] },
-            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 25, ingredients: [] },
-            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 15, ingredients: ["Cokelat"] },
-            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 20, ingredients: [] }
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"] },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"] },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 20, ingredients: ["Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 15, ingredients: ["Sosis", "Keju"] },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 12, ingredients: ["Sosis", "Keju"] },
+            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 35, ingredients: [] },
+            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 25, ingredients: ["Cokelat"] },
+            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [] }
         ];
 
         const toppings = [
@@ -494,6 +518,7 @@
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
         let globalCustomerDatabase = JSON.parse(localStorage.getItem('crepes_customer_db')) || {};
         let loyaltyData = { stamps: 0, phone: '' };
+        let currentCashier = localStorage.getItem('crepes_current_cashier') || "Kasir Utama";
         let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [
             { name: "Andi", rating: 5, comment: "Renyah banget dan isian cokelatnya melimpah! Pasti langganan." },
             { name: "Siti", rating: 5, comment: "Mantap, pesanan cepat siap dan pelayanan ramah." }
@@ -511,6 +536,7 @@
                 document.getElementById('service-type').value = "Makan di Tempat";
                 document.getElementById('delivery-address').value = `Meja No. ${mejaNum}`;
             }
+            document.getElementById('cashier-name').value = currentCashier;
             updateStoreStatusUI();
             checkHappyHour();
             renderProducts();
@@ -518,6 +544,7 @@
             updateLiveQueueWidget();
             renderAdminPromoList();
             renderAdminHPPList();
+            renderQRTableList();
         });
 
         function updateStoreStatusUI() {
@@ -531,8 +558,8 @@
                 if (statusLabel) statusLabel.innerText = "Status: BUKA";
                 if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300";
                 if (toggleBtn) {
-                    toggleBtn.innerText = "🛑 Tutup Toko Sekarang";
-                    toggleBtn.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer";
+                    toggleBtn.innerText = "🛑 Tutup Toko";
+                    toggleBtn.className = "bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer";
                 }
             } else {
                 badge.innerText = "🔴 Toko Tutup";
@@ -540,8 +567,8 @@
                 if (statusLabel) statusLabel.innerText = "Status: TUTUP";
                 if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-900 text-rose-300";
                 if (toggleBtn) {
-                    toggleBtn.innerText = "✅ Buka Toko Sekarang";
-                    toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer";
+                    toggleBtn.innerText = "✅ Buka Toko";
+                    toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer";
                 }
             }
         }
@@ -550,7 +577,18 @@
             isStoreOpen = !isStoreOpen;
             localStorage.setItem('crepes_manual_store_status', JSON.stringify(isStoreOpen));
             updateStoreStatusUI();
-            showNotification(isStoreOpen ? "Toko berhasil dibuka kembali! Pelanggan bisa memesan." : "Toko ditutup sementara secara manual.", isStoreOpen ? "success" : "error");
+            showNotification(isStoreOpen ? "Toko berhasil dibuka kembali!" : "Toko ditutup sementara secara manual.", isStoreOpen ? "success" : "error");
+        }
+
+        function saveCashierName() {
+            const name = document.getElementById('cashier-name').value.trim();
+            if (!name) {
+                showNotification("Nama kasir tidak boleh kosong!", "error");
+                return;
+            }
+            currentCashier = name;
+            localStorage.setItem('crepes_current_cashier', currentCashier);
+            showNotification(`Kasir aktif diatur ke: ${currentCashier}`, "success");
         }
 
         function checkHappyHour() {
@@ -627,12 +665,13 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nada D5
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Nada A5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
+                osc.stop(audioCtx.currentTime + 0.4);
             } catch (e) {}
         }
 
@@ -671,7 +710,28 @@
         function toggleCartModal() { document.getElementById('cart-modal').classList.toggle('hidden'); }
         function toggleProductModal() { document.getElementById('product-modal').classList.toggle('hidden'); }
         function toggleReviewModal() { document.getElementById('review-modal').classList.toggle('hidden'); }
+        function toggleQRModal() { document.getElementById('qr-modal').classList.toggle('hidden'); }
         function toggleKDSModal() { document.getElementById('kds-modal').classList.toggle('hidden'); renderKDSCards(); }
+
+        function renderQRTableList() {
+            const container = document.getElementById('qr-table-list');
+            if (!container) return;
+            container.innerHTML = '';
+            const baseUrl = window.location.origin + window.location.pathname;
+
+            for (let i = 1; i <= 10; i++) {
+                let tableUrl = `${baseUrl}?meja=${i}`;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs">
+                        <div>
+                            <span class="font-bold text-purple-900 dark:text-purple-300">Meja No. ${i}</span>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[220px]">${tableUrl}</p>
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${tableUrl}'); showNotification('Link Meja ${i} disalin!', 'success');" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">Salin Link</button>
+                    </div>
+                `;
+            }
+        }
 
         function filterCategory(category) {
             currentFilter = category;
@@ -820,6 +880,11 @@
             const productId = parseInt(document.getElementById('modal-product-id').value);
             const product = products.find(p => p.id === productId);
 
+            if (product.stock <= 0) {
+                showNotification("Stok menu ini baru saja habis!", "error");
+                return;
+            }
+
             const note = document.getElementById('modal-item-note').value.trim();
             let crispiness = "Standar";
             let selectedToppings = [];
@@ -846,6 +911,8 @@
             }
 
             product.stock -= 1;
+            localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
+
             let finalPrice = product.price + extraPriceTotal;
             let finalCost = product.cost + extraCostTotal;
             let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
@@ -978,6 +1045,7 @@
                     cart = cart.filter(i => i.cartItemId !== cartItemId);
                 }
             }
+            localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
 
             renderProducts();
             updateCartUI();
@@ -1117,6 +1185,7 @@
             let newTransaction = {
                 time: waktuPemesanan,
                 rawDate: isoDateStr,
+                cashier: currentCashier,
                 customer: `${name} (${phone}) - ${serviceType}`,
                 details: detailStrings.map(s => "• " + s).join('\n'),
                 payment: paymentMethod,
@@ -1141,6 +1210,7 @@
                     body: JSON.stringify({
                         data: [{
                             "Waktu": waktuPemesanan,
+                            "Kasir": currentCashier,
                             "Nama Pemesan": `${name} (${phone})`,
                             "Jenis Layanan": serviceType,
                             "Detail Pesanan": detailPesananGabungan,
@@ -1169,10 +1239,11 @@
             updateCartUI();
             updateLiveQueueWidget();
             playKitchenSound();
+            showNotification("Pesanan berhasil dikirim ke WhatsApp!", "success");
 
             document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
             document.getElementById('tracking-detail').innerText = `Pesanan atas nama ${name} berhasil dikirim ke WhatsApp dan sistem dapur!`;
-            document.getElementById('customer-status-modal').classList.add('hidden');
+            document.getElementById('customer-status-modal').classList.remove('hidden');
 
             window.open(waUrl, '_blank');
         }
@@ -1226,14 +1297,18 @@
             filteredHistory.forEach((item, index) => {
                 let originalIndex = salesHistory.indexOf(item);
                 totalOmzet += item.total;
-                let itemCost = item.totalCost !== undefined ? item.totalCost : Math.round(item.total * 0.5); // Fallback estimasi 50% jika data lama
+                let itemCost = item.totalCost !== undefined ? item.totalCost : Math.round(item.total * 0.5);
                 totalModal += itemCost;
 
                 let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : (item.status === '🟡 Sedang Dimasak' ? 'bg-amber-900 text-amber-300' : 'bg-red-900 text-red-300');
+                let cashierLabel = item.cashier ? `<span class="text-[10px] text-purple-400 block">👤 ${item.cashier}</span>` : '';
 
                 tbody.innerHTML += `
                     <tr class="border-b border-gray-700 hover:bg-gray-750">
-                        <td class="p-3 text-gray-300 whitespace-nowrap">${item.time}</td>
+                        <td class="p-3 text-gray-300 whitespace-nowrap">
+                            ${item.time}
+                            ${cashierLabel}
+                        </td>
                         <td class="p-3 font-semibold text-white">${item.customer}</td>
                         <td class="p-3 text-gray-300 whitespace-pre-line">${item.details}</td>
                         <td class="p-3">
@@ -1246,7 +1321,7 @@
                         <td class="p-3 text-gray-300">${item.payment}</td>
                         <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
                         <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                            <button onclick="printReceipt(${originalIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
+                            <button onclick="printThermalReceipt(${originalIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
                             <button onclick="deleteSaleRecord(${originalIndex})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🗑️ Hapus</button>
                         </td>
                     </tr>
@@ -1308,7 +1383,7 @@
                                 <span class="font-bold text-white text-sm">👤 ${item.customer}</span>
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.status}</span>
                             </div>
-                            <p class="text-[11px] text-gray-400 mb-2">⏱️ Waktu: ${item.time}</p>
+                            <p class="text-[11px] text-gray-400 mb-2">⏱️ Waktu: ${item.time} | Kasir: ${item.cashier || '-'}</p>
                             <div class="text-xs text-gray-200 bg-gray-950 p-3 rounded-xl mb-3 whitespace-pre-line border border-gray-800/80">
                                 ${item.details}
                             </div>
@@ -1333,21 +1408,22 @@
             }
         }
 
-        function printReceipt(index) {
+        function printThermalReceipt(index) {
             const item = salesHistory[index];
             const printArea = document.getElementById('receipt-print-area');
             printArea.innerHTML = `
-                <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px;">[Nama Brand Crepes]</div>
-                <div style="text-align: center; font-size: 10px; margin-bottom: 8px;">Jl. Raya Kuliner No. 123</div>
-                <div style="border-top: 1px dashed black; margin-bottom: 5px;"></div>
-                <div>Waktu: ${item.time}</div>
-                <div>Pemesan: ${item.customer}</div>
-                <div>Bayar: ${item.payment}</div>
-                <div style="border-top: 1px dashed black; margin: 5px 0;"></div>
-                <div style="white-space: pre-line;">${item.details}</div>
-                <div style="border-top: 1px dashed black; margin: 5px 0;"></div>
-                <div style="font-weight: bold; text-align: right;">TOTAL: Rp ${formatRupiah(item.total)}</div>
-                <div style="border-top: 1px dashed black; margin-top: 5px; padding-top: 5px; text-align: center; font-size: 10px;">Terima Kasih Atas Kunjungan Anda!</div>
+                <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 2px;">[Nama Brand Crepes]</div>
+                <div style="text-align: center; font-size: 9px; margin-bottom: 5px;">Jl. Raya Kuliner No. 123</div>
+                <div style="border-top: 1px dashed black; margin-bottom: 4px;"></div>
+                <div style="font-size: 10px;">Waktu : ${item.time}</div>
+                <div style="font-size: 10px;">Kasir : ${item.cashier || '-'}</div>
+                <div style="font-size: 10px;">Pemesan : ${item.customer}</div>
+                <div style="font-size: 10px;">Bayar : ${item.payment}</div>
+                <div style="border-top: 1px dashed black; margin: 4px 0;"></div>
+                <div style="white-space: pre-line; font-size: 10px;">${item.details}</div>
+                <div style="border-top: 1px dashed black; margin: 4px 0;"></div>
+                <div style="font-weight: bold; text-align: right; font-size: 11px;">TOTAL: Rp ${formatRupiah(item.total)}</div>
+                <div style="border-top: 1px dashed black; margin-top: 4px; padding-top: 4px; text-align: center; font-size: 9px;">Terima Kasih!</div>
             `;
             window.print();
         }
@@ -1405,9 +1481,9 @@
         }
 
         function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Waktu,Pemesan,Detail Pesanan,Pembayaran,Total,Status\n";
+            let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Pemesan,Detail Pesanan,Pembayaran,Total,Status\n";
             salesHistory.forEach(row => {
-                csvContent += `"${row.time}","${row.customer}","${row.details.replace(/\n/g, ' ')}","${row.payment}",${row.total},"${row.status}"\n`;
+                csvContent += `"${row.time}","${row.cashier || '-'}","${row.customer}","${row.details.replace(/\n/g, ' ')}","${row.payment}",${row.total},"${row.status}"\n`;
             });
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
@@ -1425,7 +1501,7 @@
             doc.text("Laporan Penjualan & Omzet Crepes", 14, 20);
             let y = 30;
             salesHistory.forEach((item, idx) => {
-                doc.text(`${idx + 1}. [${item.time}] ${item.customer} - Rp ${formatRupiah(item.total)} (${item.status})`, 14, y);
+                doc.text(`${idx + 1}. [${item.time}] Kasir: ${item.cashier || '-'} | ${item.customer} - Rp ${formatRupiah(item.total)}`, 14, y);
                 y += 10;
                 if (y > 280) { doc.addPage(); y = 20; }
             });
