@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog & Pemesanan Crepes Lezat</title>
+    <title>Katalog & Kasir Crepes Profesional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -13,9 +13,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiW05hbWEgQnJhbmQgQ3JlcGVzXSIsInNob3J0X25hbWUiOiJDcmVwZXMgUG9zIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiNhODU1ZjcifQ==">
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        
         @keyframes slideInRight {
             0% { transform: translateX(100%) scale(0.9); opacity: 0; }
             60% { transform: translateX(-8px) scale(1.02); opacity: 1; }
@@ -79,7 +79,7 @@
         </div>
 
         <div id="loyalty-banner" class="max-w-md mx-auto mb-5 bg-purple-100/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 rounded-2xl p-3 text-xs text-purple-900 dark:text-purple-300 hidden">
-            ✨ Status Member: <strong id="member-status-text">0 Stempel</strong> (Kumpulkan 5 Stempel untuk 1 Crepes Gratis!)
+            ✨ Status Member: <strong id="member-status-text">0 Stempel</strong> (<span id="member-reward-info">Kumpulkan 5 Stempel untuk 1 Crepes Gratis!</span>)
         </div>
 
         <div class="max-w-md mx-auto px-2">
@@ -157,7 +157,7 @@
                 <p id="modal-product-desc" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Deskripsi menu...</p>
                 <div class="flex justify-between items-center mt-2">
                     <p id="modal-product-price" class="text-sm sm:text-base font-bold text-purple-700 dark:text-purple-400">Rp 0</p>
-                    <span id="modal-product-stock" class="text-xs font-semibold px-2.5 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full">Stok: 0</span>
+                    <span id="modal-product-stock" class="text-xs font-semibold px-2.5 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full">Stok Bahan: Aman</span>
                 </div>
             </div>
 
@@ -218,6 +218,13 @@
             </div>
             <p id="loyalty-lookup-info" class="text-[11px] text-purple-600 dark:text-purple-400 mb-3 hidden">✨ Nomor terdeteksi! Riwayat stempel Anda dimuat.</p>
 
+            <div id="reward-claim-box" class="mb-3 bg-purple-100 dark:bg-purple-950/60 p-3 rounded-2xl border border-purple-300 dark:border-purple-800 hidden">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-purple-900 dark:text-purple-300">🎁 Anda punya cukup stempel untuk 1 Crepes Gratis!</span>
+                    <button onclick="toggleClaimReward()" id="claim-reward-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer">Klaim</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-2 mb-3">
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Jenis Layanan:</label>
@@ -274,7 +281,7 @@
                     <span id="sub-total">Rp 0</span>
                 </div>
                 <div id="discount-row" class="flex justify-between text-emerald-600 dark:text-emerald-400 hidden">
-                    <span>Diskon (Promo / Happy Hour):</span>
+                    <span>Diskon (Promo / Reward):</span>
                     <span id="discount-amount">- Rp 0</span>
                 </div>
                 <div class="flex justify-between font-bold text-base text-purple-900 dark:text-purple-300 pt-1 border-t dark:border-gray-800">
@@ -320,22 +327,23 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Keuangan, QR Meja & Dapur</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Inventory & Keuangan</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka KDS Dapur</button>
-                        <button onclick="toggleQRModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📱 QR Code Meja</button>
-                        <button onclick="exportToPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 Unduh PDF</button>
-                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 Unduh CSV</button>
+                        <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 KDS Dapur</button>
+                        <button onclick="toggleQRModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📱 QR Meja</button>
+                        <button onclick="exportToPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📥 PDF</button>
+                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">📊 CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔒 Kunci</button>
                     </div>
                 </div>
 
+                <!-- Shift Kasir & Toko Manual -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
                             <h4 class="text-sm font-bold text-purple-300 mb-1">👤 Nama Kasir / Staf Bertugas</h4>
-                            <p class="text-[11px] text-gray-400 mb-2">Tercatat pada setiap transaksi shift hari ini.</p>
+                            <p class="text-[11px] text-gray-400 mb-2">Tercatat pada transaksi shift hari ini.</p>
                         </div>
                         <div class="flex gap-2">
                             <input type="text" id="cashier-name" placeholder="Nama Kasir" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500 flex-1">
@@ -345,7 +353,7 @@
 
                     <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
-                            <h4 class="text-sm font-bold text-purple-300 mb-1">🏪 Kontrol Status Toko Manual</h4>
+                            <h4 class="text-sm font-bold text-purple-300 mb-1">🏪 Status Toko Manual</h4>
                             <p class="text-[11px] text-gray-400 mb-2">Buka atau tutup toko instan.</p>
                         </div>
                         <div class="flex items-center justify-between">
@@ -357,23 +365,36 @@
                     </div>
                 </div>
 
+                <!-- Manajemen Stok Bahan Baku (Inventory) -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Atur estimasi modal tiap menu untuk melihat keuntungan bersih otomatis.</p>
-                    <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Manajemen Stok Bahan Baku (Inventory)</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Atur ketersediaan bahan mentah utama di dapur.</p>
+                    <div id="admin-inventory-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
                 </div>
 
+                <!-- Biaya Operasional & Harian -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan & Keuangan</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi, omzet, dan profit bersih.</p>
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">💸 Catat Biaya Operasional Harian</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Masukkan biaya gas, listrik, atau kemasan untuk akurasi laba bersih.</p>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="op-desc" placeholder="Keterangan (Mis: Beli Gas 3kg)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none flex-1">
+                        <input type="number" id="op-cost" placeholder="Nominal (Rp)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none w-36">
+                        <button onclick="addOperationalCost()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Tambah</button>
+                    </div>
+                    <div id="operational-list" class="space-y-1 text-xs text-gray-300 max-h-24 overflow-y-auto"></div>
+                </div>
+
+                <!-- Filter Laporan -->
+                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[11px] text-gray-400 mb-1">Filter Tanggal (Harian):</label>
-                            <input type="date" id="filter-date" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] text-gray-400 mb-1">Tanggal:</label>
+                            <input type="date" id="filter-date" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-gray-400 mb-1">Filter Bulan (Bulanan):</label>
-                            <input type="month" id="filter-month" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] text-gray-400 mb-1">Bulan:</label>
+                            <input type="month" id="filter-month" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white">
                         </div>
                         <div class="flex items-end">
                             <button onclick="resetSalesFilter()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔄 Reset Filter</button>
@@ -381,47 +402,30 @@
                     </div>
                 </div>
 
-                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Tambah atau hapus kode promo diskon.</p>
-                    <div class="flex flex-col sm:flex-row gap-2 mb-3">
-                        <input type="text" id="new-promo-code" placeholder="KODE (Mis: DISKON20)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white uppercase focus:outline-none focus:border-purple-500 flex-1">
-                        <input type="number" id="new-promo-amount" placeholder="Nominal Potongan (Rp)" class="px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500 flex-1">
-                        <button onclick="addNewPromoCode()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">➕ Tambah Kupon</button>
-                    </div>
-                    <div id="admin-promo-list" class="flex flex-wrap gap-2 text-xs"></div>
-                </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs text-gray-400">Total Omzet</p>
-                            <h4 class="text-base sm:text-lg font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
-                        </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400">Total Omzet</p>
+                        <h4 class="text-base sm:text-lg font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs text-gray-400">Total Estimasi Modal (HPP)</p>
-                            <h4 class="text-base sm:text-lg font-bold text-rose-400 mt-1" id="total-cost">Rp 0</h4>
-                        </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400">Total HPP & Operasional</p>
+                        <h4 class="text-base sm:text-lg font-bold text-rose-400 mt-1" id="total-cost">Rp 0</h4>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs text-gray-400">Keuntungan Bersih (Profit)</p>
-                            <h4 class="text-base sm:text-lg font-bold text-emerald-400 mt-1" id="total-profit">Rp 0</h4>
-                        </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400">Keuntungan Bersih (Profit)</p>
+                        <h4 class="text-base sm:text-lg font-bold text-emerald-400 mt-1" id="total-profit">Rp 0</h4>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
                         <p class="text-xs text-gray-400 mb-2">Grafik Omzet</p>
                         <div style="position: relative; height: 180px; width: 100%;">
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
-                        <p class="text-xs text-gray-400 mb-2">Grafik Kategori Menu Terjual</p>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+                        <p class="text-xs text-gray-400 mb-2">Grafik Kategori Menu</p>
                         <div style="position: relative; height: 180px; width: 100%;">
                             <canvas id="menuChart"></canvas>
                         </div>
@@ -443,27 +447,25 @@
                                 </tr>
                             </thead>
                             <tbody id="sales-table-body" class="divide-y divide-gray-700">
-                                <tr>
-                                    <td colspan="7" class="p-4 text-center text-gray-500 italic">Memuat data...</td>
-                                </tr>
+                                <tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Memuat data...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 
+    <!-- Modal QR Meja -->
     <div id="qr-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative border dark:border-gray-800 max-h-[85vh] overflow-y-auto">
-            <button onclick="toggleQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-white font-bold text-lg px-2 cursor-pointer">✕</button>
+            <button onclick="toggleQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 font-bold text-lg px-2 cursor-pointer">✕</button>
             <h3 class="text-base sm:text-lg font-bold text-purple-900 dark:text-purple-300 mb-2">📱 Generator Link QR Meja</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Salin atau bagikan tautan ini untuk tiap nomor meja agar form pesanan otomatis terisi.</p>
-            <div id="qr-table-list" class="space-y-2.5"></div>
+            <div id="qr-table-list" class="space-y-2.5 mt-3"></div>
         </div>
     </div>
 
+    <!-- Modal KDS Dapur -->
     <div id="kds-modal" class="fixed inset-0 bg-gray-950/90 backdrop-blur-md z-[999] flex flex-col p-4 hidden">
         <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-3">
             <h2 class="text-lg font-bold text-amber-400 flex items-center gap-2">🍳 Kitchen Display System (KDS) Live</h2>
@@ -479,54 +481,57 @@
     <script>
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
+        // Sistem Inventory Bahan Mentah
+        let inventory = JSON.parse(localStorage.getItem('crepes_inventory_stock')) || {
+            "Adonan Tepung": { stock: 100, unit: "porsi" },
+            "Cokelat Lumer": { stock: 50, unit: "porsi" },
+            "Keju Parut": { stock: 60, unit: "porsi" },
+            "Matcha Sauce": { stock: 30, unit: "porsi" },
+            "Sosis / Beef": { stock: 40, unit: "pcs" },
+            "Es Batu & Teh": { stock: 100, unit: "porsi" }
+        };
+
         let products = JSON.parse(localStorage.getItem('crepes_products_hpp')) || [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"] },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"] },
-            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 20, ingredients: ["Keju"] },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 15, ingredients: ["Sosis", "Keju"] },
-            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 12, ingredients: ["Sosis", "Keju"] },
-            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 35, ingredients: [] },
-            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 25, ingredients: ["Cokelat"] },
-            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [] }
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", requiredIngredients: ["Adonan Tepung", "Cokelat Lumer", "Keju Parut"], ingredients: ["Cokelat", "Keju"] },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", requiredIngredients: ["Adonan Tepung", "Matcha Sauce"], ingredients: ["Matcha"] },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", requiredIngredients: ["Adonan Tepung", "Keju Parut"], ingredients: ["Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", requiredIngredients: ["Adonan Tepung", "Sosis / Beef", "Keju Parut"], ingredients: ["Sosis", "Keju"] },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", requiredIngredients: ["Adonan Tepung", "Sosis / Beef", "Keju Parut"], ingredients: ["Sosis", "Keju"] },
+            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", requiredIngredients: ["Es Batu & Teh"], ingredients: [] },
+            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", requiredIngredients: ["Cokelat Lumer", "Es Batu & Teh"], ingredients: ["Cokelat"] },
+            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", requiredIngredients: ["Es Batu & Teh"], ingredients: [] }
         ];
 
         const toppings = [
-            { id: 't1', name: 'Extra Keju Parut', price: 3000, cost: 1500 },
-            { id: 't2', name: 'Extra Cokelat Lumer', price: 3000, cost: 1500 },
-            { id: 't3', name: 'Extra Kacang Almond', price: 5000, cost: 2500 },
-            { id: 't4', name: 'Extra Sosis / Smoked Beef', price: 6000, cost: 3000 },
-            { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000, cost: 2000 }
+            { id: 't1', name: 'Extra Keju Parut', price: 3000, cost: 1500, req: 'Keju Parut' },
+            { id: 't2', name: 'Extra Cokelat Lumer', price: 3000, cost: 1500, req: 'Cokelat Lumer' },
+            { id: 't3', name: 'Extra Kacang Almond', price: 5000, cost: 2500, req: 'Adonan Tepung' },
+            { id: 't4', name: 'Extra Sosis / Smoked Beef', price: 6000, cost: 3000, req: 'Sosis / Beef' },
+            { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000, cost: 2000, req: 'Keju Parut' }
         ];
 
         const bundlingDrinks = [
-            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000, cost: 2000 },
-            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500, cost: 3500 },
-            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500, cost: 2500 }
+            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000, cost: 2000, req: 'Es Batu & Teh' },
+            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500, cost: 3500, req: 'Cokelat Lumer' },
+            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500, cost: 2500, req: 'Es Batu & Teh' }
         ];
 
-        let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || {
-            "HEMAT5RB": 5000,
-            "CREPESKILAT": 10000
-        };
+        let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || { "HEMAT5RB": 5000, "CREPESKILAT": 10000 };
+        let operationalCosts = JSON.parse(localStorage.getItem('crepes_operational')) || [];
 
         const SELLER_PIN = "1234";
         let cart = [];
-        let grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0;
-        let currentFilter = 'all';
-        let currentIngredientFilter = 'all';
+        let grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0, isRewardClaimed = false;
+        let currentFilter = 'all', currentIngredientFilter = 'all';
         let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
         let globalCustomerDatabase = JSON.parse(localStorage.getItem('crepes_customer_db')) || {};
         let loyaltyData = { stamps: 0, phone: '' };
         let currentCashier = localStorage.getItem('crepes_current_cashier') || "Kasir Utama";
         let customerReviews = JSON.parse(localStorage.getItem('crepes_reviews')) || [
-            { name: "Andi", rating: 5, comment: "Renyah banget dan isian cokelatnya melimpah! Pasti langganan." },
-            { name: "Siti", rating: 5, comment: "Mantap, pesanan cepat siap dan pelayanan ramah." }
+            { name: "Andi", rating: 5, comment: "Renyah banget dan isian cokelatnya melimpah! Pasti langganan." }
         ];
-        let revChartInstance = null;
-        let menuChartInstance = null;
-        
-        let isStoreOpen = localStorage.getItem('crepes_manual_store_status') !== null ? 
-            JSON.parse(localStorage.getItem('crepes_manual_store_status')) : true;
+        let revChartInstance = null, menuChartInstance = null;
+        let isStoreOpen = localStorage.getItem('crepes_manual_store_status') !== null ? JSON.parse(localStorage.getItem('crepes_manual_store_status')) : true;
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -541,9 +546,14 @@
             renderProducts();
             renderReviews();
             updateLiveQueueWidget();
-            renderAdminPromoList();
-            renderAdminHPPList();
+            renderAdminInventoryList();
+            renderOperationalList();
             renderQRTableList();
+
+            // Register PWA Service Worker if supported
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZSA9PiBlLndhaXRVbnRpbFxzZWxmLnNraXBXYWl0aW5nKCkpOw==').catch(()=>{});
+            }
         });
 
         function updateStoreStatusUI() {
@@ -554,21 +564,13 @@
             if (isStoreOpen) {
                 badge.innerText = "🟢 Toko Buka";
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300 hidden sm:inline-block";
-                if (statusLabel) statusLabel.innerText = "Status: BUKA";
-                if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300";
-                if (toggleBtn) {
-                    toggleBtn.innerText = "🛑 Tutup Toko";
-                    toggleBtn.className = "bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer";
-                }
+                if (statusLabel) { statusLabel.innerText = "Status: BUKA"; statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-green-900 text-green-300"; }
+                if (toggleBtn) { toggleBtn.innerText = "🛑 Tutup Toko"; toggleBtn.className = "bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"; }
             } else {
                 badge.innerText = "🔴 Toko Tutup";
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 hidden sm:inline-block";
-                if (statusLabel) statusLabel.innerText = "Status: TUTUP";
-                if (statusLabel) statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-900 text-rose-300";
-                if (toggleBtn) {
-                    toggleBtn.innerText = "✅ Buka Toko";
-                    toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer";
-                }
+                if (statusLabel) { statusLabel.innerText = "Status: TUTUP"; statusLabel.className = "text-xs font-bold px-3 py-1 rounded-full bg-rose-900 text-rose-300"; }
+                if (toggleBtn) { toggleBtn.innerText = "✅ Buka Toko"; toggleBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"; }
             }
         }
 
@@ -576,53 +578,73 @@
             isStoreOpen = !isStoreOpen;
             localStorage.setItem('crepes_manual_store_status', JSON.stringify(isStoreOpen));
             updateStoreStatusUI();
-            showNotification(isStoreOpen ? "Toko berhasil dibuka kembali!" : "Toko ditutup sementara secara manual.", isStoreOpen ? "success" : "error");
+            showNotification(isStoreOpen ? "Toko dibuka!" : "Toko ditutup manual.", isStoreOpen ? "success" : "error");
         }
 
         function saveCashierName() {
             const name = document.getElementById('cashier-name').value.trim();
-            if (!name) {
-                showNotification("Nama kasir tidak boleh kosong!", "error");
-                return;
-            }
+            if (!name) return;
             currentCashier = name;
             localStorage.setItem('crepes_current_cashier', currentCashier);
-            showNotification(`Kasir aktif diatur ke: ${currentCashier}`, "success");
+            showNotification(`Kasir aktif: ${currentCashier}`, "success");
         }
 
         function checkHappyHour() {
-            const currentHour = new Date().getHours();
+            const h = new Date().getHours();
             const banner = document.getElementById('happy-hour-banner');
-            if (currentHour >= 14 && currentHour < 16) {
-                banner.classList.remove('hidden');
-                return true;
-            }
+            if (h >= 14 && h < 16) { banner.classList.remove('hidden'); return true; }
             return false;
+        }
+
+        function checkProductStockAvailability(product) {
+            for (let req of product.requiredIngredients) {
+                if (!inventory[req] || inventory[req].stock <= 0) return false;
+            }
+            return true;
         }
 
         function checkLoyaltyDatabase(phone) {
             let cleanPhone = phone.trim();
             const infoEl = document.getElementById('loyalty-lookup-info');
+            const rewardBox = document.getElementById('reward-claim-box');
+
             if (cleanPhone.length >= 5 && globalCustomerDatabase[cleanPhone]) {
                 loyaltyData = globalCustomerDatabase[cleanPhone];
                 infoEl.classList.remove('hidden');
-                infoEl.innerText = `✨ Ditemukan! Stempel Anda terkumpul: ${loyaltyData.stamps}`;
+                infoEl.innerText = `✨ Stempel Anda: ${loyaltyData.stamps}`;
+                if (loyaltyData.stamps >= 5 && !isRewardClaimed) {
+                    rewardBox.classList.remove('hidden');
+                } else {
+                    rewardBox.classList.add('hidden');
+                }
             } else {
                 loyaltyData = { stamps: 0, phone: cleanPhone };
                 infoEl.classList.add('hidden');
+                rewardBox.classList.add('hidden');
             }
             updateLoyaltyUI();
+        }
+
+        function toggleClaimReward() {
+            isRewardClaimed = !isRewardClaimed;
+            const btn = document.getElementById('claim-reward-btn');
+            if (isRewardClaimed) {
+                btn.innerText = "Batalkan Klaim";
+                btn.className = "bg-rose-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold";
+                showNotification("Klaim 1 Crepes Gratis diaktifkan!", "success");
+            } else {
+                btn.innerText = "Klaim";
+                btn.className = "bg-purple-600 text-white px-3 py-1.5 rounded-xl text-[11px] font-bold";
+                showNotification("Klaim dibatalkan.", "info");
+            }
+            updateCartUI();
         }
 
         function updateLiveQueueWidget() {
             const widgetText = document.getElementById('live-queue-text');
             const activeQueue = salesHistory.filter(s => s.status !== '🟢 Selesai');
-            if (activeQueue.length === 0) {
-                widgetText.innerText = "Tidak ada antrean aktif saat ini";
-            } else {
-                let activeNames = activeQueue.map(q => q.customer.split(' ')[0]).join(', ');
-                widgetText.innerText = `${activeNames} (${activeQueue.length} pesanan)`;
-            }
+            if (activeQueue.length === 0) widgetText.innerText = "Tidak ada antrean aktif";
+            else widgetText.innerText = `${activeQueue.map(q => q.customer.split(' ')[0]).join(', ')} (${activeQueue.length} pesanan)`;
             renderKDSCards();
         }
 
@@ -631,79 +653,27 @@
             const statusText = document.getElementById('member-status-text');
             if (loyaltyData.stamps > 0 || loyaltyData.phone) {
                 banner.classList.remove('hidden');
-                let sisa = 5 - (loyaltyData.stamps % 5);
-                statusText.innerText = `${loyaltyData.stamps} Stempel (${sisa} pesanan lagi gratis crepes!)`;
+                statusText.innerText = `${loyaltyData.stamps} Stempel`;
             }
         }
 
-        function formatRupiah(angka) {
-            return Number(angka).toLocaleString('id-ID');
-        }
-
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const themeIcon = document.getElementById('theme-icon');
-            html.classList.toggle('dark');
-            if (html.classList.contains('dark')) {
-                themeIcon.innerText = "☀️";
-                localStorage.setItem('crepes_theme', 'dark');
-            } else {
-                themeIcon.innerText = "🌙";
-                localStorage.setItem('crepes_theme', 'light');
-            }
-        }
-
-        if (localStorage.getItem('crepes_theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.getElementById('theme-icon').innerText = "☀️";
-        }
-
-        function playKitchenSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
-            } catch (e) {}
-        }
+        function formatRupiah(angka) { return Number(angka).toLocaleString('id-ID'); }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if (!container) return;
-
             const toast = document.createElement('div');
             let config = {
-                success: { bg: 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-400/30', icon: '🎉', title: 'Berhasil!' },
-                error: { bg: 'bg-gradient-to-r from-rose-600 to-red-600 text-white border-rose-400/30', icon: '⚠️', title: 'Perhatian!' },
-                info: { bg: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400/30', icon: '✨', title: 'Informasi' }
-            };
-            let current = config[type] || config.success;
+                success: { bg: 'bg-emerald-600 text-white', icon: '🎉', title: 'Berhasil!' },
+                error: { bg: 'bg-rose-600 text-white', icon: '⚠️', title: 'Perhatian!' },
+                info: { bg: 'bg-purple-600 text-white', icon: '✨', title: 'Informasi' }
+            }[type] || { bg: 'bg-emerald-600 text-white', icon: '🎉', title: 'Berhasil!' };
 
-            toast.className = `pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl shadow-2xl border backdrop-blur-md text-xs font-medium toast-enter ${current.bg}`;
-            toast.innerHTML = `
-                <span class="text-base mt-0.5">${current.icon}</span>
-                <div class="flex-1">
-                    <p class="font-bold text-sm leading-tight">${current.title}</p>
-                    <p class="text-white/90 mt-0.5 leading-relaxed">${message}</p>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white font-bold text-sm ml-2 cursor-pointer">✕</button>
-            `;
-
+            toast.className = `flex items-start gap-3 p-3.5 rounded-2xl shadow-2xl text-xs font-medium toast-enter ${config.bg}`;
+            toast.innerHTML = `<span class="text-base">${config.icon}</span><div class="flex-1"><p class="font-bold text-sm">${config.title}</p><p>${message}</p></div>`;
             container.appendChild(toast);
-            setTimeout(() => {
-                if (toast.parentElement) {
-                    toast.classList.remove('toast-enter');
-                    toast.classList.add('toast-exit');
-                    setTimeout(() => toast.remove(), 250);
-                }
-            }, 3500);
+            setTimeout(() => { toast.remove(); }, 3000);
         }
 
         function toggleCartModal() { document.getElementById('cart-modal').classList.toggle('hidden'); }
@@ -717,44 +687,19 @@
             if (!container) return;
             container.innerHTML = '';
             const baseUrl = window.location.origin + window.location.pathname;
-
             for (let i = 1; i <= 10; i++) {
                 let tableUrl = `${baseUrl}?meja=${i}`;
                 container.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs">
-                        <div>
-                            <span class="font-bold text-purple-900 dark:text-purple-300">Meja No. ${i}</span>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[220px]">${tableUrl}</p>
-                        </div>
-                        <button onclick="navigator.clipboard.writeText('${tableUrl}'); showNotification('Link Meja ${i} disalin!', 'success');" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">Salin Link</button>
-                    </div>
-                `;
+                    <div class="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2.5 rounded-xl text-xs">
+                        <span class="font-bold text-purple-900 dark:text-purple-300">Meja No. ${i}</span>
+                        <button onclick="navigator.clipboard.writeText('${tableUrl}'); showNotification('Link Meja ${i} disalin!', 'success');" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-[11px]">Salin Link</button>
+                    </div>`;
             }
         }
 
-        function filterCategory(category) {
-            currentFilter = category;
-            ['all', 'sweet', 'savory', 'drink'].forEach(cat => {
-                const btn = document.getElementById(`btn-${cat}`);
-                if (btn) {
-                    if (cat === category) {
-                        btn.className = "px-4 py-2 rounded-full text-xs font-semibold bg-purple-600 text-white transition shadow-sm cursor-pointer";
-                    } else {
-                        btn.className = "px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-gray-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-gray-800 hover:bg-purple-50 dark:hover:bg-gray-800 transition cursor-pointer";
-                    }
-                }
-            });
-            renderProducts();
-        }
-
-        function filterByIngredient(ingredient) {
-            currentIngredientFilter = ingredient;
-            renderProducts();
-        }
-
-        function filterProducts() {
-            renderProducts();
-        }
+        function filterCategory(cat) { currentFilter = cat; renderProducts(); }
+        function filterByIngredient(ing) { currentIngredientFilter = ing; renderProducts(); }
+        function filterProducts() { renderProducts(); }
 
         function renderProducts() {
             const grid = document.getElementById('product-grid');
@@ -764,7 +709,7 @@
             const filtered = products.filter(p => {
                 const matchCategory = currentFilter === 'all' || p.category === currentFilter;
                 const matchIngredient = currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter);
-                const matchSearch = p.name.toLowerCase().includes(searchKeyword) || p.desc.toLowerCase().includes(searchKeyword);
+                const matchSearch = p.name.toLowerCase().includes(searchKeyword);
                 return matchCategory && matchIngredient && matchSearch;
             });
 
@@ -774,173 +719,111 @@
             }
 
             filtered.forEach(p => {
-                let badgeColor = p.category === 'drink' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' : (p.category === 'sweet' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300');
-                let catLabel = p.category === 'drink' ? '🥤 Minuman' : (p.category === 'sweet' ? '🍫 Manis' : '🧀 Asin & Gurih');
-                
-                let stockBadge = `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${p.stock <= 3 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' : 'text-gray-500 dark:text-gray-400'}">Stok: ${p.stock} ${p.stock <= 3 ? '⚠️ Menipis!' : ''}</span>`;
+                let isAvailable = checkProductStockAvailability(p);
+                let stockBadge = isAvailable ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Stok Bahan: Tersedia</span>` : `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Bahan Habis</span>`;
 
                 grid.innerHTML += `
-                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between transition hover:shadow-md">
+                    <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border border-purple-100 dark:border-gray-800 flex flex-col justify-between">
                         <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${badgeColor}">${catLabel}</span>
-                                ${stockBadge}
-                            </div>
+                            <div class="flex justify-between items-start mb-2">${stockBadge}</div>
                             <h4 class="font-bold text-sm sm:text-base text-purple-900 dark:text-purple-300 mb-1">${p.name}</h4>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${p.desc}</p>
                         </div>
                         <div class="flex items-center justify-between pt-3 border-t dark:border-gray-800">
-                            <span class="font-bold text-sm sm:text-base text-purple-700 dark:text-purple-400">Rp ${formatRupiah(p.price)}</span>
-                            <button onclick="openProductModal(${p.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shadow-sm">
-                                🛒 Pilih Menu
+                            <span class="font-bold text-sm text-purple-700 dark:text-purple-400">Rp ${formatRupiah(p.price)}</span>
+                            <button onclick="openProductModal(${p.id})" ${!isAvailable ? 'disabled' : ''} class="${isAvailable ? 'bg-purple-600 hover:bg-purple-700 cursor-pointer' : 'bg-gray-400 cursor-not-allowed'} text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition">
+                                ${isAvailable ? '🛒 Pilih Menu' : '❌ Habis'}
                             </button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
         function openProductModal(productId) {
-            if (!isStoreOpen) {
-                showNotification("Maaf, toko sedang ditutup oleh pemilik. Belum bisa menerima pesanan.", "error");
-                return;
-            }
-
+            if (!isStoreOpen) { showNotification("Toko sedang ditutup.", "error"); return; }
             const product = products.find(p => p.id === productId);
             document.getElementById('modal-product-id').value = product.id;
             document.getElementById('modal-product-name').innerText = product.name;
             document.getElementById('modal-product-desc').innerText = product.desc;
             document.getElementById('modal-product-price').innerText = `Rp ${formatRupiah(product.price)}`;
-            document.getElementById('modal-product-stock').innerText = `Stok: ${product.stock}`;
-            document.getElementById('modal-item-note').value = '';
 
             const crispinessSection = document.getElementById('crispiness-section');
             const toppingSection = document.getElementById('topping-section');
             const bundlingSection = document.getElementById('bundling-section');
 
             if (product.category === 'drink') {
-                crispinessSection.classList.add('hidden');
-                toppingSection.classList.add('hidden');
-                bundlingSection.classList.add('hidden');
+                crispinessSection.classList.add('hidden'); toppingSection.classList.add('hidden'); bundlingSection.classList.add('hidden');
             } else {
-                crispinessSection.classList.remove('hidden');
-                toppingSection.classList.remove('hidden');
-                bundlingSection.classList.remove('hidden');
-
+                crispinessSection.classList.remove('hidden'); toppingSection.classList.remove('hidden'); bundlingSection.classList.remove('hidden');
+                
                 const modalToppingList = document.getElementById('modal-topping-list');
                 modalToppingList.innerHTML = '';
                 toppings.forEach(t => {
                     modalToppingList.innerHTML += `
-                        <label class="flex items-center justify-between p-2.5 rounded-xl border border-purple-100 dark:border-gray-800 bg-purple-50/50 dark:bg-gray-800 cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition">
+                        <label class="flex items-center justify-between p-2 rounded-xl border border-purple-100 dark:border-gray-800 bg-purple-50/50 dark:bg-gray-800 cursor-pointer">
                             <div class="flex items-center">
-                                <input type="checkbox" value="${t.id}" data-name="${t.name}" data-price="${t.price}" data-cost="${t.cost}" class="modal-topping-checkbox rounded text-purple-600 focus:ring-purple-500 mr-2.5 w-4 h-4">
-                                <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">${t.name}</span>
+                                <input type="checkbox" value="${t.id}" data-name="${t.name}" data-price="${t.price}" data-cost="${t.cost}" data-req="${t.req}" class="modal-topping-checkbox mr-2">
+                                <span class="text-xs font-semibold">${t.name}</span>
                             </div>
-                            <span class="text-xs font-bold text-purple-700 dark:text-purple-400">+Rp ${formatRupiah(t.price)}</span>
-                        </label>
-                    `;
+                            <span class="text-xs font-bold text-purple-700">+Rp ${formatRupiah(t.price)}</span>
+                        </label>`;
                 });
 
                 const modalBundlingList = document.getElementById('modal-bundling-list');
                 modalBundlingList.innerHTML = '';
                 bundlingDrinks.forEach(b => {
                     modalBundlingList.innerHTML += `
-                        <label class="flex items-center justify-between p-2 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-white dark:bg-gray-800 cursor-pointer hover:bg-amber-100/50 transition">
+                        <label class="flex items-center justify-between p-2 rounded-xl border border-amber-200 bg-white dark:bg-gray-800 cursor-pointer">
                             <div class="flex items-center">
-                                <input type="checkbox" value="${b.id}" data-name="${b.name}" data-price="${b.price}" data-cost="${b.cost}" class="modal-bundling-checkbox rounded text-amber-600 focus:ring-amber-500 mr-2 w-4 h-4">
-                                <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">${b.name}</span>
+                                <input type="checkbox" value="${b.id}" data-name="${b.name}" data-price="${b.price}" data-cost="${b.cost}" data-req="${b.req}" class="modal-bundling-checkbox mr-2">
+                                <span class="text-xs font-semibold">${b.name}</span>
                             </div>
-                            <span class="text-xs font-bold text-amber-700 dark:text-amber-400">+Rp ${formatRupiah(b.price)}</span>
-                        </label>
-                    `;
+                            <span class="text-xs font-bold text-amber-700">+Rp ${formatRupiah(b.price)}</span>
+                        </label>`;
                 });
             }
-
-            const addBtn = document.getElementById('modal-add-btn');
-            if (product.stock <= 0) {
-                addBtn.disabled = true;
-                addBtn.className = "w-full bg-gray-400 text-white py-3 rounded-xl text-xs sm:text-sm font-semibold cursor-not-allowed";
-                addBtn.innerText = "❌ Stok Habis";
-            } else {
-                addBtn.disabled = false;
-                addBtn.className = "w-full bg-purple-600 text-white py-3 rounded-xl text-xs sm:text-sm font-semibold hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer";
-                addBtn.innerText = "🛒 Masukkan ke Keranjang";
-            }
-
             toggleProductModal();
         }
 
         function confirmAddToCart() {
-            if (!isStoreOpen) {
-                showNotification("Maaf, toko sedang ditutup.", "error");
-                return;
-            }
-
             const productId = parseInt(document.getElementById('modal-product-id').value);
             const product = products.find(p => p.id === productId);
 
-            if (product.stock <= 0) {
-                showNotification("Stok menu ini baru saja habis!", "error");
-                return;
+            // Kurangi stok inventory bahan mentah utama
+            for (let req of product.requiredIngredients) {
+                if (inventory[req] && inventory[req].stock > 0) inventory[req].stock -= 1;
             }
 
             const note = document.getElementById('modal-item-note').value.trim();
             let crispiness = "Standar";
-            let selectedToppings = [];
-            let selectedBundlingDrinks = [];
-            let extraPriceTotal = 0;
-            let extraCostTotal = 0;
+            let selectedToppings = [], selectedBundlingDrinks = [];
+            let extraPriceTotal = 0, extraCostTotal = 0;
 
             if (product.category !== 'drink') {
                 crispiness = document.querySelector('input[name="crispiness"]:checked').value;
-                
-                const toppingCheckboxes = document.querySelectorAll('.modal-topping-checkbox:checked');
-                toppingCheckboxes.forEach(cb => {
+                document.querySelectorAll('.modal-topping-checkbox:checked').forEach(cb => {
                     selectedToppings.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
-                    extraPriceTotal += parseInt(cb.dataset.price);
-                    extraCostTotal += parseInt(cb.dataset.cost);
+                    extraPriceTotal += parseInt(cb.dataset.price); extraCostTotal += parseInt(cb.dataset.cost);
                 });
-
-                const bundlingCheckboxes = document.querySelectorAll('.modal-bundling-checkbox:checked');
-                bundlingCheckboxes.forEach(cb => {
+                document.querySelectorAll('.modal-bundling-checkbox:checked').forEach(cb => {
                     selectedBundlingDrinks.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
-                    extraPriceTotal += parseInt(cb.dataset.price);
-                    extraCostTotal += parseInt(cb.dataset.cost);
+                    extraPriceTotal += parseInt(cb.dataset.price); extraCostTotal += parseInt(cb.dataset.cost);
                 });
             }
 
-            product.stock -= 1;
-            localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
+            localStorage.setItem('crepes_inventory_stock', JSON.stringify(inventory));
 
             let finalPrice = product.price + extraPriceTotal;
             let finalCost = product.cost + extraCostTotal;
-            let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
-            let drinkKey = selectedBundlingDrinks.map(d => d.name).sort().join(', ');
-            let cartItemId = `${productId}-${crispiness}-${toppingKey}-${drinkKey}-${note}`;
+            let cartItemId = `${productId}-${crispiness}-${note}`;
 
-            const existingItem = cart.find(item => item.cartItemId === cartItemId);
-            if (existingItem) {
-                existingItem.qty += 1;
-            } else {
-                cart.push({ 
-                    cartItemId, 
-                    productId, 
-                    name: product.name, 
-                    category: product.category,
-                    crispiness, 
-                    toppings: selectedToppings, 
-                    bundlingDrinks: selectedBundlingDrinks,
-                    price: finalPrice, 
-                    cost: finalCost,
-                    qty: 1, 
-                    note 
-                });
-            }
+            cart.push({ cartItemId, productId, name: product.name, category: product.category, crispiness, toppings: selectedToppings, bundlingDrinks: selectedBundlingDrinks, price: finalPrice, cost: finalCost, qty: 1, note });
 
             toggleProductModal();
             renderProducts();
             updateCartUI();
-            showNotification(`"${product.name}" berhasil dimasukkan ke keranjang!`, 'success');
+            renderAdminInventoryList();
+            showNotification(`"${product.name}" masuk keranjang!`, 'success');
         }
 
         function updateCartUI() {
@@ -950,328 +833,129 @@
             const totalEl = document.getElementById('cart-total');
             const discountRow = document.getElementById('discount-row');
             const discountAmountEl = document.getElementById('discount-amount');
-            const etaBox = document.getElementById('eta-box');
-            const etaTimeEl = document.getElementById('eta-time');
 
             let totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
             countEl.innerText = totalItems;
 
             if (cart.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang masih kosong</p>`;
-                subTotalEl.innerText = "Rp 0";
-                totalEl.innerText = "Rp 0";
-                discountRow.classList.add('hidden');
-                etaBox.classList.add('hidden');
-                subTotal = 0;
-                grandTotal = 0;
-                return;
+                container.innerHTML = `<p class="text-center text-gray-400 italic py-4">Keranjang kosong</p>`;
+                subTotalEl.innerText = "Rp 0"; totalEl.innerText = "Rp 0"; discountRow.classList.add('hidden'); subTotal = 0; grandTotal = 0; return;
             }
 
-            container.innerHTML = '';
-            subTotal = 0;
-
-            cart.forEach((item, index) => {
+            container.innerHTML = ''; subTotal = 0;
+            cart.forEach(item => {
                 let itemTotal = item.price * item.qty;
                 subTotal += itemTotal;
-
-                let descHtml = `<div class="text-[11px] text-gray-500 dark:text-gray-400">`;
-                if (item.category !== 'drink') {
-                    descHtml += `Tekstur: ${item.crispiness}<br>`;
-                    if (item.toppings.length > 0) descHtml += `Topping: ${item.toppings.map(t => t.name).join(', ')}<br>`;
-                    if (item.bundlingDrinks.length > 0) descHtml += `Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')}<br>`;
-                }
-                if (item.note) descHtml += `Catatan: "${item.note}"`;
-                descHtml += `</div>`;
-
-                container.innerHTML += `
-                    <div class="flex justify-between items-start py-2 border-b dark:border-gray-800">
-                        <div>
-                            <p class="font-bold text-gray-800 dark:text-gray-200">${item.name} (x${item.qty})</p>
-                            ${descHtml}
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-purple-700 dark:text-purple-400">Rp ${formatRupiah(itemTotal)}</p>
-                            <div class="flex items-center gap-1 mt-1 justify-end">
-                                <button onclick="changeCartQty('${item.cartItemId}', -1)" class="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded text-xs font-bold cursor-pointer">-</button>
-                                <button onclick="changeCartQty('${item.cartItemId}', 1)" class="w-5 h-5 bg-gray-200 dark:bg-gray-800 rounded text-xs font-bold cursor-pointer">+</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="flex justify-between items-start py-2 border-b dark:border-gray-800"><div><p class="font-bold">${item.name} (x${item.qty})</p></div><div class="text-right"><p class="font-bold text-purple-700">Rp ${formatRupiah(itemTotal)}</p></div></div>`;
             });
 
             subTotalEl.innerText = `Rp ${formatRupiah(subTotal)}`;
-
             let discount = appliedDiscount;
-            if (checkHappyHour()) {
-                happyHourDiscount = Math.round(subTotal * 0.15);
-                discount += happyHourDiscount;
-            } else {
-                happyHourDiscount = 0;
-            }
+            if (checkHappyHour()) happyHourDiscount = Math.round(subTotal * 0.15); else happyHourDiscount = 0;
+            discount += happyHourDiscount;
+            if (isRewardClaimed) discount += 15000; // Asumsi reward senilai 15rb
 
-            if (discount > 0) {
-                discountRow.classList.remove('hidden');
-                discountAmountEl.innerText = `- Rp ${formatRupiah(discount)}`;
-            } else {
-                discountRow.classList.add('hidden');
-            }
+            if (discount > 0) { discountRow.classList.remove('hidden'); discountAmountEl.innerText = `- Rp ${formatRupiah(discount)}`; } 
+            else { discountRow.classList.add('hidden'); }
 
             grandTotal = Math.max(0, subTotal - discount);
             totalEl.innerText = `Rp ${formatRupiah(grandTotal)}`;
-
-            etaBox.classList.remove('hidden');
-            etaTimeEl.innerText = Math.max(10, totalItems * 5);
-        }
-
-        function changeCartQty(cartItemId, delta) {
-            const item = cart.find(i => i.cartItemId === cartItemId);
-            if (!item) return;
-
-            const product = products.find(p => p.id === item.productId);
-
-            if (delta > 0) {
-                if (product.stock <= 0) {
-                    showNotification("Stok menu ini sudah habis!", "error");
-                    return;
-                }
-                product.stock -= 1;
-                item.qty += 1;
-            } else {
-                product.stock += 1;
-                item.qty -= 1;
-                if (item.qty <= 0) {
-                    cart = cart.filter(i => i.cartItemId !== cartItemId);
-                }
-            }
-            localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
-
-            renderProducts();
-            updateCartUI();
         }
 
         function applyPromo() {
             const code = document.getElementById('promo-code').value.trim().toUpperCase();
-            if (activeVouchers[code]) {
-                appliedDiscount = activeVouchers[code];
-                showNotification(`Kupon ${code} berhasil digunakan! Potongan Rp ${formatRupiah(appliedDiscount)}`, "success");
-            } else {
-                appliedDiscount = 0;
-                showNotification("Kode kupon tidak valid atau tidak terdaftar.", "error");
-            }
+            if (activeVouchers[code]) { appliedDiscount = activeVouchers[code]; showNotification(`Kupon ${code} berhasil!`, "success"); }
+            else { appliedDiscount = 0; showNotification("Kupon tidak valid.", "error"); }
             updateCartUI();
         }
 
-        function addNewPromoCode() {
-            const codeInput = document.getElementById('new-promo-code').value.trim().toUpperCase();
-            const amountInput = parseInt(document.getElementById('new-promo-amount').value);
-
-            if (!codeInput || isNaN(amountInput) || amountInput <= 0) {
-                showNotification("Masukkan kode promo dan nominal potongan yang valid!", "error");
-                return;
-            }
-
-            activeVouchers[codeInput] = amountInput;
-            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
-            document.getElementById('new-promo-code').value = '';
-            document.getElementById('new-promo-amount').value = '';
-            renderAdminPromoList();
-            showNotification(`Kupon ${codeInput} berhasil ditambahkan!`, "success");
-        }
-
-        function deletePromoCode(code) {
-            delete activeVouchers[code];
-            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
-            renderAdminPromoList();
-            showNotification(`Kupon ${code} berhasil dihapus.`, "info");
-        }
-
-        function renderAdminPromoList() {
-            const container = document.getElementById('admin-promo-list');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            for (let [code, amount] of Object.entries(activeVouchers)) {
-                container.innerHTML += `
-                    <div class="bg-gray-900 border border-gray-700 px-3 py-1.5 rounded-xl flex items-center gap-2 text-white">
-                        <span>🏷️ <strong>${code}</strong> (Rp ${formatRupiah(amount)})</span>
-                        <button onclick="deletePromoCode('${code}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1 cursor-pointer">✕</button>
-                    </div>
-                `;
-            }
-        }
-
-        function renderAdminHPPList() {
-            const container = document.getElementById('admin-hpp-list');
-            if (!container) return;
-            container.innerHTML = '';
-
-            products.forEach(p => {
-                container.innerHTML += `
-                    <div class="bg-gray-900 border border-gray-700 p-3 rounded-xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-white text-xs">${p.name}</span>
-                            <span class="text-[10px] text-purple-400">Jual: Rp ${formatRupiah(p.price)}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px] text-gray-400 whitespace-nowrap">Modal (HPP):</span>
-                            <input type="number" id="hpp-input-${p.id}" value="${p.cost}" class="w-full px-2 py-1 text-xs bg-gray-950 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
-                            <button onclick="updateProductHPP(${p.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition cursor-pointer">Simpan</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function updateProductHPP(productId) {
-            const inputVal = parseInt(document.getElementById(`hpp-input-${productId}`).value);
-            if (isNaN(inputVal) || inputVal < 0) {
-                showNotification("Masukkan nominal modal yang valid!", "error");
-                return;
-            }
-
-            const target = products.find(p => p.id === productId);
-            if (target) {
-                target.cost = inputVal;
-                localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
-                renderSalesTable();
-                showNotification(`Modal ${target.name} berhasil diperbarui!`, "success");
-            }
-        }
-
         async function checkoutWhatsApp() {
-            if (!isStoreOpen) {
-                showNotification("Maaf, toko sedang tutup. Tidak dapat memproses pesanan.", "error");
-                return;
-            }
-
+            if (!isStoreOpen) { showNotification("Toko tutup.", "error"); return; }
             const name = document.getElementById('customer-name').value.trim();
             const phone = document.getElementById('customer-phone').value.trim();
             const serviceType = document.getElementById('service-type').value;
             const paymentMethod = document.getElementById('payment-method').value;
-            const orderSchedule = document.getElementById('order-schedule').value;
-            const address = document.getElementById('delivery-address').value.trim();
 
-            if (!name || !phone) {
-                showNotification("Harap masukkan Nama dan Nomor WhatsApp Anda!", "error");
-                return;
-            }
-
-            if (cart.length === 0) {
-                showNotification("Keranjang Anda masih kosong!", "error");
-                return;
-            }
+            if (!name || !phone) { showNotification("Masukkan Nama & WhatsApp!", "error"); return; }
 
             let detailStrings = [];
             let totalModalItem = 0;
-
             cart.forEach(item => {
-                let str = `${item.qty}x ${item.name} (${item.category !== 'drink' ? item.crispiness : 'Minuman'}`;
-                if (item.toppings.length > 0) str += `, Topping: ${item.toppings.map(t => t.name).join(', ')}`;
-                if (item.bundlingDrinks.length > 0) str += `, Bundling: ${item.bundlingDrinks.map(d => d.name).join(', ')}`;
-                if (item.note) str += `, Catatan: ${item.note}`;
-                str += `)`;
-                detailStrings.push(str);
-
+                detailStrings.push(`${item.qty}x ${item.name}`);
                 totalModalItem += (item.cost * item.qty);
             });
 
-            let detailPesananGabungan = detailStrings.join('; ');
-            let now = new Date();
-            let waktuPemesanan = now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-            let isoDateStr = now.toISOString().split('T')[0];
+            let waktuPemesanan = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+            let isoDateStr = new Date().toISOString().split('T')[0];
 
-            let newTransaction = {
-                time: waktuPemesanan,
-                rawDate: isoDateStr,
-                cashier: currentCashier,
-                customer: `${name} (${phone}) - ${serviceType}`,
-                details: detailStrings.map(s => "• " + s).join('\n'),
-                payment: paymentMethod,
-                total: grandTotal,
-                totalCost: totalModalItem,
-                status: "🔴 Baru Masuk"
-            };
-
-            salesHistory.unshift(newTransaction);
+            salesHistory.unshift({
+                time: waktuPemesanan, rawDate: isoDateStr, cashier: currentCashier,
+                customer: `${name} (${phone}) - ${serviceType}`, details: detailStrings.map(s => "• " + s).join('\n'),
+                payment: paymentMethod, total: grandTotal, totalCost: totalModalItem, status: "🔴 Baru Masuk"
+            });
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
-            if (!globalCustomerDatabase[phone]) {
-                globalCustomerDatabase[phone] = { stamps: 0, phone };
-            }
+            if (!globalCustomerDatabase[phone]) globalCustomerDatabase[phone] = { stamps: 0, phone };
             globalCustomerDatabase[phone].stamps += cart.reduce((sum, i) => sum + i.qty, 0);
+            if (isRewardClaimed) globalCustomerDatabase[phone].stamps = Math.max(0, globalCustomerDatabase[phone].stamps - 5);
             localStorage.setItem('crepes_customer_db', JSON.stringify(globalCustomerDatabase));
 
-            try {
-                await fetch(SHEETDB_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data: [{
-                            "Waktu": waktuPemesanan,
-                            "Kasir": currentCashier,
-                            "Nama Pemesan": `${name} (${phone})`,
-                            "Jenis Layanan": serviceType,
-                            "Detail Pesanan": detailPesananGabungan,
-                            "Metode Pembayaran": paymentMethod,
-                            "Total Harga": grandTotal,
-                            "Status": "🔴 Baru Masuk"
-                        }]
-                    })
-                });
-            } catch (e) {}
-
-            let waText = `Halo Kak, saya ingin memesan Crepes:\n\n` +
-                `👤 Nama: ${name}\n` +
-                `📞 No. WhatsApp: ${phone}\n` +
-                `🍽️ Layanan: ${serviceType} (${address || '-'})\n` +
-                `⏰ Waktu: ${orderSchedule}\n\n` +
-                `🛒 Pesanan:\n` + detailStrings.map(s => `- ${s}`).join('\n') + `\n\n` +
-                `💳 Pembayaran: ${paymentMethod}\n` +
-                `💰 Total Pembayaran: *Rp ${formatRupiah(grandTotal)}*\n\n` +
-                `Mohon segera diproses ya, terima kasih!`;
-
+            let waText = `Halo, saya pesan Crepes:\nNama: ${name}\nLayanan: ${serviceType}\nTotal: Rp ${formatRupiah(grandTotal)}`;
             let waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(waText)}`;
 
-            toggleCartModal();
-            cart = [];
-            updateCartUI();
-            updateLiveQueueWidget();
-            playKitchenSound();
-            showNotification("Pesanan berhasil dikirim ke WhatsApp!", "success");
-
-            document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
-            document.getElementById('tracking-detail').innerText = `Pesanan atas nama ${name} berhasil dikirim ke WhatsApp dan sistem dapur!`;
-            document.getElementById('customer-status-modal').classList.remove('hidden');
-
+            toggleCartModal(); cart = []; isRewardClaimed = false; updateCartUI(); updateLiveQueueWidget();
+            showNotification("Pesanan dikirim ke WhatsApp!", "success");
             window.open(waUrl, '_blank');
         }
 
         function verifyPin() {
-            const pin = document.getElementById('seller-pin').value;
-            if (pin === SELLER_PIN) {
+            if (document.getElementById('seller-pin').value === SELLER_PIN) {
                 document.getElementById('seller-login-box').classList.add('hidden');
                 document.getElementById('seller-dashboard').classList.remove('hidden');
-                
-                renderSalesTable();
-                renderAdminPromoList();
-                renderAdminHPPList();
-                
-                // Tambahkan timeout 100ms agar dashboard selesai merender DOM sebelum Chart.js membaca lebar/tinggi canvas
-                setTimeout(() => {
-                    renderCharts();
-                }, 100);
-                
+                renderSalesTable(); renderAdminInventoryList(); renderOperationalList();
+                setTimeout(() => renderCharts(), 100);
                 showNotification("Akses Pemilik Berhasil!", "success");
-            } else {
-                showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
+            } else { showNotification("PIN Salah! Coba 1234", "error"); }
+        }
+
+        function lockDashboard() { document.getElementById('seller-dashboard').classList.add('hidden'); document.getElementById('seller-login-box').classList.remove('hidden'); }
+
+        function renderAdminInventoryList() {
+            const container = document.getElementById('admin-inventory-list');
+            if (!container) return; container.innerHTML = '';
+            for (let [k, v] of Object.entries(inventory)) {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-3 rounded-xl flex flex-col justify-between">
+                        <span class="font-bold text-white text-xs mb-1">${k}</span>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="inv-${k}" value="${v.stock}" class="w-full px-2 py-1 text-xs bg-gray-950 border border-gray-700 rounded-lg text-white">
+                            <button onclick="updateInventory('${k}')" class="bg-purple-600 text-white px-2.5 py-1 rounded-lg text-[10px]">Ubah</button>
+                        </div>
+                    </div>`;
             }
         }
 
-        function lockDashboard() {
-            document.getElementById('seller-dashboard').classList.add('hidden');
-            document.getElementById('seller-login-box').classList.remove('hidden');
-            document.getElementById('seller-pin').value = '';
+        function updateInventory(key) {
+            const val = parseInt(document.getElementById(`inv-${key}`).value);
+            if (!isNaN(val)) { inventory[key].stock = val; localStorage.setItem('crepes_inventory_stock', JSON.stringify(inventory)); renderProducts(); showNotification(`Stok ${key} diperbarui!`, "success"); }
+        }
+
+        function addOperationalCost() {
+            const desc = document.getElementById('op-desc').value.trim();
+            const cost = parseInt(document.getElementById('op-cost').value);
+            if (!desc || isNaN(cost)) { showNotification("Isi data operasional dengan benar!", "error"); return; }
+            operationalCosts.push({ desc, cost, date: new Date().toISOString().split('T')[0] });
+            localStorage.setItem('crepes_operational', JSON.stringify(operationalCosts));
+            document.getElementById('op-desc').value = ''; document.getElementById('op-cost').value = '';
+            renderOperationalList(); renderSalesTable(); showNotification("Biaya operasional dicatat!", "success");
+        }
+
+        function renderOperationalList() {
+            const container = document.getElementById('operational-list');
+            if (!container) return; container.innerHTML = '';
+            operationalCosts.forEach((op, idx) => {
+                container.innerHTML += `<div class="flex justify-between bg-gray-900 p-2 rounded-lg"><span>${op.desc}</span><span class="text-rose-400 font-bold">Rp ${formatRupiah(op.cost)}</span></div>`;
+            });
         }
 
         function renderSalesTable() {
@@ -1280,274 +964,97 @@
             const filterMonthVal = document.getElementById('filter-month').value;
 
             let filteredHistory = salesHistory.filter(item => {
-                let itemDate = item.rawDate || '';
-                if (filterDateVal && itemDate !== filterDateVal) return false;
-                if (filterMonthVal && !itemDate.startsWith(filterMonthVal)) return false;
+                if (filterDateVal && item.rawDate !== filterDateVal) return false;
+                if (filterMonthVal && !item.rawDate.startsWith(filterMonthVal)) return false;
                 return true;
             });
 
             if (filteredHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Tidak ada data transaksi pada filter ini.</td></tr>`;
-                document.getElementById('total-revenue').innerText = "Rp 0";
-                document.getElementById('total-cost').innerText = "Rp 0";
-                document.getElementById('total-profit').innerText = "Rp 0";
-                document.getElementById('total-items-sold').innerText = "0 Transaksi";
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Tidak ada data.</td></tr>`;
+                document.getElementById('total-revenue').innerText = "Rp 0"; document.getElementById('total-cost').innerText = "Rp 0"; document.getElementById('total-profit').innerText = "Rp 0";
                 return;
             }
 
-            tbody.innerHTML = '';
-            let totalOmzet = 0;
-            let totalModal = 0;
-
+            tbody.innerHTML = ''; let totalOmzet = 0, totalModal = 0;
             filteredHistory.forEach((item, index) => {
-                let originalIndex = salesHistory.indexOf(item);
                 totalOmzet += item.total;
-                let itemCost = item.totalCost !== undefined ? item.totalCost : Math.round(item.total * 0.5);
-                totalModal += itemCost;
-
-                let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : (item.status === '🟡 Sedang Dimasak' ? 'bg-amber-900 text-amber-300' : 'bg-red-900 text-red-300');
-                let cashierLabel = item.cashier ? `<span class="text-[10px] text-purple-400 block">👤 ${item.cashier}</span>` : '';
-
+                totalModal += (item.totalCost || Math.round(item.total * 0.5));
+                let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300';
                 tbody.innerHTML += `
-                    <tr class="border-b border-gray-700 hover:bg-gray-750">
-                        <td class="p-3 text-gray-300 whitespace-nowrap">
-                            ${item.time}
-                            ${cashierLabel}
-                        </td>
-                        <td class="p-3 font-semibold text-white">${item.customer}</td>
-                        <td class="p-3 text-gray-300 whitespace-pre-line">${item.details}</td>
-                        <td class="p-3">
-                            <select onchange="updateOrderStatus(${originalIndex}, this.value)" class="px-2 py-1 rounded text-xs font-bold ${badgeClass} focus:outline-none cursor-pointer">
-                                <option value="🔴 Baru Masuk" ${item.status === '🔴 Baru Masuk' ? 'selected' : ''}>🔴 Baru Masuk</option>
-                                <option value="🟡 Sedang Dimasak" ${item.status === '🟡 Sedang Dimasak' ? 'selected' : ''}>🟡 Sedang Dimasak</option>
-                                <option value="🟢 Selesai" ${item.status === '🟢 Selesai' ? 'selected' : ''}>🟢 Selesai</option>
-                            </select>
-                        </td>
-                        <td class="p-3 text-gray-300">${item.payment}</td>
-                        <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
-                        <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                            <button onclick="printThermalReceipt(${originalIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
-                            <button onclick="deleteSaleRecord(${originalIndex})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🗑️ Hapus</button>
-                        </td>
-                    </tr>
-                `;
+                    <tr class="border-b border-gray-700">
+                        <td class="p-3">${item.time}</td><td class="p-3">${item.customer}</td><td class="p-3">${item.details}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${badgeClass}">${item.status}</span></td>
+                        <td class="p-3">${item.payment}</td><td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
+                        <td class="p-3 text-center"><button onclick="deleteSaleRecord(${salesHistory.indexOf(item)})" class="bg-rose-600 text-white px-2 py-1 rounded text-[10px]">Hapus</button></td>
+                    </tr>`;
             });
 
-            let totalProfit = totalOmzet - totalModal;
+            let totalOp = operationalCosts.reduce((a, b) => a + b.cost, 0);
+            let finalCost = totalModal + totalOp;
+            let totalProfit = totalOmzet - finalCost;
 
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
-            document.getElementById('total-cost').innerText = `Rp ${formatRupiah(totalModal)}`;
+            document.getElementById('total-cost').innerText = `Rp ${formatRupiah(finalCost)}`;
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalProfit)}`;
         }
 
-        function resetSalesFilter() {
-            document.getElementById('filter-date').value = '';
-            document.getElementById('filter-month').value = '';
-            renderSalesTable();
-            showNotification("Filter laporan direset.", "info");
-        }
-
-        function deleteSaleRecord(index) {
-            if (confirm("Apakah Anda yakin ingin menghapus riwayat pesanan ini?")) {
-                salesHistory.splice(index, 1);
-                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-                renderSalesTable();
-                updateLiveQueueWidget();
-                renderCharts();
-                showNotification("Riwayat pesanan berhasil dihapus.", "info");
-            }
-        }
-
-        function updateOrderStatus(index, newStatus) {
-            salesHistory[index].status = newStatus;
-            localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-            renderSalesTable();
-            updateLiveQueueWidget();
-            showNotification("Status pesanan diperbarui!", "success");
-        }
+        function resetSalesFilter() { document.getElementById('filter-date').value = ''; document.getElementById('filter-month').value = ''; renderSalesTable(); }
+        function deleteSaleRecord(index) { salesHistory.splice(index, 1); localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory)); renderSalesTable(); }
 
         function renderKDSCards() {
             const container = document.getElementById('kds-cards-container');
             if (!container) return;
-
             const activeQueue = salesHistory.filter(s => s.status !== '🟢 Selesai');
-            if (activeQueue.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 italic text-sm">Tidak ada antrean dapur saat ini. Kerja bagus! 🎉</div>`;
-                return;
-            }
-
+            if (activeQueue.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">Tidak ada antrean dapur.</div>`; return; }
             container.innerHTML = '';
-            activeQueue.forEach((item, index) => {
-                let badgeClass = item.status === '🟡 Sedang Dimasak' ? 'bg-amber-500/20 text-amber-300 border-amber-500' : 'bg-red-500/20 text-red-300 border-red-500';
-                
-                container.innerHTML += `
-                    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
-                        <div>
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-800 pb-2">
-                                <span class="font-bold text-white text-sm">👤 ${item.customer}</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${item.status}</span>
-                            </div>
-                            <p class="text-[11px] text-gray-400 mb-2">⏱️ Waktu: ${item.time} | Kasir: ${item.cashier || '-'}</p>
-                            <div class="text-xs text-gray-200 bg-gray-950 p-3 rounded-xl mb-3 whitespace-pre-line border border-gray-800/80">
-                                ${item.details}
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="updateStatusByCustomerName('${item.customer}', '🟡 Sedang Dimasak')" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">🍳 Masak</button>
-                            <button onclick="updateStatusByCustomerName('${item.customer}', '🟢 Selesai')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-lg text-[11px] font-semibold transition cursor-pointer">✅ Selesai</button>
-                        </div>
-                    </div>
-                `;
+            activeQueue.forEach(item => {
+                container.innerHTML += `<div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 flex flex-col justify-between"><div><h4 class="font-bold text-white text-sm mb-2">${item.customer}</h4><p class="text-xs text-gray-300 whitespace-pre-line mb-3">${item.details}</p></div><button onclick="updateStatusByCustomerName('${item.customer}', '🟢 Selesai')" class="bg-emerald-600 text-white py-1.5 rounded-lg text-xs font-semibold">Selesai</button></div>`;
             });
         }
 
-        function updateStatusByCustomerName(customerName, newStatus) {
-            const target = salesHistory.find(s => s.customer === customerName);
-            if (target) {
-                target.status = newStatus;
-                localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
-                renderSalesTable();
-                updateLiveQueueWidget();
-                showNotification(`Status pesanan ${customerName} diubah ke ${newStatus}`, "success");
-            }
-        }
-
-        function printThermalReceipt(index) {
-            const item = salesHistory[index];
-            const printArea = document.getElementById('receipt-print-area');
-            printArea.innerHTML = `
-                <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 2px;">[Nama Brand Crepes]</div>
-                <div style="text-align: center; font-size: 9px; margin-bottom: 5px;">Jl. Raya Kuliner No. 123</div>
-                <div style="border-top: 1px dashed black; margin-bottom: 4px;"></div>
-                <div style="font-size: 10px;">Waktu : ${item.time}</div>
-                <div style="font-size: 10px;">Kasir : ${item.cashier || '-'}</div>
-                <div style="font-size: 10px;">Pemesan : ${item.customer}</div>
-                <div style="font-size: 10px;">Bayar : ${item.payment}</div>
-                <div style="border-top: 1px dashed black; margin: 4px 0;"></div>
-                <div style="white-space: pre-line; font-size: 10px;">${item.details}</div>
-                <div style="border-top: 1px dashed black; margin: 4px 0;"></div>
-                <div style="font-weight: bold; text-align: right; font-size: 11px;">TOTAL: Rp ${formatRupiah(item.total)}</div>
-                <div style="border-top: 1px dashed black; margin-top: 4px; padding-top: 4px; text-align: center; font-size: 9px;">Terima Kasih!</div>
-            `;
-            window.print();
+        function updateStatusByCustomerName(name, status) {
+            const target = salesHistory.find(s => s.customer === name);
+            if (target) { target.status = status; localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory)); renderSalesTable(); updateLiveQueueWidget(); }
         }
 
         function renderCharts() {
             const ctxRev = document.getElementById('revenueChart').getContext('2d');
             const ctxMenu = document.getElementById('menuChart').getContext('2d');
-
-            if (revChartInstance) revChartInstance.destroy();
-            if (menuChartInstance) menuChartInstance.destroy();
+            if (revChartInstance) revChartInstance.destroy(); if (menuChartInstance) menuChartInstance.destroy();
 
             revChartInstance = new Chart(ctxRev, {
                 type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'],
-                    datasets: [{
-                        label: 'Omzet (Rp)',
-                        data: [120000, 190000, 350000, 420000, 510000, 600000, 750000, 890000, salesHistory.reduce((a, b) => a + b.total, 0)],
-                        borderColor: '#a855f7',
-                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#374151' } },
-                        y: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#374151' } }
-                    }
-                }
+                data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'], datasets: [{ label: 'Omzet', data: [120000, 190000, 350000, 420000, 510000, 600000, 750000, 890000, salesHistory.reduce((a,b)=>a+b.total,0)], borderColor: '#a855f7', fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-
             menuChartInstance = new Chart(ctxMenu, {
                 type: 'doughnut',
-                data: {
-                    labels: ['Manis', 'Asin & Gurih', 'Minuman'],
-                    datasets: [{
-                        data: [
-                            salesHistory.filter(s => s.details.toLowerCase().includes('crepes')).length + 5,
-                            salesHistory.filter(s => s.details.toLowerCase().includes('sosis') || s.details.toLowerCase().includes('beef')).length + 3,
-                            salesHistory.filter(s => s.details.toLowerCase().includes('es') || s.details.toLowerCase().includes('tea')).length + 2
-                        ],
-                        backgroundColor: ['#ec4899', '#f59e0b', '#3b82f6']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } }
-                }
+                data: { labels: ['Manis', 'Asin', 'Minuman'], datasets: [{ data: [5, 3, 2], backgroundColor: ['#ec4899', '#f59e0b', '#3b82f6'] }] },
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
         function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Waktu,Kasir,Pemesan,Detail Pesanan,Pembayaran,Total,Status\n";
-            salesHistory.forEach(row => {
-                csvContent += `"${row.time}","${row.cashier || '-'}","${row.customer}","${row.details.replace(/\n/g, ' ')}","${row.payment}",${row.total},"${row.status}"\n`;
-            });
-            let encodedUri = encodeURI(csvContent);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_penjualan_crepes.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showNotification("File CSV berhasil diunduh!", "success");
+            let csv = "Waktu,Pemesan,Total\n" + salesHistory.map(r => `"${r.time}","${r.customer}",${r.total}`).join("\n");
+            let link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv); link.download = "laporan.csv"; link.click();
         }
-
         function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Laporan Penjualan & Omzet Crepes", 14, 20);
-            let y = 30;
-            salesHistory.forEach((item, idx) => {
-                doc.text(`${idx + 1}. [${item.time}] Kasir: ${item.cashier || '-'} | ${item.customer} - Rp ${formatRupiah(item.total)}`, 14, y);
-                y += 10;
-                if (y > 280) { doc.addPage(); y = 20; }
-            });
-            doc.save("laporan_penjualan_crepes.pdf");
-            showNotification("File PDF berhasil diunduh!", "success");
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.text("Laporan Penjualan Crepes", 14, 20); let y = 30;
+            salesHistory.forEach((item, idx) => { doc.text(`${idx + 1}. ${item.customer} - Rp ${formatRupiah(item.total)}`, 14, y); y += 10; });
+            doc.save("laporan.pdf");
         }
-
         function renderReviews() {
             const container = document.getElementById('reviews-container');
-            if (!container) return;
-            container.innerHTML = '';
-            customerReviews.forEach(r => {
-                let stars = '⭐'.repeat(r.rating);
-                container.innerHTML += `
-                    <div class="bg-purple-50/50 dark:bg-gray-800 p-4 rounded-2xl border border-purple-100 dark:border-gray-700 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="font-bold text-xs text-purple-900 dark:text-purple-300">${r.name}</span>
-                                <span class="text-[11px]">${stars}</span>
-                            </div>
-                            <p class="text-xs text-gray-600 dark:text-gray-300 italic">"${r.comment}"</p>
-                        </div>
-                    </div>
-                `;
-            });
+            if (!container) return; container.innerHTML = '';
+            customerReviews.forEach(r => { container.innerHTML += `<div class="bg-gray-800 p-4 rounded-2xl text-xs"><p class="font-bold">${r.name}</p><p class="italic">"${r.comment}"</p></div>`; });
         }
-
         function submitReview() {
             const name = document.getElementById('reviewer-name').value.trim();
-            const rating = parseInt(document.getElementById('reviewer-rating').value);
             const comment = document.getElementById('reviewer-comment').value.trim();
-
-            if (!name || !comment) {
-                showNotification("Harap isi nama dan komentar ulasan Anda!", "error");
-                return;
-            }
-
-            customerReviews.unshift({ name, rating, comment });
-            localStorage.setItem('crepes_reviews', JSON.stringify(customerReviews));
-            renderReviews();
-            toggleReviewModal();
-            showNotification("Ulasan berhasil dikirim. Terima kasih!", "success");
+            if (!name || !comment) return;
+            customerReviews.unshift({ name, rating: 5, comment }); localStorage.setItem('crepes_reviews', JSON.stringify(customerReviews));
+            renderReviews(); toggleReviewModal(); showNotification("Ulasan terkirim!", "success");
         }
     </script>
 </body>
