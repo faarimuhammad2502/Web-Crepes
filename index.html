@@ -1044,11 +1044,23 @@
             salesHistory.forEach((item, idx) => { doc.text(`${idx + 1}. ${item.customer} - Rp ${formatRupiah(item.total)}`, 14, y); y += 10; });
             doc.save("laporan.pdf");
         }
-        function renderReviews() {
-            const container = document.getElementById('reviews-container');
-            if (!container) return; container.innerHTML = '';
-            customerReviews.forEach(r => { container.innerHTML += `<div class="bg-gray-800 p-4 rounded-2xl text-xs"><p class="font-bold">${r.name}</p><p class="italic">"${r.comment}"</p></div>`; });
-        }
+       function renderReviews() {
+    const container = document.getElementById('reviews-container');
+    if (!container) return; 
+    container.innerHTML = '';
+    customerReviews.forEach(r => { 
+        container.innerHTML += `
+            <div class="bg-purple-50/70 dark:bg-gray-800 p-4 rounded-2xl border border-purple-100 dark:border-gray-700 text-xs flex flex-col justify-between shadow-sm">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-purple-900 dark:text-purple-300">${r.name}</span>
+                        <span class="text-[11px]">⭐ ${r.rating || 5}</span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 italic mt-1">"${r.comment}"</p>
+                </div>
+            </div>`; 
+    });
+}
         function submitReview() {
             const name = document.getElementById('reviewer-name').value.trim();
             const comment = document.getElementById('reviewer-comment').value.trim();
