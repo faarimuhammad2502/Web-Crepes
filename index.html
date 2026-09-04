@@ -320,7 +320,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Pengaturan Toko & Dapur</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Filter Laporan & Dapur</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka Layar KDS Dapur</button>
@@ -344,6 +344,25 @@
                     </div>
                 </div>
 
+                <!-- Panel Filter Laporan per Hari / per Bulan -->
+                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi dan total omzet berdasarkan tanggal tertentu atau per bulan.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-1">Filter Tanggal (Harian):</label>
+                            <input type="date" id="filter-date" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-1">Filter Bulan (Bulanan):</label>
+                            <input type="month" id="filter-month" onchange="renderSalesTable()" class="w-full px-3 py-2 text-xs bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="resetSalesFilter()" class="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🔄 Reset Filter</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Panel Manajemen Voucher / Promo Baru -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
@@ -359,7 +378,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs text-gray-400">Total Pendapatan (Omzet)</p>
+                            <p class="text-xs text-gray-400">Total Pendapatan (Omzet Filtered)</p>
                             <h4 class="text-lg sm:text-xl font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
                         </div>
                         <div class="mt-4 h-36">
@@ -368,7 +387,7 @@
                     </div>
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs text-gray-400">Total Transaksi Selesai</p>
+                            <p class="text-xs text-gray-400">Total Transaksi Filtered</p>
                             <h4 class="text-lg sm:text-xl font-bold text-green-400 mt-1" id="total-items-sold">0 Transaksi</h4>
                         </div>
                         <div class="mt-4 h-36 flex items-center justify-center">
@@ -1025,10 +1044,13 @@
             });
 
             let detailPesananGabungan = detailStrings.join('; ');
-            let waktuPemesanan = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+            let now = new Date();
+            let waktuPemesanan = now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+            let isoDateStr = now.toISOString().split('T')[0]; // Format YYYY-MM-DD untuk kemudahan filter
 
             let newTransaction = {
                 time: waktuPemesanan,
+                rawDate: isoDateStr,
                 customer: `${name} (${phone}) - ${serviceType}`,
                 details: detailStrings.map(s => "• " + s).join('\n'),
                 payment: paymentMethod,
@@ -1110,8 +1132,27 @@
 
         function renderSalesTable() {
             const tbody = document.getElementById('sales-table-body');
-            if (salesHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Belum ada data transaksi.</td></tr>`;
+            const filterDateVal = document.getElementById('filter-date').value;
+            const filterMonthVal = document.getElementById('filter-month').value;
+
+            // Proses Filter Data Harian atau Bulanan
+            let filteredHistory = salesHistory.filter(item => {
+                // Jika item lama belum punya rawDate, kita coba ekstrak dari string 'time' atau anggap lolos jika tidak ada filter
+                let itemDate = item.rawDate || '';
+                
+                if (filterDateVal) {
+                    // Filter berdasarkan tanggal spesifik (YYYY-MM-DD)
+                    if (itemDate !== filterDateVal) return false;
+                }
+                if (filterMonthVal) {
+                    // Filter berdasarkan bulan spesifik (YYYY-MM)
+                    if (!itemDate.startsWith(filterMonthVal)) return false;
+                }
+                return true;
+            });
+
+            if (filteredHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Tidak ada data transaksi pada filter ini.</td></tr>`;
                 document.getElementById('total-revenue').innerText = "Rp 0";
                 document.getElementById('total-items-sold').innerText = "0 Transaksi";
                 return;
@@ -1120,7 +1161,9 @@
             tbody.innerHTML = '';
             let totalOmzet = 0;
 
-            salesHistory.forEach((item, index) => {
+            filteredHistory.forEach((item, index) => {
+                // Cari index asli di salesHistory utama agar tombol aksi tepat sasaran
+                let originalIndex = salesHistory.indexOf(item);
                 totalOmzet += item.total;
                 let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : (item.status === '🟡 Sedang Dimasak' ? 'bg-amber-900 text-amber-300' : 'bg-red-900 text-red-300');
 
@@ -1130,7 +1173,7 @@
                         <td class="p-3 font-semibold text-white">${item.customer}</td>
                         <td class="p-3 text-gray-300 whitespace-pre-line">${item.details}</td>
                         <td class="p-3">
-                            <select onchange="updateOrderStatus(${index}, this.value)" class="px-2 py-1 rounded text-xs font-bold ${badgeClass} focus:outline-none cursor-pointer">
+                            <select onchange="updateOrderStatus(${originalIndex}, this.value)" class="px-2 py-1 rounded text-xs font-bold ${badgeClass} focus:outline-none cursor-pointer">
                                 <option value="🔴 Baru Masuk" ${item.status === '🔴 Baru Masuk' ? 'selected' : ''}>🔴 Baru Masuk</option>
                                 <option value="🟡 Sedang Dimasak" ${item.status === '🟡 Sedang Dimasak' ? 'selected' : ''}>🟡 Sedang Dimasak</option>
                                 <option value="🟢 Selesai" ${item.status === '🟢 Selesai' ? 'selected' : ''}>🟢 Selesai</option>
@@ -1139,18 +1182,24 @@
                         <td class="p-3 text-gray-300">${item.payment}</td>
                         <td class="p-3 text-right font-bold text-purple-300">Rp ${formatRupiah(item.total)}</td>
                         <td class="p-3 text-center flex items-center justify-center gap-1.5">
-                            <button onclick="printReceipt(${index})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
-                            <button onclick="deleteSaleRecord(${index})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🗑️ Hapus</button>
+                            <button onclick="printReceipt(${originalIndex})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🖨️ Struk</button>
+                            <button onclick="deleteSaleRecord(${originalIndex})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[10px] font-bold transition cursor-pointer">🗑️ Hapus</button>
                         </td>
                     </tr>
                 `;
             });
 
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
-            document.getElementById('total-items-sold').innerText = `${salesHistory.length} Transaksi`;
+            document.getElementById('total-items-sold').innerText = `${filteredHistory.length} Transaksi`;
         }
 
-        // Fungsi Menghapus Riwayat Pesanan Satuan
+        function resetSalesFilter() {
+            document.getElementById('filter-date').value = '';
+            document.getElementById('filter-month').value = '';
+            renderSalesTable();
+            showNotification("Filter laporan direset.", "info");
+        }
+
         function deleteSaleRecord(index) {
             if (confirm("Apakah Anda yakin ingin menghapus riwayat pesanan ini?")) {
                 salesHistory.splice(index, 1);
