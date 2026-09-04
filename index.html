@@ -320,7 +320,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                     <div>
                         <span class="bg-green-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Akses Penuh Pemilik</span>
-                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Filter Laporan & Dapur</h3>
+                        <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Dashboard, Keuangan & Dapur</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
                         <button onclick="toggleKDSModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">🍳 Buka Layar KDS Dapur</button>
@@ -344,10 +344,17 @@
                     </div>
                 </div>
 
+                <!-- Panel Manajemen Modal / HPP Menu -->
+                <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Atur estimasi modal (HPP) tiap menu untuk menghitung keuntungan bersih otomatis.</p>
+                    <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
                 <!-- Panel Filter Laporan per Hari / per Bulan -->
                 <div class="bg-gray-800 p-4 sm:p-5 rounded-2xl border border-gray-700 mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan</h4>
-                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi dan total omzet berdasarkan tanggal tertentu atau per bulan.</p>
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">🔍 Filter Laporan Penjualan & Keuangan</h4>
+                    <p class="text-[11px] text-gray-400 mb-3">Tampilkan riwayat transaksi, omzet, dan profit bersih berdasarkan tanggal atau bulan.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] text-gray-400 mb-1">Filter Tanggal (Harian):</label>
@@ -375,24 +382,35 @@
                     <div id="admin-promo-list" class="flex flex-wrap gap-2 text-xs"></div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs text-gray-400">Total Pendapatan (Omzet Filtered)</p>
-                            <h4 class="text-lg sm:text-xl font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
-                        </div>
-                        <div class="mt-4 h-36">
-                            <canvas id="revenueChart"></canvas>
+                            <p class="text-xs text-gray-400">Total Omzet</p>
+                            <h4 class="text-base sm:text-lg font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4>
                         </div>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs text-gray-400">Total Transaksi Filtered</p>
-                            <h4 class="text-lg sm:text-xl font-bold text-green-400 mt-1" id="total-items-sold">0 Transaksi</h4>
+                            <p class="text-xs text-gray-400">Total Estimasi Modal (HPP)</p>
+                            <h4 class="text-base sm:text-lg font-bold text-rose-400 mt-1" id="total-cost">Rp 0</h4>
                         </div>
-                        <div class="mt-4 h-36 flex items-center justify-center">
-                            <canvas id="menuChart"></canvas>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs text-gray-400">Keuntungan Bersih (Profit)</p>
+                            <h4 class="text-base sm:text-lg font-bold text-emerald-400 mt-1" id="total-profit">Rp 0</h4>
                         </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <p class="text-xs text-gray-400 mb-2">Grafik Omzet</p>
+                        <div class="h-36"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <p class="text-xs text-gray-400 mb-2">Grafik Kategori Menu Terjual</p>
+                        <div class="h-36 flex items-center justify-center"><canvas id="menuChart"></canvas></div>
                     </div>
                 </div>
 
@@ -438,29 +456,29 @@
     <script>
         const SHEETDB_API_URL = "https://sheetdb.io/api/v1/r2brp2jw78bpf"; 
 
-        const products = [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 2, ingredients: ["Cokelat", "Keju"] },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5, ingredients: ["Matcha"] },
-            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 3, ingredients: ["Sosis", "Keju"] },
-            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] },
-            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, desc: "Teh melati pilihan dengan es batu segar.", stock: 25, ingredients: [] },
-            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 15, ingredients: ["Cokelat"] },
-            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 20, ingredients: [] }
+        let products = JSON.parse(localStorage.getItem('crepes_products_hpp')) || [
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 2, ingredients: ["Cokelat", "Keju"] },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 5, ingredients: ["Matcha"] },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 10, ingredients: ["Keju"] },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 3, ingredients: ["Sosis", "Keju"] },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 4, ingredients: ["Sosis", "Keju"] },
+            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 25, ingredients: [] },
+            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 15, ingredients: ["Cokelat"] },
+            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 20, ingredients: [] }
         ];
 
         const toppings = [
-            { id: 't1', name: 'Extra Keju Parut', price: 3000 },
-            { id: 't2', name: 'Extra Cokelat Lumer', price: 3000 },
-            { id: 't3', name: 'Extra Kacang Almond', price: 5000 },
-            { id: 't4', name: 'Extra Sosis / Smoked Beef', price: 6000 },
-            { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000 }
+            { id: 't1', name: 'Extra Keju Parut', price: 3000, cost: 1500 },
+            { id: 't2', name: 'Extra Cokelat Lumer', price: 3000, cost: 1500 },
+            { id: 't3', name: 'Extra Kacang Almond', price: 5000, cost: 2500 },
+            { id: 't4', name: 'Extra Sosis / Smoked Beef', price: 6000, cost: 3000 },
+            { id: 't5', name: 'Extra Saus Mayo / Keju Leleh', price: 4000, cost: 2000 }
         ];
 
         const bundlingDrinks = [
-            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000 },
-            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500 },
-            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500 }
+            { id: 'b1', name: 'Es Teh Manis (Bundling)', price: 4000, cost: 2000 },
+            { id: 'b2', name: 'Es Milo Cokelat (Bundling)', price: 6500, cost: 3500 },
+            { id: 'b3', name: 'Lemon Tea Dingin (Bundling)', price: 5500, cost: 2500 }
         ];
 
         let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || {
@@ -499,6 +517,7 @@
             renderReviews();
             updateLiveQueueWidget();
             renderAdminPromoList();
+            renderAdminHPPList();
         });
 
         function updateStoreStatusUI() {
@@ -755,7 +774,7 @@
                     modalToppingList.innerHTML += `
                         <label class="flex items-center justify-between p-2.5 rounded-xl border border-purple-100 dark:border-gray-800 bg-purple-50/50 dark:bg-gray-800 cursor-pointer hover:bg-purple-50 dark:hover:bg-gray-700 transition">
                             <div class="flex items-center">
-                                <input type="checkbox" value="${t.id}" data-name="${t.name}" data-price="${t.price}" class="modal-topping-checkbox rounded text-purple-600 focus:ring-purple-500 mr-2.5 w-4 h-4">
+                                <input type="checkbox" value="${t.id}" data-name="${t.name}" data-price="${t.price}" data-cost="${t.cost}" class="modal-topping-checkbox rounded text-purple-600 focus:ring-purple-500 mr-2.5 w-4 h-4">
                                 <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">${t.name}</span>
                             </div>
                             <span class="text-xs font-bold text-purple-700 dark:text-purple-400">+Rp ${formatRupiah(t.price)}</span>
@@ -769,7 +788,7 @@
                     modalBundlingList.innerHTML += `
                         <label class="flex items-center justify-between p-2 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-white dark:bg-gray-800 cursor-pointer hover:bg-amber-100/50 transition">
                             <div class="flex items-center">
-                                <input type="checkbox" value="${b.id}" data-name="${b.name}" data-price="${b.price}" class="modal-bundling-checkbox rounded text-amber-600 focus:ring-amber-500 mr-2 w-4 h-4">
+                                <input type="checkbox" value="${b.id}" data-name="${b.name}" data-price="${b.price}" data-cost="${b.cost}" class="modal-bundling-checkbox rounded text-amber-600 focus:ring-amber-500 mr-2 w-4 h-4">
                                 <span class="text-xs font-semibold text-gray-800 dark:text-gray-200">${b.name}</span>
                             </div>
                             <span class="text-xs font-bold text-amber-700 dark:text-amber-400">+Rp ${formatRupiah(b.price)}</span>
@@ -806,25 +825,29 @@
             let selectedToppings = [];
             let selectedBundlingDrinks = [];
             let extraPriceTotal = 0;
+            let extraCostTotal = 0;
 
             if (product.category !== 'drink') {
                 crispiness = document.querySelector('input[name="crispiness"]:checked').value;
                 
                 const toppingCheckboxes = document.querySelectorAll('.modal-topping-checkbox:checked');
                 toppingCheckboxes.forEach(cb => {
-                    selectedToppings.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price) });
+                    selectedToppings.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
                     extraPriceTotal += parseInt(cb.dataset.price);
+                    extraCostTotal += parseInt(cb.dataset.cost);
                 });
 
                 const bundlingCheckboxes = document.querySelectorAll('.modal-bundling-checkbox:checked');
                 bundlingCheckboxes.forEach(cb => {
-                    selectedBundlingDrinks.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price) });
+                    selectedBundlingDrinks.push({ name: cb.dataset.name, price: parseInt(cb.dataset.price), cost: parseInt(cb.dataset.cost) });
                     extraPriceTotal += parseInt(cb.dataset.price);
+                    extraCostTotal += parseInt(cb.dataset.cost);
                 });
             }
 
             product.stock -= 1;
             let finalPrice = product.price + extraPriceTotal;
+            let finalCost = product.cost + extraCostTotal;
             let toppingKey = selectedToppings.map(t => t.name).sort().join(', ');
             let drinkKey = selectedBundlingDrinks.map(d => d.name).sort().join(', ');
             let cartItemId = `${productId}-${crispiness}-${toppingKey}-${drinkKey}-${note}`;
@@ -842,6 +865,7 @@
                     toppings: selectedToppings, 
                     bundlingDrinks: selectedBundlingDrinks,
                     price: finalPrice, 
+                    cost: finalCost,
                     qty: 1, 
                     note 
                 });
@@ -1010,6 +1034,44 @@
             }
         }
 
+        function renderAdminHPPList() {
+            const container = document.getElementById('admin-hpp-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            products.forEach(p => {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-3 rounded-xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-white text-xs">${p.name}</span>
+                            <span class="text-[10px] text-purple-400">Jual: Rp ${formatRupiah(p.price)}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-gray-400 whitespace-nowrap">Modal (HPP):</span>
+                            <input type="number" id="hpp-input-${p.id}" value="${p.cost}" class="w-full px-2 py-1 text-xs bg-gray-950 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                            <button onclick="updateProductHPP(${p.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold transition cursor-pointer">Simpan</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateProductHPP(productId) {
+            const inputVal = parseInt(document.getElementById(`hpp-input-${productId}`).value);
+            if (isNaN(inputVal) || inputVal < 0) {
+                showNotification("Masukkan nominal modal yang valid!", "error");
+                return;
+            }
+
+            const target = products.find(p => p.id === productId);
+            if (target) {
+                target.cost = inputVal;
+                localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
+                renderSalesTable();
+                showNotification(`Modal ${target.name} berhasil diperbarui!`, "success");
+            }
+        }
+
         async function checkoutWhatsApp() {
             if (!isStoreOpen) {
                 showNotification("Maaf, toko sedang tutup. Tidak dapat memproses pesanan.", "error");
@@ -1034,6 +1096,8 @@
             }
 
             let detailStrings = [];
+            let totalModalItem = 0;
+
             cart.forEach(item => {
                 let str = `${item.qty}x ${item.name} (${item.category !== 'drink' ? item.crispiness : 'Minuman'}`;
                 if (item.toppings.length > 0) str += `, Topping: ${item.toppings.map(t => t.name).join(', ')}`;
@@ -1041,12 +1105,14 @@
                 if (item.note) str += `, Catatan: ${item.note}`;
                 str += `)`;
                 detailStrings.push(str);
+
+                totalModalItem += (item.cost * item.qty);
             });
 
             let detailPesananGabungan = detailStrings.join('; ');
             let now = new Date();
             let waktuPemesanan = now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-            let isoDateStr = now.toISOString().split('T')[0]; // Format YYYY-MM-DD untuk kemudahan filter
+            let isoDateStr = now.toISOString().split('T')[0];
 
             let newTransaction = {
                 time: waktuPemesanan,
@@ -1055,6 +1121,7 @@
                 details: detailStrings.map(s => "• " + s).join('\n'),
                 payment: paymentMethod,
                 total: grandTotal,
+                totalCost: totalModalItem,
                 status: "🔴 Baru Masuk"
             };
 
@@ -1105,7 +1172,7 @@
 
             document.getElementById('tracking-status-badge').innerText = "🔴 Baru Masuk";
             document.getElementById('tracking-detail').innerText = `Pesanan atas nama ${name} berhasil dikirim ke WhatsApp dan sistem dapur!`;
-            document.getElementById('customer-status-modal').classList.remove('hidden');
+            document.getElementById('customer-status-modal').classList.add('hidden');
 
             window.open(waUrl, '_blank');
         }
@@ -1118,6 +1185,7 @@
                 renderSalesTable();
                 renderCharts();
                 renderAdminPromoList();
+                renderAdminHPPList();
                 showNotification("Akses Pemilik Berhasil!", "success");
             } else {
                 showNotification("PIN Salah! Gunakan PIN default: 1234", "error");
@@ -1135,36 +1203,32 @@
             const filterDateVal = document.getElementById('filter-date').value;
             const filterMonthVal = document.getElementById('filter-month').value;
 
-            // Proses Filter Data Harian atau Bulanan
             let filteredHistory = salesHistory.filter(item => {
-                // Jika item lama belum punya rawDate, kita coba ekstrak dari string 'time' atau anggap lolos jika tidak ada filter
                 let itemDate = item.rawDate || '';
-                
-                if (filterDateVal) {
-                    // Filter berdasarkan tanggal spesifik (YYYY-MM-DD)
-                    if (itemDate !== filterDateVal) return false;
-                }
-                if (filterMonthVal) {
-                    // Filter berdasarkan bulan spesifik (YYYY-MM)
-                    if (!itemDate.startsWith(filterMonthVal)) return false;
-                }
+                if (filterDateVal && itemDate !== filterDateVal) return false;
+                if (filterMonthVal && !itemDate.startsWith(filterMonthVal)) return false;
                 return true;
             });
 
             if (filteredHistory.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Tidak ada data transaksi pada filter ini.</td></tr>`;
                 document.getElementById('total-revenue').innerText = "Rp 0";
+                document.getElementById('total-cost').innerText = "Rp 0";
+                document.getElementById('total-profit').innerText = "Rp 0";
                 document.getElementById('total-items-sold').innerText = "0 Transaksi";
                 return;
             }
 
             tbody.innerHTML = '';
             let totalOmzet = 0;
+            let totalModal = 0;
 
             filteredHistory.forEach((item, index) => {
-                // Cari index asli di salesHistory utama agar tombol aksi tepat sasaran
                 let originalIndex = salesHistory.indexOf(item);
                 totalOmzet += item.total;
+                let itemCost = item.totalCost !== undefined ? item.totalCost : Math.round(item.total * 0.5); // Fallback estimasi 50% jika data lama
+                totalModal += itemCost;
+
                 let badgeClass = item.status === '🟢 Selesai' ? 'bg-green-900 text-green-300' : (item.status === '🟡 Sedang Dimasak' ? 'bg-amber-900 text-amber-300' : 'bg-red-900 text-red-300');
 
                 tbody.innerHTML += `
@@ -1189,7 +1253,11 @@
                 `;
             });
 
+            let totalProfit = totalOmzet - totalModal;
+
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalOmzet)}`;
+            document.getElementById('total-cost').innerText = `Rp ${formatRupiah(totalModal)}`;
+            document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalProfit)}`;
             document.getElementById('total-items-sold').innerText = `${filteredHistory.length} Transaksi`;
         }
 
