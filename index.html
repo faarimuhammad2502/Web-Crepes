@@ -268,8 +268,8 @@
                         <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Enterprise Dashboard & Multi-Outlet POS</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="openCashDrawerModal()" class="bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">💵 Tutup Kas (Rekonsiliasi)</button>
-                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Printer</button>
+                        <button onclick="openCashDrawerModal()" class="bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">💵 Tutup Kas</button>
+                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Printer Bluetooth</button>
                         <button onclick="toggleKDSModal()" class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🍳 KDS</button>
                         <button onclick="toggleQRModal()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">📱 QR Meja</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Kunci</button>
@@ -304,7 +304,6 @@
                     <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
 
-                <!-- Kelola Topping & Harga Dinamis (Fitur Baru) -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">✨ Kelola Varian Topping & Harga Tambahan</h4>
                     <div class="flex gap-2 mb-3">
@@ -316,14 +315,15 @@
                     <div id="admin-topping-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"></div>
                 </div>
 
+                <!-- Kelola Kupon Diskon Aktif (Bisa Ditambah & Dihapus) -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon Aktif</h4>
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon & Voucher Aktif</h4>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" id="new-promo-code" placeholder="KODE (Mis: HEMAT5RB)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white uppercase flex-1">
-                        <input type="number" id="new-promo-amount" placeholder="Potongan (Rp)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white flex-1">
-                        <button onclick="addNewPromoCode()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Tambah</button>
+                        <input type="text" id="new-promo-code" placeholder="KODE (Mis: PROMObaru)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white uppercase flex-1">
+                        <input type="number" id="new-promo-amount" placeholder="Potongan (Rp)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white w-36">
+                        <button onclick="addNewPromoCode()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Tambah Kupon</button>
                     </div>
-                    <div id="admin-promo-list" class="flex flex-wrap gap-2 text-xs"></div>
+                    <div id="admin-promo-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
@@ -526,18 +526,34 @@
         }
 
         async function printThermalReceiptBluetooth(saleItem) {
-            if (!bluetoothCharacteristic) {
-                showNotification("Printer belum terhubung! Klik 'Printer' di atas.", "error");
-                return;
+            if (bluetoothCharacteristic) {
+                try {
+                    let encoder = new TextEncoder();
+                    let textToPrint = `\n  [BRAND CREPES]\n  Outlet: ${saleItem.outlet}\n  -------------------\n  Waktu: ${saleItem.time}\n  Kasir: ${saleItem.cashier}\n  Pemesan: ${saleItem.customer}\n  -------------------\n  ${saleItem.details}\n  -------------------\n  TOTAL: Rp ${Number(saleItem.total).toLocaleString('id-ID')}\n  Status: LUNAS\n  Terima Kasih!\n\n\n`;
+                    await bluetoothCharacteristic.writeValue(encoder.encode(textToPrint));
+                    showNotification("Struk berhasil dicetak via printer Bluetooth!", "success");
+                    return;
+                } catch (err) {
+                    console.warn("Bluetooth print failed, fallback to browser print.");
+                }
             }
-            try {
-                let encoder = new TextEncoder();
-                let textToPrint = `\n  [BRAND CREPES]\n  Outlet: ${saleItem.outlet}\n  -------------------\n  Waktu: ${saleItem.time}\n  Kasir: ${saleItem.cashier}\n  Pemesan: ${saleItem.customer}\n  -------------------\n  ${saleItem.details}\n  -------------------\n  TOTAL: Rp ${Number(saleItem.total).toLocaleString('id-ID')}\n  Status: LUNAS\n  Terima Kasih!\n\n\n`;
-                await bluetoothCharacteristic.writeValue(encoder.encode(textToPrint));
-                showNotification("Struk berhasil dicetak ke printer thermal!", "success");
-            } catch (err) {
-                showNotification("Gagal mengirim data cetak ke printer.", "error");
-            }
+            // Fallback Cetak Struk Browser (Thermal 58mm)
+            const printArea = document.getElementById('receipt-print-area');
+            printArea.innerHTML = `
+                <div style="text-align: center; font-weight: bold; font-size: 13px;">[BRAND CREPES]</div>
+                <div style="text-align: center; font-size: 10px;">${saleItem.outlet}</div>
+                <div>--------------------------------</div>
+                <div>Waktu : ${saleItem.time}</div>
+                <div>Kasir : ${saleItem.cashier}</div>
+                <div>Pemesan: ${saleItem.customer}</div>
+                <div>--------------------------------</div>
+                <div>${saleItem.details}</div>
+                <div>--------------------------------</div>
+                <div style="font-weight: bold;">TOTAL: Rp ${Number(saleItem.total).toLocaleString('id-ID')}</div>
+                <div style="text-align: center; margin-top: 10px;">-- LUNAS --</div>
+                <div style="text-align: center; margin-top: 5px; font-size: 9px;">Terima Kasih Atas Kunjungan Anda!</div>
+            `;
+            window.print();
         }
 
         function checkLoyaltyDatabase(phone) {
@@ -762,7 +778,7 @@
                     <td class="p-3 text-right">Rp ${formatRupiah(item.total)}</td>
                     <td class="p-3 text-center flex gap-1 justify-center">
                         <button onclick="salesHistory[${salesHistory.indexOf(item)}].status='🟢 Selesai'; renderSalesTable(); renderCharts();" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px]">Selesai</button>
-                        <button onclick="printThermalReceiptBluetooth(salesHistory[${salesHistory.indexOf(item)}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️</button>
+                        <button onclick="printThermalReceiptBluetooth(salesHistory[${salesHistory.indexOf(item)}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️ Struk</button>
                     </td>
                 </tr>`;
             });
@@ -832,6 +848,40 @@
             showNotification("Topping dihapus.", "info");
         }
 
+        function renderAdminPromoList() {
+            const container = document.getElementById('admin-promo-list');
+            if(!container) return; container.innerHTML = '';
+            for (let [code, amt] of Object.entries(activeVouchers)) {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-2.5 rounded-xl flex justify-between items-center text-white">
+                        <div>
+                            <p class="font-bold text-xs">🎫 ${code}</p>
+                            <p class="text-[10px] text-emerald-400">Potongan: Rp ${formatRupiah(amt)}</p>
+                        </div>
+                        <button onclick="removePromoCode('${code}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Hapus</button>
+                    </div>`;
+            }
+        }
+
+        function addNewPromoCode() {
+            const code = document.getElementById('new-promo-code').value.trim().toUpperCase();
+            const amt = parseInt(document.getElementById('new-promo-amount').value);
+            if(!code || isNaN(amt)) { showNotification("Masukkan kode dan nominal kupon yang valid!", "error"); return; }
+            activeVouchers[code] = amt;
+            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
+            document.getElementById('new-promo-code').value = '';
+            document.getElementById('new-promo-amount').value = '';
+            renderAdminPromoList();
+            showNotification(`Kupon ${code} berhasil ditambahkan!`, "success");
+        }
+
+        function removePromoCode(code) {
+            delete activeVouchers[code];
+            localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
+            renderAdminPromoList();
+            showNotification(`Kupon ${code} dihapus.`, "info");
+        }
+
         function renderCharts() {
             const ctxRev = document.getElementById('revenueChart');
             const ctxMenu = document.getElementById('menuChart');
@@ -875,22 +925,6 @@
             const comment = document.getElementById('reviewer-comment').value.trim();
             if(!name || !comment) return;
             customerReviews.unshift({ name, rating: 5, comment }); renderReviews(); toggleReviewModal(); showNotification("Ulasan terkirim!", "success");
-        }
-
-        function renderAdminPromoList() {
-            const container = document.getElementById('admin-promo-list');
-            if(!container) return; container.innerHTML = '';
-            for (let [code, amt] of Object.entries(activeVouchers)) {
-                container.innerHTML += `<div class="bg-gray-900 border p-2 rounded-xl text-white"><strong>${code}</strong> (Rp ${formatRupiah(amt)})</div>`;
-            }
-        }
-
-        function addNewPromoCode() {
-            const code = document.getElementById('new-promo-code').value.trim().toUpperCase();
-            const amt = parseInt(document.getElementById('new-promo-amount').value);
-            if(!code || isNaN(amt)) return;
-            activeVouchers[code] = amt; localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
-            renderAdminPromoList(); showNotification("Kupon ditambahkan!", "success");
         }
 
         function renderAdminHPPList() {
