@@ -268,20 +268,19 @@
                         <h3 class="text-lg sm:text-xl font-bold mt-2">📊 Enterprise Dashboard & Multi-Outlet POS</h3>
                     </div>
                     <div class="flex gap-2 flex-wrap">
-                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Printer Bluetooth</button>
-                        <button onclick="toggleKDSModal()" class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🍳 KDS Dapur</button>
+                        <button onclick="openCashDrawerModal()" class="bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">💵 Tutup Kas (Rekonsiliasi)</button>
+                        <button onclick="connectThermalPrinterBluetooth()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🖨️ Printer</button>
+                        <button onclick="toggleKDSModal()" class="bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">🍳 KDS</button>
                         <button onclick="toggleQRModal()" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">📱 QR Meja</button>
-                        <button onclick="exportToPDF()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">📥 PDF</button>
-                        <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">📊 CSV</button>
                         <button onclick="lockDashboard()" class="bg-gray-700 text-gray-300 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Kunci</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border">
-                        <h4 class="text-xs font-bold text-purple-300 mb-1">👤 Nama Kasir / Staf</h4>
+                        <h4 class="text-xs font-bold text-purple-300 mb-1">👤 Nama Pengelola / Kasir</h4>
                         <div class="flex gap-2 mt-2">
-                            <input type="text" id="cashier-name" placeholder="Nama Kasir" class="px-3 py-1.5 text-xs bg-gray-900 border rounded-xl text-white flex-1">
+                            <input type="text" id="cashier-name" placeholder="Nama Anda" class="px-3 py-1.5 text-xs bg-gray-900 border rounded-xl text-white flex-1">
                             <button onclick="saveCashierName()" class="bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Simpan</button>
                         </div>
                     </div>
@@ -294,7 +293,7 @@
                     </div>
                 </div>
 
-                <!-- Inventaris Stok Bahan Baku Mentah (Bisa Diedit Langsung) -->
+                <!-- Inventaris Stok Bahan Baku Mentah -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku Mentah (Gudang - Bisa Diedit)</h4>
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
@@ -303,6 +302,18 @@
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
                     <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
+                <!-- Kelola Topping & Harga Dinamis (Fitur Baru) -->
+                <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">✨ Kelola Varian Topping & Harga Tambahan</h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="new-topping-name" placeholder="Nama Topping" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white flex-1">
+                        <input type="number" id="new-topping-price" placeholder="Harga Jual (Rp)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white w-28">
+                        <input type="number" id="new-topping-cost" placeholder="Modal HPP (Rp)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white w-28">
+                        <button onclick="addNewTopping()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Tambah</button>
+                    </div>
+                    <div id="admin-topping-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"></div>
                 </div>
 
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
@@ -356,6 +367,24 @@
         </div>
     </section>
 
+    <!-- Modal Rekonsiliasi Kas Harian (Tutup Kasir) -->
+    <div id="cash-drawer-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative border dark:border-gray-800 text-xs">
+            <button onclick="document.getElementById('cash-drawer-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 font-bold text-base cursor-pointer">✕</button>
+            <h3 class="text-base font-bold text-purple-900 dark:text-purple-300 mb-3">💵 Rekonsiliasi Kas Harian</h3>
+            <p class="text-gray-500 mb-3">Hitung uang tunai fisik yang ada di laci kasir saat ini.</p>
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between"><span>Total Tunai Tercatat:</span><span id="drawer-expected-cash" class="font-bold">Rp 0</span></div>
+            </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Uang Tunai Fisik di Laci (Rp):</label>
+                <input type="number" id="drawer-actual-cash" placeholder="Contoh: 150000" class="w-full px-3 py-2 border rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-white">
+            </div>
+            <button onclick="calculateCashVariance()" class="w-full bg-purple-600 text-white py-2.5 rounded-xl font-semibold cursor-pointer">Cek Selisih Laci</button>
+            <div id="drawer-result-box" class="mt-3 p-3 rounded-xl hidden text-center font-bold"></div>
+        </div>
+    </div>
+
     <!-- Modal QR Meja -->
     <div id="qr-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white dark:bg-gray-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative border max-h-[85vh] overflow-y-auto">
@@ -396,7 +425,7 @@
             { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [] }
         ];
 
-        let toppings = [
+        let toppings = JSON.parse(localStorage.getItem('crepes_dynamic_toppings')) || [
             { id: 't1', name: 'Extra Keju Parut', price: 3000, cost: 1500 },
             { id: 't2', name: 'Extra Cokelat Lumer', price: 3000, cost: 1500 },
             { id: 't3', name: 'Extra Kacang Almond', price: 5000, cost: 2500 }
@@ -429,7 +458,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('outlet-selector').value = currentOutlet;
             document.getElementById('admin-outlet-badge').innerText = `Cabang Aktif: ${currentOutlet.replace('Cabang ', '')}`;
-            updateStoreStatusUI(); checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderAdminHPPList(); renderQRTableList(); renderAdminRawInventory();
+            updateStoreStatusUI(); checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderAdminHPPList(); renderQRTableList(); renderAdminRawInventory(); renderAdminToppingList();
             renderSalesTable();
             setTimeout(() => renderCharts(), 100);
         });
@@ -498,7 +527,7 @@
 
         async function printThermalReceiptBluetooth(saleItem) {
             if (!bluetoothCharacteristic) {
-                showNotification("Printer belum terhubung! Klik 'Printer Bluetooth' di atas.", "error");
+                showNotification("Printer belum terhubung! Klik 'Printer' di atas.", "error");
                 return;
             }
             try {
@@ -548,6 +577,32 @@
         function toggleReviewModal() { document.getElementById('review-modal').classList.toggle('hidden'); }
         function toggleQRModal() { document.getElementById('qr-modal').classList.toggle('hidden'); }
         function toggleKDSModal() { document.getElementById('kds-modal').classList.toggle('hidden'); renderKDSCards(); }
+
+        function openCashDrawerModal() {
+            const outletSales = salesHistory.filter(s => s.outlet === currentOutlet && s.payment === 'Tunai');
+            let expectedCash = outletSales.reduce((a, b) => a + b.total, 0);
+            document.getElementById('drawer-expected-cash').innerText = `Rp ${formatRupiah(expectedCash)}`;
+            document.getElementById('drawer-actual-cash').value = '';
+            document.getElementById('drawer-result-box').classList.add('hidden');
+            document.getElementById('cash-drawer-modal').classList.remove('hidden');
+        }
+
+        function calculateCashVariance() {
+            const actual = parseInt(document.getElementById('drawer-actual-cash').value);
+            const outletSales = salesHistory.filter(s => s.outlet === currentOutlet && s.payment === 'Tunai');
+            let expected = outletSales.reduce((a, b) => a + b.total, 0);
+            const box = document.getElementById('drawer-result-box');
+            box.classList.remove('hidden');
+            if (isNaN(actual)) { box.innerText = "Masukkan jumlah uang fisik yang valid!"; box.className = "mt-3 p-3 rounded-xl bg-rose-900 text-rose-200 font-bold"; return; }
+            let diff = actual - expected;
+            if (diff === 0) {
+                box.innerText = "Laci Kasir Pas! Tidak ada selisih."; box.className = "mt-3 p-3 rounded-xl bg-emerald-900 text-emerald-200 font-bold";
+            } else if (diff > 0) {
+                box.innerText = `Kas Lebih (Surplus): +Rp ${formatRupiah(diff)}`; box.className = "mt-3 p-3 rounded-xl bg-blue-900 text-blue-200 font-bold";
+            } else {
+                box.innerText = `Kas Kurang (Selisih): -Rp ${formatRupiah(Math.abs(diff))}`; box.className = "mt-3 p-3 rounded-xl bg-rose-900 text-rose-200 font-bold";
+            }
+        }
 
         function renderQRTableList() {
             const container = document.getElementById('qr-table-list');
@@ -681,7 +736,7 @@
             if (document.getElementById('seller-pin').value === SELLER_PIN) {
                 document.getElementById('seller-login-box').classList.add('hidden');
                 document.getElementById('seller-dashboard').classList.remove('hidden');
-                renderSalesTable(); renderAdminPromoList(); renderAdminHPPList(); renderAdminRawInventory();
+                renderSalesTable(); renderAdminPromoList(); renderAdminHPPList(); renderAdminRawInventory(); renderAdminToppingList();
                 setTimeout(() => renderCharts(), 100);
                 showNotification("Login Admin Berhasil!", "success");
             } else { showNotification("PIN Salah!", "error"); }
@@ -716,7 +771,6 @@
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalRev - totalCostVal)}`;
         }
 
-        // Render Inventaris Stok Bahan Baku (Dibuat Editable)
         function renderAdminRawInventory() {
             const container = document.getElementById('admin-raw-ingredients');
             if(!container) return; container.innerHTML = '';
@@ -740,6 +794,42 @@
                 renderAdminRawInventory();
                 showNotification(`Stok ${materialName} diperbarui!`, "success");
             }
+        }
+
+        function renderAdminToppingList() {
+            const container = document.getElementById('admin-topping-list');
+            if(!container) return; container.innerHTML = '';
+            toppings.forEach((t, idx) => {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-2.5 rounded-xl flex justify-between items-center text-white">
+                        <div>
+                            <p class="font-bold text-xs">${t.name}</p>
+                            <p class="text-[10px] text-gray-400">Jual: Rp ${formatRupiah(t.price)} | HPP: Rp ${formatRupiah(t.cost)}</p>
+                        </div>
+                        <button onclick="removeTopping(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Hapus</button>
+                    </div>`;
+            });
+        }
+
+        function addNewTopping() {
+            const name = document.getElementById('new-topping-name').value.trim();
+            const price = parseInt(document.getElementById('new-topping-price').value);
+            const cost = parseInt(document.getElementById('new-topping-cost').value);
+            if (!name || isNaN(price) || isNaN(cost)) { showNotification("Isi data topping dengan benar!", "error"); return; }
+            toppings.push({ id: `t_${Date.now()}`, name, price, cost });
+            localStorage.setItem('crepes_dynamic_toppings', JSON.stringify(toppings));
+            document.getElementById('new-topping-name').value = '';
+            document.getElementById('new-topping-price').value = '';
+            document.getElementById('new-topping-cost').value = '';
+            renderAdminToppingList();
+            showNotification("Topping baru berhasil ditambahkan!", "success");
+        }
+
+        function removeTopping(index) {
+            toppings.splice(index, 1);
+            localStorage.setItem('crepes_dynamic_toppings', JSON.stringify(toppings));
+            renderAdminToppingList();
+            showNotification("Topping dihapus.", "info");
         }
 
         function renderCharts() {
@@ -816,9 +906,6 @@
             const p = products.find(x => x.id === id);
             if(p && !isNaN(val)) { p.cost = val; localStorage.setItem('crepes_products_hpp', JSON.stringify(products)); showNotification("HPP diperbarui!", "success"); }
         }
-
-        function exportToCSV() { showNotification("File CSV diunduh!", "success"); }
-        function exportToPDF() { showNotification("File PDF diunduh!", "success"); }
     </script>
 </body>
 </html>
