@@ -294,9 +294,9 @@
                     </div>
                 </div>
 
-                <!-- Stok Bahan Baku Mentah Gudang -->
+                <!-- Inventaris Stok Bahan Baku Mentah (Bisa Diedit Langsung) -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
-                    <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku Mentah (Gudang)</h4>
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku Mentah (Gudang - Bisa Diedit)</h4>
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                 </div>
 
@@ -716,12 +716,29 @@
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalRev - totalCostVal)}`;
         }
 
+        // Render Inventaris Stok Bahan Baku (Dibuat Editable)
         function renderAdminRawInventory() {
             const container = document.getElementById('admin-raw-ingredients');
             if(!container) return; container.innerHTML = '';
             for (let [mat, qty] of Object.entries(rawInventory)) {
-                let alertColor = qty < 500 ? 'border-rose-500 text-rose-300' : 'border-gray-700 text-white';
-                container.innerHTML += `<div class="bg-gray-900 border ${alertColor} p-3 rounded-xl"><p class="text-[11px] text-gray-400">${mat}</p><h4 class="text-sm font-bold mt-1">${qty}</h4>${qty < 500 ? '<span class="text-[9px] text-rose-400 font-bold">Stok Menipis!</span>':''}</div>`;
+                let alertHtml = qty < 500 ? '<span class="text-[9px] text-rose-400 font-bold block mt-1">Stok Menipis!</span>' : '';
+                let borderColor = qty < 500 ? 'border-rose-500' : 'border-gray-700';
+                container.innerHTML += `
+                    <div class="bg-gray-900 border ${borderColor} p-3 rounded-xl flex flex-col justify-between">
+                        <label class="text-[11px] text-gray-400 mb-1">${mat}</label>
+                        <input type="number" value="${qty}" class="w-full bg-gray-950 border border-gray-700 px-2.5 py-1.5 rounded-lg text-white font-bold text-xs" onchange="updateRawInventory('${mat}', this.value)">
+                        ${alertHtml}
+                    </div>`;
+            }
+        }
+
+        function updateRawInventory(materialName, newQty) {
+            let val = parseInt(newQty);
+            if (!isNaN(val)) {
+                rawInventory[materialName] = val;
+                localStorage.setItem('crepes_raw_inventory', JSON.stringify(rawInventory));
+                renderAdminRawInventory();
+                showNotification(`Stok ${materialName} diperbarui!`, "success");
             }
         }
 
