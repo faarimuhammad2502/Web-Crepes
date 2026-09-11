@@ -294,7 +294,7 @@
                     </div>
                 </div>
 
-                <!-- Stok Bahan Baku Mentah Gudang (Fitur Baru) -->
+                <!-- Stok Bahan Baku Mentah Gudang -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">📦 Inventaris Stok Bahan Baku Mentah (Gudang)</h4>
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
@@ -377,7 +377,6 @@
     <script>
         let currentOutlet = localStorage.getItem('crepes_current_outlet') || "Cabang Serpong";
 
-        // Inventaris Stok Bahan Baku Mentah Gudang (Fitur Baru)
         let rawInventory = JSON.parse(localStorage.getItem('crepes_raw_inventory')) || {
             "Tepung (gram)": 5000,
             "Cokelat (gram)": 2000,
@@ -412,7 +411,12 @@
         const SELLER_PIN = "1234";
         let cart = [], grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0;
         let currentFilter = 'all', currentIngredientFilter = 'all';
-        let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [];
+        
+        let salesHistory = JSON.parse(localStorage.getItem('crepes_sales_backup')) || [
+            { time: "11/04/2026, 14:30", rawDate: "2026-04-11", outlet: "Cabang Serpong", cashier: "Kasir Utama", customer: "Budi (08123)", details: "1x Crepes Cokelat Keju", payment: "Tunai", total: 15000, totalCost: 8000, status: "🟢 Selesai" },
+            { time: "11/04/2026, 15:00", rawDate: "2026-04-11", outlet: "Cabang Serpong", cashier: "Kasir Utama", customer: "Siti (08567)", details: "1x Crepes Sosis Mayo", payment: "QRIS", total: 20000, totalCost: 11000, status: "🟢 Selesai" }
+        ];
+        
         let globalCustomerDatabase = JSON.parse(localStorage.getItem('crepes_customer_db')) || {};
         let loyaltyData = { stamps: 0, phone: '' };
         let currentCashier = localStorage.getItem('crepes_current_cashier') || "Kasir Utama";
@@ -420,12 +424,14 @@
         let revChartInstance = null, menuChartInstance = null;
         let isStoreOpen = localStorage.getItem('crepes_manual_store_status') !== null ? JSON.parse(localStorage.getItem('crepes_manual_store_status')) : true;
 
-        // Bluetooth Printer Variables (Fitur Baru)
         let bluetoothDevice = null, bluetoothCharacteristic = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('outlet-selector').value = currentOutlet;
+            document.getElementById('admin-outlet-badge').innerText = `Cabang Aktif: ${currentOutlet.replace('Cabang ', '')}`;
             updateStoreStatusUI(); checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderAdminHPPList(); renderQRTableList(); renderAdminRawInventory();
+            renderSalesTable();
+            setTimeout(() => renderCharts(), 100);
         });
 
         function switchOutlet(outletName) {
@@ -433,6 +439,7 @@
             localStorage.setItem('crepes_current_outlet', outletName);
             document.getElementById('admin-outlet-badge').innerText = `Cabang Aktif: ${outletName.replace('Cabang ', '')}`;
             renderSalesTable();
+            renderCharts();
             showNotification(`Beralih ke ${outletName}`, "info");
         }
 
@@ -464,7 +471,6 @@
             return false;
         }
 
-        // Fitur Text-to-Speech Suara Dapur
         function speakOrderNotification(customerName) {
             if ('speechSynthesis' in window) {
                 let text = `Perhatian, ada pesanan baru masuk atas nama ${customerName}. Mohon segera disiapkan di dapur!`;
@@ -474,7 +480,6 @@
             }
         }
 
-        // Fitur Bluetooth Thermal Printer
         async function connectThermalPrinterBluetooth() {
             try {
                 showNotification("Mencari printer thermal bluetooth...", "info");
@@ -645,7 +650,6 @@
             const phone = document.getElementById('customer-phone').value.trim();
             if (!name || !phone) { showNotification("Masukkan Nama & WhatsApp!", "error"); return; }
 
-            // Potong Stok Bahan Baku Mentah Otomatis (Fitur Baru)
             rawInventory["Tepung (gram)"] -= (50 * cart.length);
             rawInventory["Cokelat (gram)"] -= (30 * cart.length);
             rawInventory["Keju (gram)"] -= (30 * cart.length);
@@ -666,10 +670,9 @@
             });
             localStorage.setItem('crepes_sales_backup', JSON.stringify(salesHistory));
 
-            // Bunyikan Suara Dapur Otomatis
             speakOrderNotification(name);
 
-            toggleCartModal(); cart = []; updateCartUI(); updateLiveQueueWidget(); renderAdminRawInventory();
+            toggleCartModal(); cart = []; updateCartUI(); updateLiveQueueWidget(); renderAdminRawInventory(); renderSalesTable(); renderCharts();
             showNotification("Pesanan terkirim & stok gudang terpotong!", "success");
             window.open(`https://wa.me/6281234567890?text=${encodeURIComponent(`Halo, saya pesan Crepes di ${currentOutlet} atas nama ${name}. Total: Rp ${formatRupiah(grandTotal)}`)}`, '_blank');
         }
@@ -688,6 +691,7 @@
 
         function renderSalesTable() {
             const tbody = document.getElementById('sales-table-body');
+            if(!tbody) return;
             tbody.innerHTML = ''; let totalRev = 0, totalCostVal = 0;
             const outletSales = salesHistory.filter(s => s.outlet === currentOutlet);
             
@@ -702,8 +706,8 @@
                     <td class="p-3">${item.payment}</td>
                     <td class="p-3 text-right">Rp ${formatRupiah(item.total)}</td>
                     <td class="p-3 text-center flex gap-1 justify-center">
-                        <button onclick="salesHistory[idx].status='🟢 Selesai'; renderSalesTable(); renderCharts();" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px]">Selesai</button>
-                        <button onclick="printThermalReceiptBluetooth(salesHistory[${idx}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️</button>
+                        <button onclick="salesHistory[${salesHistory.indexOf(item)}].status='🟢 Selesai'; renderSalesTable(); renderCharts();" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px]">Selesai</button>
+                        <button onclick="printThermalReceiptBluetooth(salesHistory[${salesHistory.indexOf(item)}])" class="bg-indigo-600 text-white px-2 py-1 rounded text-[10px]">🖨️</button>
                     </td>
                 </tr>`;
             });
@@ -712,7 +716,6 @@
             document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalRev - totalCostVal)}`;
         }
 
-        // Render Inventaris Stok Bahan Mentah & Low Stock Alert
         function renderAdminRawInventory() {
             const container = document.getElementById('admin-raw-ingredients');
             if(!container) return; container.innerHTML = '';
@@ -723,20 +726,23 @@
         }
 
         function renderCharts() {
-            const ctxRev = document.getElementById('revenueChart').getContext('2d');
-            const ctxMenu = document.getElementById('menuChart').getContext('2d');
-            if (revChartInstance) revChartInstance.destroy(); if (menuChartInstance) menuChartInstance.destroy();
+            const ctxRev = document.getElementById('revenueChart');
+            const ctxMenu = document.getElementById('menuChart');
+            if(!ctxRev || !ctxMenu) return;
+
+            if (revChartInstance) revChartInstance.destroy(); 
+            if (menuChartInstance) menuChartInstance.destroy();
 
             const outletSales = salesHistory.filter(s => s.outlet === currentOutlet).slice(0, 7).reverse();
             const labels = outletSales.map(s => s.time);
             const revenues = outletSales.map(s => s.total);
 
-            revChartInstance = new Chart(ctxRev, {
+            revChartInstance = new Chart(ctxRev.getContext('2d'), {
                 type: 'line',
                 data: { labels: labels.length ? labels : ['Mulai'], datasets: [{ label: 'Omzet', data: revenues.length ? revenues : [0], borderColor: '#a855f7', fill: true }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            menuChartInstance = new Chart(ctxMenu, {
+            menuChartInstance = new Chart(ctxMenu.getContext('2d'), {
                 type: 'doughnut',
                 data: { labels: ['Manis', 'Asin', 'Minuman'], datasets: [{ data: [5, 3, 2], backgroundColor: ['#ec4899', '#f59e0b', '#3b82f6'] }] },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -747,7 +753,7 @@
             const container = document.getElementById('kds-cards-container');
             if(!container) return; container.innerHTML = '';
             salesHistory.filter(s => s.status !== '🟢 Selesai').forEach((item, idx) => {
-                container.innerHTML += `<div class="bg-gray-900 border p-4 rounded-2xl flex flex-col justify-between"><h4 class="font-bold text-white mb-1">${item.customer} <span class="text-xs text-purple-400">(${item.outlet || 'Serpong'})</span></h4><p class="text-xs text-gray-300 mb-3">${item.details}</p><button onclick="salesHistory[${idx}].status='🟢 Selesai'; toggleKDSModal(); renderSalesTable();" class="bg-emerald-600 text-white py-1 rounded text-xs">Selesai</button></div>`;
+                container.innerHTML += `<div class="bg-gray-900 border p-4 rounded-2xl flex flex-col justify-between"><h4 class="font-bold text-white mb-1">${item.customer} <span class="text-xs text-purple-400">(${item.outlet || 'Serpong'})</span></h4><p class="text-xs text-gray-300 mb-3">${item.details}</p><button onclick="salesHistory[${idx}].status='🟢 Selesai'; toggleKDSModal(); renderSalesTable(); renderCharts();" class="bg-emerald-600 text-white py-1 rounded text-xs">Selesai</button></div>`;
             });
         }
 
