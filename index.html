@@ -299,6 +299,12 @@
                     <div id="admin-raw-ingredients" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                 </div>
 
+                <!-- Kelola Status Ketersediaan Menu (Quick Toggle Sold Out) -->
+                <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">⚡ Status Ketersediaan Menu (Tersedia / Habis)</h4>
+                    <div id="admin-menu-status-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">💰 Kelola Modal & Harga Pokok (HPP) Menu</h4>
                     <div id="admin-hpp-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
@@ -315,7 +321,6 @@
                     <div id="admin-topping-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"></div>
                 </div>
 
-                <!-- Kelola Kupon Diskon Aktif (Bisa Ditambah & Dihapus) -->
                 <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
                     <h4 class="text-sm font-bold text-purple-300 mb-2">🎟️ Kelola Kupon Diskon & Voucher Aktif</h4>
                     <div class="flex gap-2 mb-3">
@@ -326,9 +331,21 @@
                     <div id="admin-promo-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"></div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                <!-- Pencatatan Biaya Pengeluaran Harian (Expense Tracker) -->
+                <div class="bg-gray-800 p-4 rounded-2xl border mb-6">
+                    <h4 class="text-sm font-bold text-purple-300 mb-2">📉 Catat Biaya Pengeluaran Operasional Harian</h4>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="new-expense-desc" placeholder="Keterangan (Contoh: Token Listrik / Plastik)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white flex-1">
+                        <input type="number" id="new-expense-amount" placeholder="Nominal (Rp)" class="px-3 py-2 text-xs bg-gray-900 border rounded-xl text-white w-36">
+                        <button onclick="addNewExpense()" class="bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer">Catat Keluar</button>
+                    </div>
+                    <div id="admin-expense-list" class="space-y-2 text-xs max-h-36 overflow-y-auto"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
                     <div class="bg-gray-800 p-4 rounded-2xl border"><p class="text-xs text-gray-400">Total Omzet</p><h4 class="text-lg font-bold text-purple-300 mt-1" id="total-revenue">Rp 0</h4></div>
                     <div class="bg-gray-800 p-4 rounded-2xl border"><p class="text-xs text-gray-400">Total Modal (HPP)</p><h4 class="text-lg font-bold text-rose-400 mt-1" id="total-cost">Rp 0</h4></div>
+                    <div class="bg-gray-800 p-4 rounded-2xl border"><p class="text-xs text-gray-400">Total Pengeluaran</p><h4 class="text-lg font-bold text-amber-400 mt-1" id="total-expense">Rp 0</h4></div>
                     <div class="bg-gray-800 p-4 rounded-2xl border"><p class="text-xs text-gray-400">Keuntungan Bersih</p><h4 class="text-lg font-bold text-emerald-400 mt-1" id="total-profit">Rp 0</h4></div>
                 </div>
 
@@ -415,14 +432,14 @@
         };
 
         let products = JSON.parse(localStorage.getItem('crepes_products_hpp')) || [
-            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"] },
-            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"] },
-            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 20, ingredients: ["Keju"] },
-            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 15, ingredients: ["Sosis", "Keju"] },
-            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 12, ingredients: ["Sosis", "Keju"] },
-            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 35, ingredients: [] },
-            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 25, ingredients: ["Cokelat"] },
-            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [] }
+            { id: 1, category: 'sweet', name: "Crepes Cokelat Keju", price: 15000, cost: 8000, desc: "Cokelat lumer berpadu taburan keju parut gurih.", stock: 20, ingredients: ["Cokelat", "Keju"], available: true },
+            { id: 2, category: 'sweet', name: "Crepes Matcha Almond", price: 18000, cost: 10000, desc: "Saus matcha premium dengan topping kacang almond.", stock: 15, ingredients: ["Matcha"], available: true },
+            { id: 3, category: 'sweet', name: "Crepes Oreo Keju", price: 16000, cost: 9000, desc: "Remahan biskuit oreo manis dengan susu dan keju.", stock: 20, ingredients: ["Keju"], available: true },
+            { id: 4, category: 'savory', name: "Crepes Sosis Mayo", price: 20000, cost: 11000, desc: "Isian sosis, keju lembaran, dan saus mayo spesial.", stock: 15, ingredients: ["Sosis", "Keju"], available: true },
+            { id: 5, category: 'savory', name: "Crepes Smoked Beef & Egg", price: 23000, cost: 13000, desc: "Daging asap lezat dengan telur dan keju lumer.", stock: 12, ingredients: ["Sosis", "Keju"], available: true },
+            { id: 6, category: 'drink', name: "Es Teh Manis Segar", price: 5000, cost: 2000, desc: "Teh melati pilihan dengan es batu segar.", stock: 35, ingredients: [], available: true },
+            { id: 7, category: 'drink', name: "Es Milo Cokelat", price: 8000, cost: 4000, desc: "Minuman cokelat Milo dingin yang nikmat.", stock: 25, ingredients: ["Cokelat"], available: true },
+            { id: 8, category: 'drink', name: "Lemon Tea Dingin", price: 7000, cost: 3000, desc: "Perasan lemon asli dengan teh menyegarkan.", stock: 30, ingredients: [], available: true }
         ];
 
         let toppings = JSON.parse(localStorage.getItem('crepes_dynamic_toppings')) || [
@@ -437,6 +454,7 @@
         ];
 
         let activeVouchers = JSON.parse(localStorage.getItem('crepes_vouchers')) || { "HEMAT5RB": 5000 };
+        let expenses = JSON.parse(localStorage.getItem('crepes_expenses')) || [];
         const SELLER_PIN = "1234";
         let cart = [], grandTotal = 0, subTotal = 0, appliedDiscount = 0, happyHourDiscount = 0;
         let currentFilter = 'all', currentIngredientFilter = 'all';
@@ -458,7 +476,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('outlet-selector').value = currentOutlet;
             document.getElementById('admin-outlet-badge').innerText = `Cabang Aktif: ${currentOutlet.replace('Cabang ', '')}`;
-            updateStoreStatusUI(); checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderAdminHPPList(); renderQRTableList(); renderAdminRawInventory(); renderAdminToppingList();
+            updateStoreStatusUI(); checkHappyHour(); renderProducts(); renderReviews(); updateLiveQueueWidget(); renderAdminPromoList(); renderAdminHPPList(); renderQRTableList(); renderAdminRawInventory(); renderAdminToppingList(); renderAdminMenuStatusList(); renderAdminExpenseList();
             renderSalesTable();
             setTimeout(() => renderCharts(), 100);
         });
@@ -537,7 +555,6 @@
                     console.warn("Bluetooth print failed, fallback to browser print.");
                 }
             }
-            // Fallback Cetak Struk Browser (Thermal 58mm)
             const printArea = document.getElementById('receipt-print-area');
             printArea.innerHTML = `
                 <div style="text-align: center; font-weight: bold; font-size: 13px;">[BRAND CREPES]</div>
@@ -636,7 +653,7 @@
             const grid = document.getElementById('product-grid');
             const keyword = document.getElementById('search-input').value.toLowerCase();
             grid.innerHTML = '';
-            products.filter(p => (currentFilter === 'all' || p.category === currentFilter) && (currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter)) && p.name.toLowerCase().includes(keyword)).forEach(p => {
+            products.filter(p => p.available !== false && (currentFilter === 'all' || p.category === currentFilter) && (currentIngredientFilter === 'all' || p.ingredients.includes(currentIngredientFilter)) && p.name.toLowerCase().includes(keyword)).forEach(p => {
                 grid.innerHTML += `
                     <div class="bg-white dark:bg-gray-900 rounded-3xl p-5 shadow-sm border dark:border-gray-800 flex flex-col justify-between">
                         <div>
@@ -752,7 +769,7 @@
             if (document.getElementById('seller-pin').value === SELLER_PIN) {
                 document.getElementById('seller-login-box').classList.add('hidden');
                 document.getElementById('seller-dashboard').classList.remove('hidden');
-                renderSalesTable(); renderAdminPromoList(); renderAdminHPPList(); renderAdminRawInventory(); renderAdminToppingList();
+                renderSalesTable(); renderAdminPromoList(); renderAdminHPPList(); renderAdminRawInventory(); renderAdminToppingList(); renderAdminMenuStatusList(); renderAdminExpenseList();
                 setTimeout(() => renderCharts(), 100);
                 showNotification("Login Admin Berhasil!", "success");
             } else { showNotification("PIN Salah!", "error"); }
@@ -782,9 +799,14 @@
                     </td>
                 </tr>`;
             });
+
+            let totalExp = expenses.reduce((a, b) => a + b.amount, 0);
+            let netProfit = totalRev - totalCostVal - totalExp;
+
             document.getElementById('total-revenue').innerText = `Rp ${formatRupiah(totalRev)}`;
             document.getElementById('total-cost').innerText = `Rp ${formatRupiah(totalCostVal)}`;
-            document.getElementById('total-profit').innerText = `Rp ${formatRupiah(totalRev - totalCostVal)}`;
+            document.getElementById('total-expense').innerText = `Rp ${formatRupiah(totalExp)}`;
+            document.getElementById('total-profit').innerText = `Rp ${formatRupiah(netProfit)}`;
         }
 
         function renderAdminRawInventory() {
@@ -809,6 +831,32 @@
                 localStorage.setItem('crepes_raw_inventory', JSON.stringify(rawInventory));
                 renderAdminRawInventory();
                 showNotification(`Stok ${materialName} diperbarui!`, "success");
+            }
+        }
+
+        function renderAdminMenuStatusList() {
+            const container = document.getElementById('admin-menu-status-list');
+            if(!container) return; container.innerHTML = '';
+            products.forEach(p => {
+                let isAvail = p.available !== false;
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-3 rounded-xl flex justify-between items-center text-white">
+                        <span class="text-xs font-bold">${p.name}</span>
+                        <button onclick="toggleMenuAvailability(${p.id})" class="px-3 py-1 rounded-lg text-[10px] font-bold ${isAvail ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}">
+                            ${isAvail ? '🟢 Tersedia' : '🔴 Habis (Sold Out)'}
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function toggleMenuAvailability(id) {
+            const p = products.find(x => x.id === id);
+            if (p) {
+                p.available = p.available === false ? true : false;
+                localStorage.setItem('crepes_products_hpp', JSON.stringify(products));
+                renderAdminMenuStatusList();
+                renderProducts();
+                showNotification(`Status ${p.name} diubah.`, "info");
             }
         }
 
@@ -880,6 +928,49 @@
             localStorage.setItem('crepes_vouchers', JSON.stringify(activeVouchers));
             renderAdminPromoList();
             showNotification(`Kupon ${code} dihapus.`, "info");
+        }
+
+        function renderAdminExpenseList() {
+            const container = document.getElementById('admin-expense-list');
+            if(!container) return; container.innerHTML = '';
+            if (expenses.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 italic text-center py-2">Belum ada pengeluaran tercatat</p>`;
+                return;
+            }
+            expenses.forEach((ex, idx) => {
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-gray-700 p-2.5 rounded-xl flex justify-between items-center text-white">
+                        <div>
+                            <p class="font-bold text-xs">${ex.desc}</p>
+                            <p class="text-[10px] text-gray-400">${ex.time}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-rose-400 font-bold">- Rp ${formatRupiah(ex.amount)}</span>
+                            <button onclick="removeExpense(${idx})" class="bg-rose-600 text-white px-2 py-0.5 rounded text-[10px]">✕</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function addNewExpense() {
+            const desc = document.getElementById('new-expense-desc').value.trim();
+            const amount = parseInt(document.getElementById('new-expense-amount').value);
+            if (!desc || isNaN(amount)) { showNotification("Isi keterangan dan nominal pengeluaran!", "error"); return; }
+            expenses.unshift({ time: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }), desc, amount });
+            localStorage.setItem('crepes_expenses', JSON.stringify(expenses));
+            document.getElementById('new-expense-desc').value = '';
+            document.getElementById('new-expense-amount').value = '';
+            renderAdminExpenseList();
+            renderSalesTable();
+            showNotification("Pengeluaran berhasil dicatat!", "success");
+        }
+
+        function removeExpense(idx) {
+            expenses.splice(idx, 1);
+            localStorage.setItem('crepes_expenses', JSON.stringify(expenses));
+            renderAdminExpenseList();
+            renderSalesTable();
+            showNotification("Catatan pengeluaran dihapus.", "info");
         }
 
         function renderCharts() {
